@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <title>Лекція 4. State, Effects та архітектура компонентів</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="node_modules/@shower/ribbon/styles/index.css">
+    <link rel="stylesheet" href="styles/custom.css">
+</head>
+<body class="shower list">
+
+<header class="caption">
+    <h1>Лекція 4. State, Effects та архітектура компонентів</h1>
+    <p>
+        <a href="index.html">Назад до змісту лекцій</a>
+    </p>
+</header>
+
+<section class="slide">
+    <h2 class="shout">
+        Лекція 4. State, Effects та архітектура компонентів
+    </h2>
+</section>
+
+<section class="slide">
+    <h2>План лекції:</h2>
+    <ol>
+        <li>Як організувати state у React та правильно визначити, де він повинен зберігатися?</li>
+        <li>Як компоненти обмінюються даними та як вирішувати проблеми shared state і props drilling?</li>
+        <li>Що таке side effects у React і як працює useEffect?</li>
+        <li>Як винести повторно використовувану stateful-логіку за допомогою Custom Hooks?</li>
+    </ol>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Організація State</h2>
+</section>
+
+<section class="slide">
+    <h2>Де зберігати state? — три рівні</h2>
+    <img src="pictures/react/2/state-location.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+    <p style="text-align: center; font-size: 17px; margin-top: 10px;">
+        Правило: <b>стан має жити як можна нижче</b> в дереві компонентів.
+        Піднімаймо його вгору лише тоді, коли цього потребують кілька компонентів.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Правила визначення місця для state</h2>
+    <ul style="font-size: 19px;">
+        <li><b>Локальний стан</b> — якщо дані використовуються лише одним компонентом
+            (form input, toggle, modal open/close) &#8594; <code>useState</code> у цьому компоненті.</li>
+        <li><b>Спільний стан (shared)</b> — якщо дані потрібні кільком компонентам &#8594;
+            підняти до <b>найближчого спільного предка</b> (Lifting State Up).</li>
+        <li><b>Глобальний стан</b> — якщо дані потрібні в багатьох місцях дерева
+            (auth, theme, locale) &#8594; <code>useContext</code> або зовнішній стейт-менеджер
+            (Zustand, Redux).</li>
+        <li><b>Серверний стан</b> — дані з API &#8594; TanStack Query, SWR, RTK Query
+            (не зберігай у звичайному state).</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Інструменти управління станом</h2>
+    <img src="pictures/react/2/data-flow-tools.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
+</section>
+
+<section class="slide">
+    <h2>useState — коли використовувати</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 14px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#c678dd">import</span> { useState } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+
+<span style="color:#c678dd">function</span> <span style="color:#61afef">TodoForm</span>() {
+  <span style="color:#c678dd">const</span> [text, setText] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">""</span>);
+  <span style="color:#c678dd">const</span> [isOpen, setIsOpen] = <span style="color:#61afef">useState</span>(<span style="color:#d19a66">false</span>);
+
+  <span style="color:#c678dd">return</span> (
+    <span style="color:#e06c75">&lt;form</span> <span style="color:#d19a66">onSubmit</span>={(e) =&gt; {
+      e.preventDefault();
+      <span style="color:#61afef">addTodo</span>(text);
+      <span style="color:#61afef">setText</span>(<span style="color:#98c379">""</span>);
+    }}<span style="color:#e06c75">&gt;</span>
+      <span style="color:#e06c75">&lt;input</span> <span style="color:#d19a66">value</span>={<span style="color:#e06c75">text</span>}
+        <span style="color:#d19a66">onChange</span>={(e) =&gt; <span style="color:#61afef">setText</span>(e.target.value)} /&gt;
+    <span style="color:#e06c75">&lt;/form&gt;</span>
+  );
+}</pre>
+        </div>
+        <div style="flex: 1; font-size: 17px;">
+            <p><b>&#9989; useState коли:</b></p>
+            <ul>
+                <li>1-2 незалежні значення</li>
+                <li>прості типи (string, number, boolean)</li>
+                <li>нескладна логіка оновлення</li>
+                <li>стан локальний (один компонент)</li>
+            </ul>
+            <p><b>Приклади:</b></p>
+            <ul>
+                <li>toggle (open/closed)</li>
+                <li>text input value</li>
+                <li>counter</li>
+                <li>selected item id</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>useReducer — складний state</h2>
+    <img src="pictures/react/2/use-reducer.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>useReducer — приклад</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// 1. Reducer function (pure)</span>
+<span style="color:#c678dd">type</span> <span style="color:#61afef">State</span> = { count: <span style="color:#c678dd">number</span>; step: <span style="color:#c678dd">number</span> };
+<span style="color:#c678dd">type</span> <span style="color:#61afef">Action</span> =
+  | { type: <span style="color:#98c379">"inc"</span> }
+  | { type: <span style="color:#98c379">"dec"</span> }
+  | { type: <span style="color:#98c379">"setStep"</span>; step: <span style="color:#c678dd">number</span> }
+  | { type: <span style="color:#98c379">"reset"</span> };
+
+<span style="color:#c678dd">function</span> <span style="color:#61afef">reducer</span>(state: <span style="color:#61afef">State</span>, action: <span style="color:#61afef">Action</span>) {
+  <span style="color:#c678dd">switch</span> (action.type) {
+    <span style="color:#c678dd">case</span> <span style="color:#98c379">"inc"</span>: <span style="color:#c678dd">return</span> { ...state, count: state.count + state.step };
+    <span style="color:#c678dd">case</span> <span style="color:#98c379">"dec"</span>: <span style="color:#c678dd">return</span> { ...state, count: state.count - state.step };
+    <span style="color:#c678dd">case</span> <span style="color:#98c379">"setStep"</span>: <span style="color:#c678dd">return</span> { ...state, step: action.step };
+    <span style="color:#c678dd">case</span> <span style="color:#98c379">"reset"</span>: <span style="color:#c678dd">return</span> { count: <span style="color:#98c379">0</span>, step: <span style="color:#98c379">1</span> };
+  }
+}</pre>
+        </div>
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// 2. Використання в компоненті</span>
+<span style="color:#c678dd">function</span> <span style="color:#61afef">Counter</span>() {
+  <span style="color:#c678dd">const</span> [state, dispatch] =
+    <span style="color:#61afef">useReducer</span>(reducer,
+      { count: <span style="color:#98c379">0</span>, step: <span style="color:#98c379">1</span> });
+
+  <span style="color:#c678dd">return</span> (
+    <span style="color:#e06c75">&lt;div&gt;</span>
+      <span style="color:#e06c75">&lt;p&gt;</span>{state.count} (step: {state.step})<span style="color:#e06c75">&lt;/p&gt;</span>
+      <span style="color:#e06c75">&lt;button</span>
+        <span style="color:#d19a66">onClick</span>={() =&gt; <span style="color:#61afef">dispatch</span>({ type: <span style="color:#98c379">"inc"</span> })}<span style="color:#e06c75">&gt;</span>+<span style="color:#e06c75">&lt;/button&gt;</span>
+      <span style="color:#e06c75">&lt;button</span>
+        <span style="color:#d19a66">onClick</span>={() =&gt; <span style="color:#61afef">dispatch</span>({ type: <span style="color:#98c379">"dec"</span> })}<span style="color:#e06c75">&gt;</span>-<span style="color:#e06c75">&lt;/button&gt;</span>
+      <span style="color:#e06c75">&lt;button</span>
+        <span style="color:#d19a66">onClick</span>={() =&gt; <span style="color:#61afef">dispatch</span>({ type: <span style="color:#98c379">"reset"</span> })}<span style="color:#e06c75">&gt;</span>Reset<span style="color:#e06c75">&lt;/button&gt;</span>
+    <span style="color:#e06c75">&lt;/div&gt;</span>
+  );
+}</pre>
+        </div>
+    </div>
+    <p style="font-size: 17px; margin-top: 10px;">
+        <b>Переваги:</b> логіка винесена з компонента, редюсер — чиста функція (легко тестувати),
+        actions типізовані.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Ключові принципи state</h2>
+    <ul style="font-size: 19px;">
+        <li><b>State — immutable.</b> Ніколи не змінюй стан напряму:
+            <code>state.x = 5</code> &#10007;.
+            Завжди створюй новий об'єкт: <code>setState(&#123;...state, x: 5&#125;)</code> &#10003;.</li>
+        <li><b>State updates are async + batched.</b> Не покладайся на те, що state
+            оновиться відразу після <code>setState</code>. Для логіки, що залежить від
+            попереднього значення, використовуй функціональну форму:
+            <code>setCount(prev =&gt; prev + 1)</code>.</li>
+        <li><b>Не дублюй state.</b> Якщо дані можна обчислити з props або іншого state —
+            не зберігай їх окремо (derived state).</li>
+        <li><b>Стан живе в найближчому спільному предку.</b> Чим вищий стан — тим більше
+            компонентів перерендеряться.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Derived state — обчислюйте, не зберігайте</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// &#10060; Погано — дубльований state</span>
+<span style="color:#c678dd">function</span> <span style="color:#61afef">ProductList</span>(<span style="color:#e06c75">props</span>) {
+  <span style="color:#c678dd">const</span> [items, setItems] = <span style="color:#61afef">useState</span>([]);
+  <span style="color:#c678dd">const</span> [visibleCount, setVisibleCount] =
+    <span style="color:#61afef">useState</span>(<span style="color:#98c379">0</span>); <span style="color:#7f8488">// &#10007;</span>
+
+  <span style="color:#61afef">useEffect</span>(() =&gt; {
+    <span style="color:#61afef">setVisibleCount</span>(<span style="color:#e06c75">items</span>.filter(<span style="color:#e06c75">i</span> =&gt; <span style="color:#e06c75">i</span>.active).length);
+  }, [<span style="color:#e06c75">items</span>]);
+}</pre>
+        </div>
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// &#9989; Добре — обчислення під час рендеру</span>
+<span style="color:#c678dd">function</span> <span style="color:#61afef">ProductList</span>(<span style="color:#e06c75">props</span>) {
+  <span style="color:#c678dd">const</span> [items, setItems] = <span style="color:#61afef">useState</span>([]);
+
+  <span style="color:#c678dd">const</span> visibleItems = <span style="color:#e06c75">items</span>.filter(
+    <span style="color:#e06c75">i</span> =&gt; <span style="color:#e06c75">i</span>.active
+  );
+  <span style="color:#7f8488">// або useMemo для дорогих обчислень</span>
+  <span style="color:#c678dd">const</span> sorted = <span style="color:#61afef">useMemo</span>(
+    () =&gt; [...items].sort(...), [items]
+  );
+}</pre>
+        </div>
+    </div>
+    <p style="font-size: 17px; margin-top: 10px;">
+        Якщо значення можна отримати з існуючого state/props — <b>обчислюй його</b>
+        під час рендеру. <code>useMemo</code> — лише для дорогих обчислень.
+    </p>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Обмін даними та Props Drilling</h2>
+</section>
+
+<section class="slide">
+    <h2>Lifting State Up — підняття стану</h2>
+    <img src="pictures/react/2/lifting-state.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Lifting State Up — як це працює</h2>
+    <div style="font-size: 19px;">
+        <p>Якщо два дочірніх компоненти потребують одні й ті ж дані &#8594;
+            <b>стан піднімається до їх спільного батька</b>.</p>
+        <p><b>Алгоритм:</b></p>
+        <ol>
+            <li>Визначити, які компоненти використовують спільні дані.</li>
+            <li>Знайти їх <b>найближчого спільного предка</b> в дереві.</li>
+            <li>Перемістити туди <code>useState</code>.</li>
+            <li>Передати дані вниз через <b>props</b>, а callbacks — для оновлення.</li>
+        </ol>
+        <p>Це основний механізм React для спільного стану.
+            Аналог у Vue — <code>provide/inject</code> або спільний reactive-об'єкт.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Props Drilling — проблема</h2>
+    <img src="pictures/react/2/props-drilling.svg" alt="" style="display: block; margin: 0 auto; width: 70%;">
+    <p style="text-align: center; font-size: 17px; margin-top: 10px;">
+        <b>Props drilling</b> — коли дані передаються через кілька рівнів компонентів,
+        які їх не використовують, лише щоб доставити їх глибше.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Props Drilling — чому це погано</h2>
+    <ul style="font-size: 19px;">
+        <li><b>Порушення інкапсуляції</b> — проміжні компоненти знають про дані, які їм не потрібні.</li>
+        <li><b>Складність рефакторингу</b> — зміна форми даних торкається всіх компонентів на шляху.</li>
+        <li><b>Зайві рендери</b> — зміна prop призводить до re-render всіх компонентів на шляху.</li>
+        <li><b>Важко читати</b> — незрозуміло, звідки дані приходить і куди йдуть.</li>
+    </ul>
+    <p style="font-size: 19px; margin-top: 10px;">
+        <b>Рішення:</b> Context API, композиція компонентів, стейт-менеджери
+        (Zustand, Redux), або винесення логіки в Custom Hooks.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Context API — рішення props drilling</h2>
+    <img src="pictures/react/2/context-solution.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Context API — приклад</h2>
+    <div style="font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// 1. Створити Context</span>
+<span style="color:#c678dd">import</span> { createContext, useContext, useState, <span style="color:#c678dd">type</span> ReactNode } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+
+<span style="color:#c678dd">type</span> <span style="color:#61afef">User</span> = { name: <span style="color:#c678dd">string</span>; role: <span style="color:#c678dd">string</span> };
+<span style="color:#c678dd">const</span> UserContext = <span style="color:#61afef">createContext</span>&lt;<span style="color:#61afef">User</span> | <span style="color:#c678dd">null</span>&gt;(<span style="color:#c678dd">null</span>);
+
+<span style="color:#7f8488">// 2. Provider — обгортає дерево і дає значення</span>
+<span style="color:#c678dd">function</span> <span style="color:#61afef">App</span>() {
+  <span style="color:#c678dd">const</span> [user, setUser] = <span style="color:#61afef">useState</span>&lt;<span style="color:#61afef">User</span>&gt;({ name: <span style="color:#98c379">"Anna"</span>, role: <span style="color:#98c379">"admin"</span> });
+  <span style="color:#c678dd">return</span> (
+    <span style="color:#e06c75">&lt;UserContext.Provider</span> <span style="color:#d19a66">value</span>={<span style="color:#e06c75">user</span>}<span style="color:#e06c75">&gt;</span>
+      <span style="color:#e06c75">&lt;Layout /&gt;</span>
+    <span style="color:#e06c75">&lt;/UserContext.Provider&gt;</span>
+  );
+}
+
+<span style="color:#7f8488">// 3. Consumer — читає значення в будь-якому місці всередині Provider</span>
+<span style="color:#c678dd">function</span> <span style="color:#61afef">UserProfile</span>() {
+  <span style="color:#c678dd">const</span> user = <span style="color:#61afef">useContext</span>(UserContext);
+  <span style="color:#c678dd">if</span> (!user) <span style="color:#c678dd">return</span> <span style="color:#e06c75">&lt;p&gt;</span>Not logged in<span style="color:#e06c75">&lt;/p&gt;</span>;
+  <span style="color:#c678dd">return</span> <span style="color:#e06c75">&lt;p&gt;</span>Hello, {user.name} ({user.role})<span style="color:#e06c75">&lt;/p&gt;</span>;
+}</pre>
+    </div>
+    <p style="font-size: 17px; margin-top: 10px;">
+        Аналог у Vue — <code>provide</code> / <code>inject</code>. Context ідеальний для
+        <b>глобальних даних</b>, які рідко змінюються (theme, locale, auth).
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Context — обережно з продуктивністю</h2>
+    <div style="font-size: 19px;">
+        <p><b>Проблема:</b> коли значення Context змінюється — <b>всі</b> компоненти,
+            що викликають <code>useContext</code>, перерендеряться, навіть якщо їм
+            потрібна лише частина значення.</p>
+        <p><b>Рішення:</b></p>
+        <ul>
+            <li>Розділяти контексти (UserContext, ThemeContext окремо);</li>
+            <li>Мемоізувати value: <code>value=&#123;useMemo(...)&#125;</code>;</li>
+            <li>Для часто змінного стану — <b>Zustand</b> (підписка на конкретне поле);</li>
+            <li>Не зберігати в Context дані, що змінюються кожен рендер.</li>
+        </ul>
+        <p>Context — не заміна для всього стану. Використовуй для <b>статичних/рідкісних</b>
+            даних (auth, theme, config).</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Композиція компонентів — альтернатива</h2>
+    <div style="font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// Замість props drilling — передаємо готовий елемент через children/props</span>
+<span style="color:#c678dd">function</span> <span style="color:#61afef">App</span>() {
+  <span style="color:#c678dd">const</span> [user, setUser] = <span style="color:#61afef">useState</span>({ name: <span style="color:#98c379">"Anna"</span> });
+  <span style="color:#c678dd">return</span> (
+    <span style="color:#e06c75">&lt;Layout</span>
+      <span style="color:#d19a66">sidebar</span>={&lt;UserProfile user={user} /&gt;}  <span style="color:#7f8488">// відразу передаємо</span>
+      <span style="color:#d19a66">header</span>={&lt;Header user={user} /&gt;}
+    /&gt;
+  );
+}
+
+<span style="color:#c678dd">function</span> <span style="color:#61afef">Layout</span>(<span style="color:#e06c75">props</span>: { sidebar: ReactNode; header: ReactNode }) {
+  <span style="color:#c678dd">return</span> (
+    <span style="color:#e06c75">&lt;div&gt;</span>
+      {props.header}
+      <span style="color:#e06c75">&lt;main&gt;</span>{props.children}<span style="color:#e06c75">&lt;/main&gt;</span>
+      {props.sidebar}
+    <span style="color:#e06c75">&lt;/div&gt;</span>
+  );
+  <span style="color:#7f8488">// Layout не знає про user взагалі!</span>
+}</pre>
+    </div>
+    <p style="font-size: 17px; margin-top: 10px;">
+        Патерн «<b>composition</b>» — передавати готові елементи, а не сирі дані.
+        Layout залишається агностичним до user. Аналог у Vue — <code>&lt;slot&gt;</code>.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Коли Context недостатньо</h2>
+    <div style="font-size: 19px;">
+        <p><b>Context + useReducer</b> — вбудований інструмент React для спільного стану.
+            Підходить для низькочастотних даних (theme, auth, locale).</p>
+        <p>Коли Context стає вузьким місцем (часті оновлення, складні залежності,
+            серверний стан) — використовують зовнішні стейт-менеджери:</p>
+        <ul>
+            <li><b>Client state:</b> Zustand, Jotai, Redux Toolkit</li>
+            <li><b>Server state:</b> TanStack Query, SWR, RTK Query</li>
+        </ul>
+        <p style="background: var(--brand-color-prinmary); color: #fff; padding: 10px 15px; border-radius: 6px; margin-top: 15px;">
+            &#128218; Детально ці інструменти розглянемо в <b>Лекції 6: State Management та Production React</b>.
+        </p>
+        <p><b>Правило:</b> починай з <code>useState</code> + Lifting State Up.
+            Додавай Context коли props drilling стає проблемою.
+            Стейт-менеджери — лише коли Context вже не справляється.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Side Effects та useEffect</h2>
+</section>
+
+<section class="slide">
+    <h2>Що таке side effects?</h2>
+    <div style="font-size: 19px;">
+        <p><b>Чиста функція</b> — функція, яка для однакових вхідних даних
+            завжди повертає однаковий результат, без побічних ефектів.</p>
+        <p>Компоненти React мають бути <b>чистими функціями</b> від props та state:
+            <code>UI = f(props, state)</code>.</p>
+        <p><b>Side effect (побічний ефект)</b> — будь-що, що виходить за межі
+            чистої функції:</p>
+        <ul>
+            <li>HTTP-запити (fetch, axios);</li>
+            <li>Підписки (WebSocket, EventSource, addEventListener);</li>
+            <li>Таймери (setTimeout, setInterval);</li>
+            <li>Пряма маніпуляція DOM;</li>
+            <li>Запис у localStorage / sessionStorage;</li>
+            <li>Логування, аналітика.</li>
+        </ul>
+        <p>React дає <code>useEffect</code> для ізоляції side effects від фази рендеру.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>useEffect — життєвий цикл</h2>
+    <img src="pictures/react/2/use-effect.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>useEffect — як це працює</h2>
+    <img src="pictures/react/2/effect-deps.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>useEffect — приклади</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// 1. Fetch data on mount</span>
+<span style="color:#61afef">useEffect</span>(() =&gt; {
+  <span style="color:#c678dd">let</span> cancelled = <span style="color:#d19a66">false</span>;
+  <span style="color:#61afef">fetch</span>(<span style="color:#98c379">"/api/user"</span>)
+    .then(<span style="color:#e06c75">r</span> =&gt; <span style="color:#e06c75">r</span>.json())
+    .then(<span style="color:#e06c75">data</span> =&gt; {
+      <span style="color:#c678dd">if</span> (!cancelled) <span style="color:#61afef">setUser</span>(data);
+    });
+  <span style="color:#c678dd">return</span> () =&gt; { cancelled = <span style="color:#d19a66">true</span>; };
+}, []);</pre>
+<pre style="margin:0;"><span style="color:#7f8488">// 2. Subscribe to event</span>
+<span style="color:#61afef">useEffect</span>(() =&gt; {
+  <span style="color:#c678dd">const</span> handler = () =&gt; <span style="color:#61afef">setWidth</span>(window.innerWidth);
+  window.<span style="color:#61afef">addEventListener</span>(<span style="color:#98c379">"resize"</span>, handler);
+  <span style="color:#c678dd">return</span> () =&gt; window.<span style="color:#61afef">removeEventListener</span>(<span style="color:#98c379">"resize"</span>, handler);
+}, []);</pre>
+        </div>
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// 3. React to prop/state change</span>
+<span style="color:#61afef">useEffect</span>(() =&gt; {
+  document.title = <span style="color:#98c379">`User: ${user.name}`</span>;
+}, [user.name]); <span style="color:#7f8488">// тільки при зміні name</span>
+
+<span style="color:#7f8488">// 4. Timer with cleanup</span>
+<span style="color:#61afef">useEffect</span>(() =&gt; {
+  <span style="color:#c678dd">const</span> id = <span style="color:#61afef">setInterval</span>(() =&gt; {
+    <span style="color:#61afef">setTime</span>(<span style="color:#c678dd">new</span> <span style="color:#61afef">Date</span>());
+  }, <span style="color:#98c379">1000</span>);
+  <span style="color:#c678dd">return</span> () =&gt; <span style="color:#61afef">clearInterval</span>(id);
+}, []);</pre>
+<pre style="margin:0;"><span style="color:#7f8488">// 5. Fetch when query changes</span>
+<span style="color:#61afef">useEffect</span>(() =&gt; {
+  <span style="color:#61afef">fetchResults</span>(query).then(<span style="color:#61afef">setResults</span>);
+}, [query]); <span style="color:#7f8488">// dep!</span></pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>useEffect — часті помилки</h2>
+    <img src="pictures/react/2/effect-mistakes.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Коли НЕ потрібен useEffect</h2>
+    <img src="pictures/react/2/no-use-effect.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>useEffect vs useLayoutEffect</h2>
+    <div class="columns two">
+        <div style="font-size: 18px;">
+            <p><b>useEffect</b></p>
+            <ul>
+                <li>Виконується <b>після</b> paint (асинхронно);</li>
+                <li>Не блокує браузер;</li>
+                <li>Більшість side effects;</li>
+                <li>fetch, subscriptions, timers.</li>
+            </ul>
+        </div>
+        <div style="font-size: 18px;">
+            <p><b>useLayoutEffect</b></p>
+            <ul>
+                <li>Виконується <b>після</b> DOM-мутацій, але <b>до</b> paint (синхронно);</li>
+                <li>Блокує браузер;</li>
+                <li>Для вимірювання DOM (getBoundingClientRect);</li>
+                <li>Для попередження мигання (flicker).</li>
+            </ul>
+        </div>
+    </div>
+    <p style="font-size: 17px; margin-top: 15px;">
+        <b>Правило:</b> завжди починай з <code>useEffect</code>. Переходь на
+        <code>useLayoutEffect</code> лише якщо бачиш візуальне мигання
+        (flicker) при оновленні DOM.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Правила Hook-ів</h2>
+    <ul style="font-size: 19px;">
+        <li><b>Викликай Hooks лише на top-level</b> — не всередині циклів, умов, вкладених функцій.</li>
+        <li><b>Викликай Hooks лише з React-функцій</b> — компонентів або інших Custom Hooks.</li>
+        <li><b>Порядок має значення</b> — React покладається на порядок виклику для ототожнення стану.</li>
+        <li><b>eslint-plugin-react-hooks</b> — встановлюй для автоматичної перевірки правил та deps.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Custom Hooks</h2>
+</section>
+
+<section class="slide">
+    <h2>Custom Hooks — перевикористання логіки</h2>
+    <img src="pictures/react/2/custom-hook.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Custom Hook — правила</h2>
+    <div style="font-size: 19px;">
+        <p><b>Custom Hook</b> — це JavaScript-функція, ім'я якої починається з <code>use</code>,
+            і яка може викликати інші Hook-и.</p>
+        <p><b>Конвенції:</b></p>
+        <ul>
+            <li>Ім'я <b>обов'язково</b> починається з <code>use</code> (useFetch, useToggle, useLocalStorage);</li>
+            <li>Повертає значення або масив (як useState, useReducer) або об'єкт;</li>
+            <li>Може приймати аргументи (URL, ключ, початкове значення);</li>
+            <li>Всередині може викликати <code>useState</code>, <code>useEffect</code>, інші hooks;</li>
+            <li>Не компонент — не повертає JSX.</li>
+        </ul>
+        <p>Аналог у Vue — <b>Composables</b> (<code>useMousePosition</code>, <code>useFetch</code>).</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Custom Hook — useToggle</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// hooks/useToggle.ts</span>
+<span style="color:#c678dd">import</span> { useState, useCallback } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+
+<span style="color:#c678dd">export function</span> <span style="color:#61afef">useToggle</span>(initial: <span style="color:#c678dd">boolean</span> = <span style="color:#d19a66">false</span>) {
+  <span style="color:#c678dd">const</span> [value, setValue] = <span style="color:#61afef">useState</span>(initial);
+
+  <span style="color:#c678dd">const</span> toggle = <span style="color:#61afef">useCallback</span>(() =&gt; {
+    <span style="color:#61afef">setValue</span>(<span style="color:#e06c75">prev</span> =&gt; !prev);
+  }, []);
+
+  <span style="color:#c678dd">const</span> setTrue = <span style="color:#61afef">useCallback</span>(() =&gt; <span style="color:#61afef">setValue</span>(<span style="color:#d19a66">true</span>), []);
+  <span style="color:#c678dd">const</span> setFalse = <span style="color:#61afef">useCallback</span>(() =&gt; <span style="color:#61afef">setValue</span>(<span style="color:#d19a66">false</span>), []);
+
+  <span style="color:#c678dd">return</span> { value, toggle, setTrue, setFalse };
+}</pre>
+        </div>
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// Використання</span>
+<span style="color:#c678dd">import</span> { useToggle } <span style="color:#c678dd">from</span> <span style="color:#98c379">"./hooks/useToggle"</span>;
+
+<span style="color:#c678dd">function</span> <span style="color:#61afef">Modal</span>() {
+  <span style="color:#c678dd">const</span> { value: isOpen,
+          toggle,
+          setFalse: close } =
+    <span style="color:#61afef">useToggle</span>(<span style="color:#d19a66">false</span>);
+
+  <span style="color:#c678dd">return</span> (
+    <span style="color:#e06c75">&lt;&gt;</span>
+      <span style="color:#e06c75">&lt;button</span> <span style="color:#d19a66">onClick</span>={<span style="color:#e06c75">toggle</span>}<span style="color:#e06c75">&gt;</span>
+        Open
+      <span style="color:#e06c75">&lt;/button&gt;</span>
+      {isOpen &amp;&amp; <span style="color:#e06c75">&lt;Dialog</span> <span style="color:#d19a66">onClose</span>={<span style="color:#e06c75">close</span>} /&gt;}
+    <span style="color:#e06c75">&lt;/&gt;</span>
+  );
+}</pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Custom Hook — useDebounce</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// hooks/useDebounce.ts</span>
+<span style="color:#c678dd">import</span> { useState, useEffect } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+
+<span style="color:#c678dd">export function</span> <span style="color:#61afef">useDebounce</span>&lt;T&gt;(
+  value: T,
+  delay: <span style="color:#c678dd">number</span>
+): T {
+  <span style="color:#c678dd">const</span> [debounced, setDebounced] =
+    <span style="color:#61afef">useState</span>&lt;T&gt;(value);
+
+  <span style="color:#61afef">useEffect</span>(() =&gt; {
+    <span style="color:#c678dd">const</span> timer = <span style="color:#61afef">setTimeout</span>(() =&gt; {
+      <span style="color:#61afef">setDebounced</span>(value);
+    }, delay);
+
+    <span style="color:#7f8488">// cleanup: скидає таймер</span>
+    <span style="color:#7f8488">// при кожній зміні value</span>
+    <span style="color:#c678dd">return</span> () =&gt; <span style="color:#61afef">clearTimeout</span>(timer);
+  }, [value, delay]);
+
+  <span style="color:#c678dd">return</span> debounced;
+}</pre>
+        </div>
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// Використання: пошук з дебаунсом</span>
+<span style="color:#c678dd">function</span> <span style="color:#61afef">SearchInput</span>() {
+  <span style="color:#c678dd">const</span> [query, setQuery] =
+    <span style="color:#61afef">useState</span>(<span style="color:#98c379">""</span>);
+  <span style="color:#c678dd">const</span> debouncedQuery =
+    <span style="color:#61afef">useDebounce</span>(query, <span style="color:#98c379">300</span>);
+
+  <span style="color:#61afef">useEffect</span>(() =&gt; {
+    <span style="color:#c678dd">if</span> (debouncedQuery) {
+      console.<span style="color:#61afef">log</span>(<span style="color:#98c379">"Search: "</span>, debouncedQuery);
+      <span style="color:#7f8488">// тут буде API-виклик</span>
+      <span style="color:#7f8488">// (детально — Лекція 3)</span>
+    }
+  }, [debouncedQuery]);
+
+  <span style="color:#c678dd">return</span> (
+    <span style="color:#e06c75">&lt;input</span>
+      <span style="color:#d19a66">value</span>={<span style="color:#e06c75">query</span>}
+      <span style="color:#d19a66">onChange</span>={(e) =&gt;
+        <span style="color:#61afef">setQuery</span>(e.target.value)}
+      <span style="color:#d19a66">placeholder</span>=<span style="color:#98c379">"Search..."</span>
+    /&gt;
+  );
+}</pre>
+        </div>
+    </div>
+    <p style="font-size: 17px; margin-top: 10px;">
+        <b>useDebounce</b> — класичний Custom Hook: state + effect + cleanup.
+        Значення оновлюється лише після <code>delay</code> мс тиші.
+        Cleanup скидає таймер при кожній зміні <code>value</code>.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Custom Hook — useLocalStorage</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#c678dd">import</span> { useState, useEffect } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+
+<span style="color:#c678dd">export function</span> <span style="color:#61afef">useLocalStorage</span>&lt;T&gt;(
+  key: <span style="color:#c678dd">string</span>,
+  initial: T
+) {
+  <span style="color:#c678dd">const</span> [value, setValue] = <span style="color:#61afef">useState</span>&lt;T&gt;(() =&gt; {
+    <span style="color:#c678dd">const</span> stored = localStorage.<span style="color:#61afef">getItem</span>(key);
+    <span style="color:#c678dd">return</span> stored ? JSON.<span style="color:#61afef">parse</span>(stored) : initial;
+  });
+
+  <span style="color:#61afef">useEffect</span>(() =&gt; {
+    localStorage.<span style="color:#61afef">setItem</span>(key, JSON.stringify(value));
+  }, [key, value]);
+
+  <span style="color:#c678dd">return</span> [value, setValue] <span style="color:#c678dd">as const</span>;
+}</pre>
+        </div>
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// Використання</span>
+<span style="color:#c678dd">function</span> <span style="color:#61afef">Settings</span>() {
+  <span style="color:#c678dd">const</span> [theme, setTheme] =
+    <span style="color:#61afef">useLocalStorage</span>(<span style="color:#98c379">"theme"</span>, <span style="color:#98c379">"light"</span>);
+  <span style="color:#c678dd">const</span> [lang, setLang] =
+    <span style="color:#61afef">useLocalStorage</span>(<span style="color:#98c379">"lang"</span>, <span style="color:#98c379">"uk"</span>);
+
+  <span style="color:#c678dd">return</span> (
+    <span style="color:#e06c75">&lt;div&gt;</span>
+      <span style="color:#e06c75">&lt;select</span> <span style="color:#d19a66">value</span>={<span style="color:#e06c75">theme</span>}
+        <span style="color:#d19a66">onChange</span>={(e) =&gt;
+          <span style="color:#61afef">setTheme</span>(e.target.value)}<span style="color:#e06c75">&gt;</span>
+        <span style="color:#e06c75">&lt;option&gt;</span>light<span style="color:#e06c75">&lt;/option&gt;</span>
+        <span style="color:#e06c75">&lt;option&gt;</span>dark<span style="color:#e06c75">&lt;/option&gt;</span>
+      <span style="color:#e06c75">&lt;/select&gt;</span>
+    <span style="color:#e06c75">&lt;/div&gt;</span>
+  );
+}</pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Популярні Custom Hooks (огляд)</h2>
+    <table style="font-size: 17px; width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: var(--brand-color-prinmary); color: #fff;">
+                <th style="padding: 8px; text-align: left;">Hook</th>
+                <th style="padding: 8px; text-align: left;">Призначення</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding: 6px;"><code>useToggle</code></td>
+                <td style="padding: 6px;">Бінарний стан (open/closed, on/off)</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px;"><code>useFetch</code></td>
+                <td style="padding: 6px;">Завантаження даних з API (loading, error, data)</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px;"><code>useLocalStorage</code></td>
+                <td style="padding: 6px;">Стан, синхронізований з localStorage</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px;"><code>useDebounce</code></td>
+                <td style="padding: 6px;">Дебаунс значення (пошук, input)</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px;"><code>useWindowSize</code></td>
+                <td style="padding: 6px;">Розмір вікна (resize listener)</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px;"><code>usePrevious</code></td>
+                <td style="padding: 6px;">Попереднє значення prop/state</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px;"><code>useMediaQuery</code></td>
+                <td style="padding: 6px;">Реакція на CSS media query</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px;"><code>useClickOutside</code></td>
+                <td style="padding: 6px;">Клік поза елементом (modals, dropdowns)</td>
+            </tr>
+        </tbody>
+    </table>
+    <p style="font-size: 17px; margin-top: 10px;">
+        Готові бібліотеки: <a href="https://react-hooks.org/" target="_blank">react-hooks.org</a>,
+        <a href="https://usehooks.com/" target="_blank">usehooks.com</a>,
+        <a href="https://github.com/streamich/react-use" target="_blank">react-use</a>.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Архітектура: структура проєкту</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.6;">
+<pre style="margin:0;">src/
+├── components/       <span style="color:#7f8488"># UI</span>
+│   ├── Button.tsx
+│   ├── Modal.tsx
+│   └── index.ts
+├── features/         <span style="color:#7f8488"># за доменами</span>
+│   ├── auth/
+│   │   ├── LoginForm.tsx
+│   │   ├── useAuth.ts
+│   │   └── authApi.ts
+│   └── products/
+│       ├── ProductList.tsx
+│       └── useProducts.ts
+├── hooks/            <span style="color:#7f8488"># спільні hooks</span>
+│   ├── useFetch.ts
+│   └── useToggle.ts
+├── context/          <span style="color:#7f8488"># Context providers</span>
+│   └── ThemeContext.tsx
+├── utils/
+├── types/
+├── App.tsx
+└── main.tsx</pre>
+        </div>
+        <div style="flex: 1; font-size: 17px;">
+            <p><b>За типовими принципами:</b></p>
+            <ul>
+                <li><b>components/</b> — універсальні UI-компоненти (Button, Input, Modal);</li>
+                <li><b>features/</b> — групування за доменом (auth, products, cart);</li>
+                <li><b>hooks/</b> — спільні Custom Hooks;</li>
+                <li><b>context/</b> — провайдери глобального стану;</li>
+                <li><b>utils/</b> — допоміжні функції;</li>
+                <li><b>types/</b> — спільні TypeScript-типи.</li>
+            </ul>
+            <p>Кожна feature містить свої компоненти, hooks, API-виклики
+                — <b>feature-first структура</b>.</p>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Підсумок</h2>
+    <ul style="font-size: 19px;">
+        <li><b>Стан живе якомога нижче.</b> Піднімай лише коли потрібно ділитися.</li>
+        <li><b>useState</b> — простий стан, <b>useReducer</b> — складний.
+            <b>useContext</b> — глобальний, <b>TanStack Query</b> — серверний.</li>
+        <li><b>Props drilling</b> — антипатерн. Рішення: Context, композиція, стейт-менеджер.</li>
+        <li><b>Derived state</b> — обчислюй під час рендеру, не зберігай в state.</li>
+        <li><b>useEffect</b> — лише для side effects (fetch, subscriptions, timers).
+            Не використовуй для обчислень чи реакції на user events.</li>
+        <li><b>Завжди роби cleanup</b> в useEffect для підписок і таймерів.</li>
+        <li><b>Custom Hooks</b> — винесення повторно використовуваної stateful-логіки
+            (аналог Vue Composables).</li>
+        <li><b>eslint-plugin-react-hooks</b> — обов'язковий інструмент.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Корисні ресурси</h2>
+    <ul style="font-size: 19px;">
+        <li><a href="https://react.dev/learn/state-a-components-memory" target="_blank">React: State — пам'ять компонента</a></li>
+        <li><a href="https://react.dev/learn/sharing-state-between-components" target="_blank">React: Спільний стан (Lifting State Up)</a></li>
+        <li><a href="https://react.dev/learn/extracting-state-logic-into-a-reducer" target="_blank">React: useReducer</a></li>
+        <li><a href="https://react.dev/learn/passing-data-deeply-with-context" target="_blank">React: Context API</a></li>
+        <li><a href="https://react.dev/learn/synchronizing-with-effects" target="_blank">React: useEffect — синхронізація з ефектами</a></li>
+        <li><a href="https://react.dev/learn/you-might-not-need-an-effect" target="_blank">React: Можливо, вам не потрібен useEffect</a></li>
+        <li><a href="https://react.dev/learn/reusing-logic-with-custom-hooks" target="_blank">React: Custom Hooks</a></li>
+        <li><a href="https://tanstack.com/query/latest" target="_blank">TanStack Query</a></li>
+        <li><a href="https://docs.pmnd.rs/zustand" target="_blank">Zustand</a></li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Дякую за увагу!</h2>
+</section>
+
+<footer class="badge">
+    <a href="https://github.com/Computer-Science-Department-ChNU/client-web-systems" target="_blank">Fork me on
+        GitHub</a>
+</footer>
+
+<div class="progress"></div>
+
+<script src="node_modules/@shower/core/dist/index.js"></script>
+</body>
+</html>

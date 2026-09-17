@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" width="720" height="340">
+  <rect width="720" height="340" fill="#1e1e2e"/>
+
+  <text x="360" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">Коли НЕ потрібен useEffect</text>
+
+  <rect x="20" y="55" width="340" height="120" rx="8" fill="#1a1a2e" stroke="#ff6b6b"/>
+  <text x="40" y="80" fill="#ff6b6b" font-family="monospace" font-size="13" font-weight="bold">&#10060; Обчислення з props/state</text>
+  <text x="40" y="105" fill="#ccc" font-family="monospace" font-size="12">useEffect(() =&gt; {</text>
+  <text x="55" y="123" fill="#ccc" font-family="monospace" font-size="12">setFiltered(items.filter(i =&gt; i.active));</text>
+  <text x="40" y="141" fill="#ccc" font-family="monospace" font-size="12">}, [items]);</text>
+  <text x="40" y="165" fill="#51cf66" font-family="monospace" font-size="12">&#9989; const filtered = useMemo(() =&gt; ..., [items]);</text>
+
+  <rect x="380" y="55" width="320" height="120" rx="8" fill="#1a1a2e" stroke="#ff6b6b"/>
+  <text x="400" y="80" fill="#ff6b6b" font-family="monospace" font-size="13" font-weight="bold">&#10060; Реакція на user event</text>
+  <text x="400" y="105" fill="#ccc" font-family="monospace" font-size="12">useEffect(() =&gt; {</text>
+  <text x="415" y="123" fill="#ccc" font-family="monospace" font-size="12">if (submitted) submitForm(data);</text>
+  <text x="400" y="141" fill="#ccc" font-family="monospace" font-size="12">}, [submitted]);</text>
+  <text x="400" y="165" fill="#51cf66" font-family="monospace" font-size="12">&#9989; const handleSubmit = () =&gt; submitForm(data);</text>
+
+  <rect x="20" y="195" width="340" height="120" rx="8" fill="#1a1a2e" stroke="#ff6b6b"/>
+  <text x="40" y="220" fill="#ff6b6b" font-family="monospace" font-size="13" font-weight="bold">&#10060; Синхронізація props &#8594; state</text>
+  <text x="40" y="245" fill="#ccc" font-family="monospace" font-size="12">useEffect(() =&gt; {</text>
+  <text x="55" y="263" fill="#ccc" font-family="monospace" font-size="12">setValue(props.initialValue);</text>
+  <text x="40" y="281" fill="#ccc" font-family="monospace" font-size="12">}, [props.initialValue]);</text>
+  <text x="40" y="305" fill="#51cf66" font-family="monospace" font-size="12">&#9989; Render with key=&#123;initialValue&#125; or use state during render</text>
+
+  <rect x="380" y="195" width="320" height="120" rx="8" fill="#1a1a2e" stroke="#51cf66"/>
+  <text x="400" y="220" fill="#51cf66" font-family="monospace" font-size="13" font-weight="bold">&#9989; useEffect потрібен для:</text>
+  <text x="400" y="245" fill="#ccc" font-family="monospace" font-size="12">- fetch data from server</text>
+  <text x="400" y="265" fill="#ccc" font-family="monospace" font-size="12">- subscriptions (WebSocket, events)</text>
+  <text x="400" y="285" fill="#ccc" font-family="monospace" font-size="12">- manually changing DOM (ref)</text>
+  <text x="400" y="305" fill="#ccc" font-family="monospace" font-size="12">- timers, analytics, logging</text>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380">
+  <rect width="720" height="380" fill="#1e1e2e"/>
+
+  <text x="360" y="35" text-anchor="middle" fill="#d19a66" font-family="monospace" font-size="18" font-weight="bold">Custom Hook — перевикористання логіки</text>
+
+  <!-- Before: duplicated logic -->
+  <rect x="20" y="55" width="340" height="150" rx="8" fill="#1a1a2e" stroke="#ff6b6b"/>
+  <text x="40" y="80" fill="#ff6b6b" font-family="monospace" font-size="13" font-weight="bold">БЕЗ Custom Hook (дублікація)</text>
+  <text x="40" y="105" fill="#ccc" font-family="monospace" font-size="12">function SearchA() {</text>
+  <text x="55" y="123" fill="#ccc" font-family="monospace" font-size="12">const [q, setQ] = useState("");</text>
+  <text x="55" y="141" fill="#ccc" font-family="monospace" font-size="12">useEffect(() =&gt; { setTimeout... });</text>
+  <text x="55" y="159" fill="#ccc" font-family="monospace" font-size="12">// debounce logic duplicated...</text>
+  <text x="40" y="177" fill="#ccc" font-family="monospace" font-size="12">}</text>
+  <text x="40" y="195" fill="#888" font-family="monospace" font-size="11">// та ж логіка в SearchB, SearchC...</text>
+
+  <!-- Arrow -->
+  <text x="370" y="135" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="30">&#8651;</text>
+
+  <!-- After: custom hook -->
+  <rect x="390" y="55" width="310" height="150" rx="8" fill="#1a1a2e" stroke="#51cf66"/>
+  <text x="410" y="80" fill="#51cf66" font-family="monospace" font-size="13" font-weight="bold">З Custom Hook (1 місце)</text>
+  <text x="410" y="105" fill="#ccc" font-family="monospace" font-size="12">function useDebounce(value, delay) {</text>
+  <text x="425" y="123" fill="#ccc" font-family="monospace" font-size="12">const [d, setD] = useState(value);</text>
+  <text x="425" y="141" fill="#ccc" font-family="monospace" font-size="12">useEffect(() =&gt; { ... }, [value]);</text>
+  <text x="425" y="159" fill="#ccc" font-family="monospace" font-size="12">return d;</text>
+  <text x="410" y="177" fill="#ccc" font-family="monospace" font-size="12">}</text>
+  <text x="410" y="195" fill="#888" font-family="monospace" font-size="11">// використовується скрізь</text>
+
+  <!-- Usage -->
+  <rect x="20" y="225" width="680" height="140" rx="8" fill="#1a1a2e" stroke="#444"/>
+  <text x="40" y="250" fill="#61DAFB" font-family="monospace" font-size="13" font-weight="bold">Використання:</text>
+  <text x="40" y="275" fill="#ccc" font-family="monospace" font-size="13">function SearchBar() {</text>
+  <text x="60" y="295" fill="#d19a66" font-family="monospace" font-size="13">const debouncedQuery = useDebounce(query, 300);</text>
+  <text x="60" y="315" fill="#ccc" font-family="monospace" font-size="13">// debounce logic is reusable</text>
+  <text x="60" y="335" fill="#ccc" font-family="monospace" font-size="13">return &lt;input value={query} onChange={...} /&gt;;</text>
+  <text x="40" y="355" fill="#ccc" font-family="monospace" font-size="13">}</text>
+</svg>
