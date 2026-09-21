@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" width="720" height="340">
+  <rect width="720" height="340" fill="#1e1e2e"/>
+
+  <text x="360" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">Token Refresh — автоматичне оновлення</text>
+
+  <!-- Timeline -->
+  <line x1="60" y1="180" x2="660" y2="180" stroke="#444" stroke-width="3"/>
+
+  <!-- T0: login -->
+  <circle cx="100" cy="180" r="10" fill="#51cf66"/>
+  <text x="100" y="155" text-anchor="middle" fill="#51cf66" font-family="monospace" font-size="12" font-weight="bold">t=0</text>
+  <text x="100" y="210" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="11">login</text>
+  <text x="100" y="228" text-anchor="middle" fill="#888" font-family="monospace" font-size="10">access + refresh</text>
+
+  <!-- T1: access expires -->
+  <circle cx="300" cy="180" r="10" fill="#d19a66"/>
+  <text x="300" y="155" text-anchor="middle" fill="#d19a66" font-family="monospace" font-size="12" font-weight="bold">t=15min</text>
+  <text x="300" y="210" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="11">access expires</text>
+  <text x="300" y="228" text-anchor="middle" fill="#888" font-family="monospace" font-size="10">API returns 401</text>
+
+  <!-- T1.5: refresh -->
+  <circle cx="380" cy="180" r="10" fill="#4a9eff"/>
+  <text x="380" y="155" text-anchor="middle" fill="#4a9eff" font-family="monospace" font-size="12" font-weight="bold">auto</text>
+  <text x="380" y="210" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="11">refresh token</text>
+  <text x="380" y="228" text-anchor="middle" fill="#888" font-family="monospace" font-size="10">POST /api/refresh</text>
+
+  <!-- T2: new access -->
+  <circle cx="460" cy="180" r="10" fill="#51cf66"/>
+  <text x="460" y="155" text-anchor="middle" fill="#51cf66" font-family="monospace" font-size="12" font-weight="bold">new token</text>
+  <text x="460" y="210" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="11">retry original</text>
+  <text x="460" y="228" text-anchor="middle" fill="#888" font-family="monospace" font-size="10">request succeeds</text>
+
+  <!-- T3: refresh expires -->
+  <circle cx="640" cy="180" r="10" fill="#ff6b6b"/>
+  <text x="640" y="155" text-anchor="middle" fill="#ff6b6b" font-family="monospace" font-size="12" font-weight="bold">t=7days</text>
+  <text x="640" y="210" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="11">refresh expires</text>
+  <text x="640" y="228" text-anchor="middle" fill="#ff6b6b" font-family="monospace" font-size="10">&#8594; logout + /login</text>
+
+  <!-- Arrows -->
+  <line x1="300" y1="180" x2="370" y2="180" stroke="#d19a66" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#t1)"/>
+  <line x1="380" y1="180" x2="450" y2="180" stroke="#4a9eff" stroke-width="2" marker-end="url(#t1)"/>
+
+  <!-- Description -->
+  <rect x="20" y="260" width="680" height="65" rx="8" fill="#2a2a3e" stroke="#444"/>
+  <text x="40" y="285" fill="#ccc" font-family="monospace" font-size="13">Access token (short-lived, 15min) &#8594; intercepted by axios 401 interceptor</text>
+  <text x="40" y="305" fill="#ccc" font-family="monospace" font-size="13">Refresh token (long-lived, 7days) &#8594; used to get new access without re-login</text>
+  <text x="40" y="320" fill="#888" font-family="monospace" font-size="12">If refresh also fails &#8594; logout user, redirect to /login</text>
+
+  <defs>
+    <marker id="t1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#888"/>
+    </marker>
+  </defs>
+</svg>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420">
+  <rect width="720" height="420" fill="#1e1e2e"/>
+
+  <text x="360" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">Controlled vs Uncontrolled</text>
+
+  <!-- Controlled -->
+  <rect x="20" y="55" width="330" height="180" rx="8" fill="#1a1a2e" stroke="#4a9eff"/>
+  <text x="40" y="80" fill="#4a9eff" font-family="monospace" font-size="14" font-weight="bold">Controlled (React керує)</text>
+  <text x="40" y="105" fill="#ccc" font-family="monospace" font-size="12">const [name, setName] = useState("")</text>
+  <text x="40" y="130" fill="#ccc" font-family="monospace" font-size="12">&lt;input</text>
+  <text x="55" y="148" fill="#d19a66" font-family="monospace" font-size="12">value={name}</text>
+  <text x="55" y="166" fill="#d19a66" font-family="monospace" font-size="12">onChange={e =&gt; setName(e.target.value)}</text>
+  <text x="40" y="184" fill="#ccc" font-family="monospace" font-size="12">/&gt;</text>
+  <text x="40" y="215" fill="#888" font-family="monospace" font-size="11">// state &#8594; input &#8594; state (loop)</text>
+
+  <!-- Uncontrolled -->
+  <rect x="370" y="55" width="330" height="180" rx="8" fill="#1a1a2e" stroke="#d19a66"/>
+  <text x="390" y="80" fill="#d19a66" font-family="monospace" font-size="14" font-weight="bold">Uncontrolled (DOM керує)</text>
+  <text x="390" y="105" fill="#ccc" font-family="monospace" font-size="12">const inputRef = useRef()</text>
+  <text x="390" y="130" fill="#ccc" font-family="monospace" font-size="12">&lt;input</text>
+  <text x="405" y="148" fill="#d19a66" font-family="monospace" font-size="12">ref={inputRef}</text>
+  <text x="405" y="166" fill="#d19a66" font-family="monospace" font-size="12">defaultValue="hello"</text>
+  <text x="390" y="184" fill="#ccc" font-family="monospace" font-size="12">/&gt;</text>
+  <text x="390" y="215" fill="#888" font-family="monospace" font-size="11">// read: inputRef.current.value</text>
+
+  <!-- Comparison -->
+  <rect x="20" y="255" width="680" height="150" rx="8" fill="#2a2a3e" stroke="#444"/>
+  <text x="40" y="280" fill="#ccc" font-family="monospace" font-size="14" font-weight="bold">Controlled:</text>
+  <text x="170" y="280" fill="#51cf66" font-family="monospace" font-size="13">+ single source of truth, validation on type, easy reset</text>
+  <text x="170" y="300" fill="#ff6b6b" font-family="monospace" font-size="13">- re-render on every keystroke</text>
+  <text x="40" y="325" fill="#ccc" font-family="monospace" font-size="14" font-weight="bold">Uncontrolled:</text>
+  <text x="180" y="325" fill="#51cf66" font-family="monospace" font-size="13">+ no re-render, simple for one-time read, integrate with non-React</text>
+  <text x="180" y="345" fill="#ff6b6b" font-family="monospace" font-size="13">- harder to validate, no live feedback</text>
+  <text x="40" y="380" fill="#61DAFB" font-family="monospace" font-size="14" font-weight="bold">Rule: use Controlled by default. Uncontrolled only for simple cases (file input, integrate 3rd-party).</text>
+</svg>

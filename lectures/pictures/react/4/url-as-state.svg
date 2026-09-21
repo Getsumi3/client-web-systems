@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" width="720" height="340">
+  <rect width="720" height="340" fill="#1e1e2e"/>
+
+  <text x="360" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">URL як джерело правди (state)</text>
+
+  <rect x="20" y="55" width="330" height="130" rx="8" fill="#1a1a2e" stroke="#ff6b6b"/>
+  <text x="40" y="80" fill="#ff6b6b" font-family="monospace" font-size="13" font-weight="bold">&#10060; State в компоненті</text>
+  <text x="40" y="105" fill="#ccc" font-family="monospace" font-size="12">const [page, setPage] = useState(1);</text>
+  <text x="40" y="123" fill="#ccc" font-family="monospace" font-size="12">const [filter, setFilter] = useState("all");</text>
+  <text x="40" y="141" fill="#ccc" font-family="monospace" font-size="12">const [tab, setTab] = useState("details");</text>
+  <text x="40" y="170" fill="#ff6b6b" font-family="monospace" font-size="11">// втрачається при reload, не ділиться</text>
+
+  <rect x="370" y="55" width="330" height="130" rx="8" fill="#1a1a2e" stroke="#51cf66"/>
+  <text x="390" y="80" fill="#51cf66" font-family="monospace" font-size="13" font-weight="bold">&#9989; State в URL (router)</text>
+  <text x="390" y="105" fill="#ccc" font-family="monospace" font-size="12">/products?page=2&amp;filter=active</text>
+  <text x="390" y="123" fill="#ccc" font-family="monospace" font-size="12">/users/42?tab=details</text>
+  <text x="390" y="170" fill="#51cf66" font-family="monospace" font-size="11">// shareable, bookmarkable, survives reload</text>
+
+  <!-- Benefits -->
+  <rect x="20" y="205" width="680" height="120" rx="8" fill="#2a2a3e" stroke="#444"/>
+  <text x="40" y="230" fill="#61DAFB" font-family="monospace" font-size="14" font-weight="bold">Переваги URL-state:</text>
+  <text x="40" y="255" fill="#ccc" font-family="monospace" font-size="13">+ Bookmarkable — можна зберегти посилання з точним станом</text>
+  <text x="40" y="275" fill="#ccc" font-family="monospace" font-size="13">+ Shareable — відправити колезі, він побачить те ж</text>
+  <text x="40" y="295" fill="#ccc" font-family="monospace" font-size="13">+ Back/Forward кнопки браузера працюють природньо</text>
+  <text x="40" y="315" fill="#ccc" font-family="monospace" font-size="13">+ Survives reload — стан не втрачається</text>
+</svg>

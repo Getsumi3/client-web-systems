@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380">
+  <rect width="720" height="380" fill="#1e1e2e"/>
+
+  <text x="360" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">Zustand — архітектура</text>
+
+  <!-- Store (outside React) -->
+  <rect x="40" y="55" width="640" height="100" rx="10" fill="#2a2a3e" stroke="#ff6b6b" stroke-width="2"/>
+  <text x="60" y="80" fill="#ff6b6b" font-family="monospace" font-size="14" font-weight="bold">Store (outside component tree)</text>
+  <text x="60" y="105" fill="#ccc" font-family="monospace" font-size="13">const useStore = create((set, get) =&gt; ({</text>
+  <text x="80" y="125" fill="#d19a66" font-family="monospace" font-size="13">user: null, cart: [], theme: "light",</text>
+  <text x="80" y="143" fill="#d19a66" font-family="monospace" font-size="13">login: (u) =&gt; set({ user: u }), addToCart: (item) =&gt; set(s =&gt; ({ cart: [...s.cart, item] }))</text>
+  <text x="60" y="148" fill="#ccc" font-family="monospace" font-size="13">}))</text>
+
+  <!-- Components subscribe selectively -->
+  <text x="360" y="180" text-anchor="middle" fill="#888" font-family="monospace" font-size="13">Components subscribe selectively (no Provider!)</text>
+
+  <line x1="150" y1="195" x2="150" y2="220" stroke="#51cf66" stroke-width="2"/>
+  <line x1="360" y1="195" x2="360" y2="220" stroke="#d19a66" stroke-width="2"/>
+  <line x1="570" y1="195" x2="570" y2="220" stroke="#4a9eff" stroke-width="2"/>
+
+  <rect x="40" y="220" width="220" height="60" rx="8" fill="#51cf66"/>
+  <text x="150" y="245" text-anchor="middle" fill="#1e1e2e" font-family="monospace" font-size="12" font-weight="bold">Navbar</text>
+  <text x="150" y="265" text-anchor="middle" fill="#1e1e2e" font-family="monospace" font-size="11">useStore(s =&gt; s.user)</text>
+
+  <rect x="250" y="220" width="220" height="60" rx="8" fill="#d19a66"/>
+  <text x="360" y="245" text-anchor="middle" fill="#1e1e2e" font-family="monospace" font-size="12" font-weight="bold">CartIcon</text>
+  <text x="360" y="265" text-anchor="middle" fill="#1e1e2e" font-family="monospace" font-size="11">useStore(s =&gt; s.cart.length)</text>
+
+  <rect x="460" y="220" width="220" height="60" rx="8" fill="#4a9eff"/>
+  <text x="570" y="245" text-anchor="middle" fill="#fff" font-family="monospace" font-size="12" font-weight="bold">ThemeToggle</text>
+  <text x="570" y="265" text-anchor="middle" fill="#fff" font-family="monospace" font-size="11">useStore(s =&gt; s.theme)</text>
+
+  <!-- Re-render note -->
+  <rect x="40" y="300" width="640" height="60" rx="8" fill="#2a2a3e" stroke="#444"/>
+  <text x="360" y="325" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="13">Only the component that reads the changed field re-renders</text>
+  <text x="360" y="345" text-anchor="middle" fill="#888" font-family="monospace" font-size="12">cart change &#8594; CartIcon re-renders; Navbar &amp; ThemeToggle &#8212; NOT</text>
+</svg>

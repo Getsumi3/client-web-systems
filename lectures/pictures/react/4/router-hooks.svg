@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380">
+  <rect width="720" height="380" fill="#1e1e2e"/>
+
+  <text x="360" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">Router hooks — навігація в коді</text>
+
+  <rect x="20" y="55" width="340" height="150" rx="8" fill="#1a1a2e" stroke="#4a9eff"/>
+  <text x="40" y="80" fill="#4a9eff" font-family="monospace" font-size="13" font-weight="bold">useParams — params з URL</text>
+  <text x="40" y="105" fill="#ccc" font-family="monospace" font-size="12">function UserDetail() {</text>
+  <text x="55" y="123" fill="#d19a66" font-family="monospace" font-size="12">const { id } = useParams();</text>
+  <text x="55" y="141" fill="#ccc" font-family="monospace" font-size="12">// URL: /users/42  &#8594; id="42"</text>
+  <text x="55" y="165" fill="#ccc" font-family="monospace" font-size="12">const { data } = useUser(id);</text>
+  <text x="40" y="190" fill="#ccc" font-family="monospace" font-size="12">}</text>
+
+  <rect x="380" y="55" width="320" height="150" rx="8" fill="#1a1a2e" stroke="#d19a66"/>
+  <text x="400" y="80" fill="#d19a66" font-family="monospace" font-size="13" font-weight="bold">useNavigate — програмна навігація</text>
+  <text x="400" y="105" fill="#ccc" font-family="monospace" font-size="12">function LoginForm() {</text>
+  <text x="415" y="123" fill="#d19a66" font-family="monospace" font-size="12">const navigate = useNavigate();</text>
+  <text x="415" y="141" fill="#ccc" font-family="monospace" font-size="12">const handleSubmit = async () => {</text>
+  <text x="430" y="159" fill="#ccc" font-family="monospace" font-size="12">await login(...);</text>
+  <text x="430" y="177" fill="#d19a66" font-family="monospace" font-size="12">navigate("/dashboard");</text>
+  <text x="415" y="195" fill="#ccc" font-family="monospace" font-size="12">}</text>
+
+  <rect x="20" y="225" width="340" height="140" rx="8" fill="#1a1a2e" stroke="#51cf66"/>
+  <text x="40" y="250" fill="#51cf66" font-family="monospace" font-size="13" font-weight="bold">useSearchParams — query params</text>
+  <text x="40" y="275" fill="#ccc" font-family="monospace" font-size="12">function ProductList() {</text>
+  <text x="55" y="293" fill="#d19a66" font-family="monospace" font-size="12">const [params, setParams]</text>
+  <text x="65" y="311" fill="#d19a66" font-family="monospace" font-size="12">= useSearchParams();</text>
+  <text x="55" y="329" fill="#ccc" font-family="monospace" font-size="12">const page = params.get("page") ?? "1";</text>
+  <text x="55" y="347" fill="#ccc" font-family="monospace" font-size="12">// URL: /products?page=3</text>
+
+  <rect x="380" y="225" width="320" height="140" rx="8" fill="#1a1a2e" stroke="#ff6b6b"/>
+  <text x="400" y="250" fill="#ff6b6b" font-family="monospace" font-size="13" font-weight="bold">&lt;Link&gt; — декларативна навігація</text>
+  <text x="400" y="275" fill="#ccc" font-family="monospace" font-size="12">&lt;Link to="/users"&gt;Users&lt;/Link&gt;</text>
+  <text x="400" y="300" fill="#ccc" font-family="monospace" font-size="12">&lt;Link to={`/users/${id}`}&gt;</text>
+  <text x="415" y="318" fill="#ccc" font-family="monospace" font-size="12">View profile</text>
+  <text x="400" y="338" fill="#ccc" font-family="monospace" font-size="12">&lt;/Link&gt;</text>
+  <text x="400" y="358" fill="#888" font-family="monospace" font-size="11">// renders &lt;a href&gt; without reload</text>
+</svg>

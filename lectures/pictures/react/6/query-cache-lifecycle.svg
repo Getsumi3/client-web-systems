@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380">
+  <rect width="720" height="380" fill="#1e1e2e"/>
+
+  <text x="360" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">TanStack Query — cache lifecycle</text>
+
+  <!-- Timeline -->
+  <line x1="60" y1="200" x2="660" y2="200" stroke="#444" stroke-width="3"/>
+
+  <!-- 1: first useQuery -->
+  <circle cx="120" cy="200" r="10" fill="#4a9eff"/>
+  <text x="120" y="175" text-anchor="middle" fill="#4a9eff" font-family="monospace" font-size="12" font-weight="bold">t=0</text>
+  <text x="120" y="225" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="11">useQuery(["users"])</text>
+  <text x="120" y="243" text-anchor="middle" fill="#888" font-family="monospace" font-size="10">cache miss &#8594; fetch</text>
+  <text x="120" y="258" text-anchor="middle" fill="#888" font-family="monospace" font-size="10">loading=true</text>
+
+  <!-- 2: data arrives -->
+  <circle cx="260" cy="200" r="10" fill="#51cf66"/>
+  <text x="260" y="175" text-anchor="middle" fill="#51cf66" font-family="monospace" font-size="12" font-weight="bold">t=1s</text>
+  <text x="260" y="225" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="11">data cached</text>
+  <text x="260" y="243" text-anchor="middle" fill="#888" font-family="monospace" font-size="10">staleTime=60s starts</text>
+
+  <!-- 3: second component -->
+  <circle cx="400" cy="200" r="10" fill="#d19a66"/>
+  <text x="400" y="175" text-anchor="middle" fill="#d19a66" font-family="monospace" font-size="12" font-weight="bold">t=10s</text>
+  <text x="400" y="225" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="11">another useQuery(["users"])</text>
+  <text x="400" y="243" text-anchor="middle" fill="#888" font-family="monospace" font-size="10">cache hit! no fetch</text>
+  <text x="400" y="258" text-anchor="middle" fill="#888" font-family="monospace" font-size="10">instant data</text>
+
+  <!-- 4: stale -->
+  <circle cx="540" cy="200" r="10" fill="#ff6b6b"/>
+  <text x="540" y="175" text-anchor="middle" fill="#ff6b6b" font-family="monospace" font-size="12" font-weight="bold">t=61s</text>
+  <text x="540" y="225" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="11">stale! (staleTime expired)</text>
+  <text x="540" y="243" text-anchor="middle" fill="#888" font-family="monospace" font-size="10">show cached + refetch</text>
+  <text x="540" y="258" text-anchor="middle" fill="#888" font-family="monospace" font-size="10">in background</text>
+
+  <!-- 5: refetch -->
+  <circle cx="640" cy="200" r="10" fill="#51cf66"/>
+  <text x="640" y="175" text-anchor="middle" fill="#51cf66" font-family="monospace" font-size="12" font-weight="bold">t=62s</text>
+  <text x="640" y="225" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="11">fresh data</text>
+  <text x="640" y="243" text-anchor="middle" fill="#888" font-family="monospace" font-size="10">cache updated</text>
+
+  <!-- Concepts -->
+  <rect x="20" y="290" width="680" height="80" rx="8" fill="#2a2a3e" stroke="#444"/>
+  <text x="40" y="315" fill="#61DAFB" font-family="monospace" font-size="13" font-weight="bold">Ключові концепції:</text>
+  <text x="40" y="340" fill="#ccc" font-family="monospace" font-size="12">staleTime &#8212; how long data is "fresh" (no refetch). Default: 0 (always stale)</text>
+  <text x="40" y="360" fill="#ccc" font-family="monospace" font-size="12">gcTime &#8212; how long unused cache stays in memory before garbage collection</text>
+</svg>

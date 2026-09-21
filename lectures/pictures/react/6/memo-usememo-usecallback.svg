@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420">
+  <rect width="720" height="420" fill="#1e1e2e"/>
+
+  <text x="360" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">React.memo, useMemo, useCallback</text>
+
+  <!-- memo -->
+  <rect x="20" y="55" width="220" height="170" rx="8" fill="#1a1a2e" stroke="#4a9eff"/>
+  <text x="40" y="80" fill="#4a9eff" font-family="monospace" font-size="13" font-weight="bold">React.memo</text>
+  <text x="40" y="105" fill="#ccc" font-family="monospace" font-size="11">// Skip re-render if props</text>
+  <text x="40" y="120" fill="#ccc" font-family="monospace" font-size="11">// are shallow-equal</text>
+  <text x="40" y="145" fill="#d19a66" font-family="monospace" font-size="11">const Item = memo(</text>
+  <text x="50" y="160" fill="#d19a66" font-family="monospace" font-size="11">({ id, name }) =&gt; (</text>
+  <text x="60" y="175" fill="#d19a66" font-family="monospace" font-size="11">&lt;li&gt;{name}&lt;/li&gt;</text>
+  <text x="50" y="190" fill="#d19a66" font-family="monospace" font-size="11">)</text>
+  <text x="40" y="205" fill="#d19a66" font-family="monospace" font-size="11">)</text>
+  <text x="40" y="218" fill="#888" font-family="monospace" font-size="10">// for components</text>
+
+  <!-- useMemo -->
+  <rect x="260" y="55" width="220" height="170" rx="8" fill="#1a1a2e" stroke="#d19a66"/>
+  <text x="280" y="80" fill="#d19a66" font-family="monospace" font-size="13" font-weight="bold">useMemo</text>
+  <text x="280" y="105" fill="#ccc" font-family="monospace" font-size="11">// Cache computed value</text>
+  <text x="280" y="120" fill="#ccc" font-family="monospace" font-size="11">// recalc only if deps change</text>
+  <text x="280" y="145" fill="#d19a66" font-family="monospace" font-size="11">const sorted = useMemo(</text>
+  <text x="290" y="160" fill="#d19a66" font-family="monospace" font-size="11">() =&gt; items</text>
+  <text x="300" y="175" fill="#d19a66" font-family="monospace" font-size="11">.sort(...),</text>
+  <text x="290" y="190" fill="#d19a66" font-family="monospace" font-size="11">[items]</text>
+  <text x="280" y="205" fill="#d19a66" font-family="monospace" font-size="11">)</text>
+  <text x="280" y="218" fill="#888" font-family="monospace" font-size="10">// for expensive calc</text>
+
+  <!-- useCallback -->
+  <rect x="500" y="55" width="200" height="170" rx="8" fill="#1a1a2e" stroke="#51cf66"/>
+  <text x="520" y="80" fill="#51cf66" font-family="monospace" font-size="13" font-weight="bold">useCallback</text>
+  <text x="520" y="105" fill="#ccc" font-family="monospace" font-size="11">// Stable function reference</text>
+  <text x="520" y="120" fill="#ccc" font-family="monospace" font-size="11">// (for memo children)</text>
+  <text x="520" y="145" fill="#d19a66" font-family="monospace" font-size="11">const handleClick =</text>
+  <text x="530" y="160" fill="#d19a66" font-family="monospace" font-size="11">useCallback((id) =&gt; {</text>
+  <text x="540" y="175" fill="#d19a66" font-family="monospace" font-size="11">deleteItem(id)</text>
+  <text x="530" y="190" fill="#d19a66" font-family="monospace" font-size="11">}, [deleteItem])</text>
+  <text x="520" y="218" fill="#888" font-family="monospace" font-size="10">// for callbacks passed</text>
+
+  <!-- Combined -->
+  <rect x="20" y="245" width="680" height="160" rx="8" fill="#2a2a3e" stroke="#61DAFB"/>
+  <text x="40" y="270" fill="#61DAFB" font-family="monospace" font-size="14" font-weight="bold">Як вони працюють разом:</text>
+  <text x="40" y="295" fill="#ccc" font-family="monospace" font-size="13">Parent renders &#8594; new function created &#8594; memo(Item) sees new prop &#8594; re-renders anyway</text>
+  <text x="40" y="320" fill="#51cf66" font-family="monospace" font-size="13">Fix: useCallback(fn, deps) &#8594; same ref &#8594; memo(Item) skips &#8594; no re-render</text>
+  <text x="40" y="350" fill="#ff6b6b" font-family="monospace" font-size="13">&#9888; Don't wrap everything &#8212; memo/useMemo/useCallback have their own cost</text>
+  <text x="40" y="375" fill="#888" font-family="monospace" font-size="12">Use only when profiling shows a real bottleneck (large lists, expensive renders)</text>
+  <text x="40" y="395" fill="#888" font-family="monospace" font-size="12">React 19: React Compiler may auto-optimize many of these cases in the future</text>
+</svg>

@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <title>Лекція 7. Forms, Validation та Authentication</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="node_modules/@shower/ribbon/styles/index.css">
+    <link rel="stylesheet" href="styles/custom.css">
+</head>
+<body class="shower list">
+
+<header class="caption">
+    <h1>Лекція 7. Forms, Validation та Authentication</h1>
+    <p>
+        <a href="index.html">Назад до змісту лекцій</a>
+    </p>
+</header>
+
+<section class="slide">
+    <h2 class="shout">
+        Лекція 7. Forms, Validation та Authentication
+    </h2>
+</section>
+
+<section class="slide">
+    <h2>План лекції:</h2>
+    <ol>
+        <li>Як працюють форми в React та чим відрізняються controlled і uncontrolled components?</li>
+        <li>Як реалізувати валідацію та обробку помилок у формах?</li>
+        <li>Як побудувати authentication flow у React-застосунку?</li>
+        <li>Як працюють JWT, authentication state та protected routes на frontend?</li>
+    </ol>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Форми в React</h2>
+</section>
+
+<section class="slide">
+    <h2>Форми в React — особливості</h2>
+    <div style="font-size: 19px;">
+        <p>У React форми працюють інакше, ніж у традиційному HTML.
+            замість того, щоб DOM керував станом форми,
+            <b>React керує станом через state</b>.</p>
+        <p><b>Ключові концепції:</b></p>
+        <ul>
+            <li><b>Controlled components</b> — React state є джерелом правди для input;</li>
+            <li><b>Uncontrolled components</b> — DOM керує, React лише читає через ref;</li>
+            <li><b>Form submission</b> — <code>onSubmit</code> + <code>e.preventDefault()</code>;</li>
+            <li><b>Validation</b> — перевірка перед submit та/або під час введення;</li>
+            <li><b>Error display</b> — показ помилок per-field.</li>
+        </ul>
+        <p>У Vue аналоги — <code>v-model</code> (controlled) та <code>$refs</code> (uncontrolled).</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Controlled vs Uncontrolled</h2>
+    <img src="pictures/react/5/controlled-vs-uncontrolled.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Controlled Component — приклад</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#c678dd">function</span> <span style="color:#61afef">LoginForm</span>() &#123;
+  <span style="color:#c678dd">const</span> [email, setEmail] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">""</span>);
+  <span style="color:#c678dd">const</span> [password, setPassword] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">""</span>);
+
+  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleSubmit</span> = (e: FormEvent) =&gt; &#123;
+    e.preventDefault();
+    <span style="color:#61afef">console</span>.log(&#123; email, password &#125;);
+    <span style="color:#7f8488">// API call...</span>
+  &#125;;
+
+  <span style="color:#c678dd">return</span> (
+    <span style="color:#e06c75">&lt;form</span> <span style="color:#d19a66">onSubmit</span>={<span style="color:#e06c75">handleSubmit</span>}<span style="color:#e06c75">&gt;</span>
+      <span style="color:#e06c75">&lt;input</span>
+        <span style="color:#d19a66">type</span>=<span style="color:#98c379">"email"</span>
+        <span style="color:#d19a66">value</span>={<span style="color:#e06c75">email</span>}
+        <span style="color:#d19a66">onChange</span>={(e) =&gt; <span style="color:#61afef">setEmail</span>(e.target.value)}
+      /&gt;
+      <span style="color:#e06c75">&lt;input</span>
+        <span style="color:#d19a66">type</span>=<span style="color:#98c379">"password"</span>
+        <span style="color:#d19a66">value</span>={<span style="color:#e06c75">password</span>}
+        <span style="color:#d19a66">onChange</span>={(e) =&gt; <span style="color:#61afef">setPassword</span>(e.target.value)}
+      /&gt;
+      <span style="color:#e06c75">&lt;button</span> <span style="color:#d19a66">type</span>=<span style="color:#98c379">"submit"</span><span style="color:#e06c75">&gt;</span>Login<span style="color:#e06c75">&lt;/button&gt;</span>
+    <span style="color:#e06c75">&lt;/form&gt;</span>
+  );
+&#125;</pre>
+        </div>
+        <div style="flex: 1; font-size: 17px;">
+            <p><b>Controlled pattern:</b></p>
+            <ol>
+                <li><code>useState</code> зберігає значення;</li>
+                <li><code>value</code> прив'язаний до state;</li>
+                <li><code>onChange</code> оновлює state;</li>
+                <li>React контролює весь цикл.</li>
+            </ol>
+            <p><b>Переваги:</b></p>
+            <ul>
+                <li>Єдине джерело правди (state);</li>
+                <li>Валідація на льоту;</li>
+                <li>Легкий reset (<code>setEmail("")</code>);</li>
+                <li>Програмне встановлення значень.</li>
+            </ul>
+            <p><b>Недолік:</b> re-render на кожен keystroke
+                (для більшості форм — не проблема).</p>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Uncontrolled Component — приклад</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#c678dd">import</span> &#123; useRef &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+
+<span style="color:#c678dd">function</span> <span style="color:#61afef">QuickForm</span>() &#123;
+  <span style="color:#c678dd">const</span> emailRef = <span style="color:#61afef">useRef</span>&lt;HTMLInputElement&gt;(<span style="color:#c678dd">null</span>);
+  <span style="color:#c678dd">const</span> fileRef = <span style="color:#61afef">useRef</span>&lt;HTMLInputElement&gt;(<span style="color:#c678dd">null</span>);
+
+  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleSubmit</span> = (e: FormEvent) =&gt; &#123;
+    e.preventDefault();
+    <span style="color:#c678dd">const</span> email = emailRef.current?.value;
+    <span style="color:#c678dd">const</span> file = fileRef.current?.files?.[<span style="color:#98c379">0</span>];
+    <span style="color:#61afef">console</span>.log(&#123; email, file &#125;);
+  &#125;;
+
+  <span style="color:#c678dd">return</span> (
+    <span style="color:#e06c75">&lt;form</span> <span style="color:#d19a66">onSubmit</span>={<span style="color:#e06c75">handleSubmit</span>}<span style="color:#e06c75">&gt;</span>
+      <span style="color:#e06c75">&lt;input</span> <span style="color:#d19a66">type</span>=<span style="color:#98c379">"email"</span>
+        <span style="color:#d19a66">ref</span>={<span style="color:#e06c75">emailRef</span>}
+        <span style="color:#d19a66">defaultValue</span>=<span style="color:#98c379">"old@example.com"</span> /&gt;
+      <span style="color:#e06c75">&lt;input</span> <span style="color:#d19a66">type</span>=<span style="color:#98c379">"file"</span>
+        <span style="color:#d19a66">ref</span>={<span style="color:#e06c75">fileRef</span>} /&gt;
+      <span style="color:#e06c75">&lt;button</span> <span style="color:#d19a66">type</span>=<span style="color:#98c379">"submit"</span><span style="color:#e06c75">&gt;</span>Submit<span style="color:#e06c75">&lt;/button&gt;</span>
+    <span style="color:#e06c75">&lt;/form&gt;</span>
+  );
+&#125;</pre>
+        </div>
+        <div style="flex: 1; font-size: 17px;">
+            <p><b>Uncontrolled pattern:</b></p>
+            <ol>
+                <li><code>useRef</code> посилається на DOM-вузол;</li>
+                <li><code>defaultValue</code> — початкове значення;</li>
+                <li>Читаємо через <code>ref.current.value</code> при submit;</li>
+                <li>React не керує значенням.</li>
+            </ol>
+            <p><b>Коли використовувати:</b></p>
+            <ul>
+                <li><code>&lt;input type="file"&gt;</code> — єдиний варіант;</li>
+                <li>Інтеграція з 3rd-party (jQuery плагіни);</li>
+                <li>Прості форми без валідації;</li>
+                <li>Великі форми (щоб уникнути re-render).</li>
+            </ul>
+            <p><b>Правило:</b> за замовчуванням — <b>controlled</b>.
+                Uncontrolled — лише коли є причина.</p>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Form lifecycle — стани</h2>
+    <img src="pictures/react/5/form-lifecycle.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Багатопольна форма з одним state-об'єктом</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#c678dd">type</span> <span style="color:#61afef">FormData</span> = &#123;
+  name: <span style="color:#c678dd">string</span>;
+  email: <span style="color:#c678dd">string</span>;
+  age: <span style="color:#c678dd">number</span>;
+  role: <span style="color:#c678dd">string</span>;
+&#125;;
+
+<span style="color:#c678dd">function</span> <span style="color:#61afef">UserForm</span>() &#123;
+  <span style="color:#c678dd">const</span> [form, setForm] = <span style="color:#61afef">useState</span>&lt;<span style="color:#61afef">FormData</span>&gt;(&#123;
+    name: <span style="color:#98c379">""</span>, email: <span style="color:#98c379">""</span>, age: <span style="color:#98c379">0</span>, role: <span style="color:#98c379">"user"</span>
+  &#125;);
+
+  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleChange</span> = (e: ChangeEvent) =&gt; &#123;
+    <span style="color:#c678dd">const</span> &#123; name, value, type &#125; = e.target;
+    <span style="color:#61afef">setForm</span>(<span style="color:#e06c75">prev</span> =&gt; (&#123;
+      ...prev,
+      [name]: type === <span style="color:#98c379">"number"</span>
+        ? <span style="color:#61afef">parseInt</span>(value)
+        : value
+    &#125;));
+  &#125;;
+
+  <span style="color:#c678dd">return</span> (
+    &lt;form onSubmit=&#123;handleSubmit&#125;&gt;
+      &lt;input name=<span style="color:#98c379">"name"</span> value=&#123;form.name&#125;
+        onChange=&#123;handleChange&#125; /&gt;
+      &lt;input name=<span style="color:#98c379">"email"</span> value=&#123;form.email&#125;
+        onChange=&#123;handleChange&#125; /&gt;
+      &lt;input name=<span style="color:#98c379">"age"</span> <span style="color:#d19a66">type</span>=<span style="color:#98c379">"number"</span>
+        value=&#123;form.age&#125; onChange=&#123;handleChange&#125; /&gt;
+      &lt;select name=<span style="color:#98c379">"role"</span> value=&#123;form.role&#125;
+        onChange=&#123;handleChange&#125;&gt;
+        &lt;option value=<span style="color:#98c379">"user"</span>&gt;User&lt;/option&gt;
+        &lt;option value=<span style="color:#98c379">"admin"</span>&gt;Admin&lt;/option&gt;
+      &lt;/select&gt;
+    &lt;/form&gt;
+  );
+&#125;</pre>
+        </div>
+        <div style="flex: 1; font-size: 17px;">
+            <p><b>Один state-об'єкт</b> для всіх полів форми.</p>
+            <p><b>Переваги:</b></p>
+            <ul>
+                <li>Один <code>handleChange</code> для всіх полів;</li>
+                <li><code>name</code> атрибут = ключ у state;</li>
+                <li>Легко серіалізувати для API;</li>
+                <li>Легкий reset: <code>setForm(initial)</code>.</li>
+            </ul>
+            <p><b>Важливо:</b> використовуйте
+                <b>функціональну форму</b> <code>setForm(prev =&gt; ...)</code>
+                щоб не втратити дані при швидкому введенні.</p>
+            <p><b>Checkbox:</b> <code>e.target.checked</code>
+                замість <code>value</code>.</p>
+            <p><b>select multiple:</b> потребує окремої обробки.</p>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Валідація форм</h2>
+</section>
+
+<section class="slide">
+    <h2>Валідація — типи правил</h2>
+    <img src="pictures/react/5/validation-types.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Валідація — коли перевіряти</h2>
+    <img src="pictures/react/5/validation-timing.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Валідація — ручний підхід</h2>
+    <div style="font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#c678dd">type</span> <span style="color:#61afef">FormErrors</span> = &#123; name?: <span style="color:#c678dd">string</span>; email?: <span style="color:#c678dd">string</span>; password?: <span style="color:#c678dd">string</span> &#125;;
+
+<span style="color:#c678dd">function</span> <span style="color:#61afef">validate</span>(form: <span style="color:#61afef">FormData</span>): <span style="color:#61afef">FormErrors</span> &#123;
+  <span style="color:#c678dd">const</span> errors: <span style="color:#61afef">FormErrors</span> = &#123;&#125;;
+  <span style="color:#c678dd">if</span> (!form.name.<span style="color:#61afef">trim</span>()) errors.name = <span style="color:#98c379">"Name is required"</span>;
+  <span style="color:#c678dd">if</span> (form.name.length &lt; <span style="color:#98c379">2</span>) errors.name = <span style="color:#98c379">"Name too short"</span>;
+  <span style="color:#c678dd">if</span> (!<span style="color:#98c379">/^\S+@\S+\.\S+$/</span>.<span style="color:#61afef">test</span>(form.email)) errors.email = <span style="color:#98c379">"Invalid email"</span>;
+  <span style="color:#c678dd">if</span> (form.password.length &lt; <span style="color:#98c379">8</span>) errors.password = <span style="color:#98c379">"Min 8 characters"</span>;
+  <span style="color:#c678dd">if</span> (!<span style="color:#98c379">/\d/</span>.<span style="color:#61afef">test</span>(form.password)) errors.password = <span style="color:#98c379">"Must contain a digit"</span>;
+  <span style="color:#c678dd">return</span> errors;
+&#125;
+
+<span style="color:#7f8488">// Компонент</span>
+<span style="color:#c678dd">const</span> [errors, setErrors] = <span style="color:#61afef">useState</span>&lt;<span style="color:#61afef">FormErrors</span>&gt;(&#123;&#125;);
+<span style="color:#c678dd">const</span> [touched, setTouched] = <span style="color:#61afef">useState</span>&lt;<span style="color:#61afef">Record</span>&lt;<span style="color:#c678dd">string</span>, <span style="color:#c678dd">boolean</span>&gt;&gt;(&#123;&#125;);
+
+<span style="color:#c678dd">const</span> <span style="color:#61afef">handleBlur</span> = (e) =&gt; &#123;
+  <span style="color:#61afef">setTouched</span>(<span style="color:#e06c75">t</span> =&gt; (&#123; ...t, [e.target.name]: <span style="color:#d19a66">true</span> &#125;));
+  <span style="color:#c678dd">const</span> fieldErrors = <span style="color:#61afef">validate</span>(form);
+  <span style="color:#61afef">setErrors</span>(<span style="color:#e06c75">prev</span> =&gt; (&#123; ...prev, [e.target.name]: fieldErrors[e.target.name] &#125;));
+&#125;;
+
+<span style="color:#c678dd">const</span> <span style="color:#61afef">handleSubmit</span> = (e) =&gt; &#123;
+  e.preventDefault();
+  <span style="color:#c678dd">const</span> allErrors = <span style="color:#61afef">validate</span>(form);
+  <span style="color:#c678dd">if</span> (<span style="color:#61afef">Object</span>.<span style="color:#61afef">keys</span>(allErrors).length &gt; <span style="color:#98c379">0</span>) &#123;
+    <span style="color:#61afef">setErrors</span>(allErrors);
+    <span style="color:#61afef">setTouched</span>(&#123; name: <span style="color:#d19a66">true</span>, email: <span style="color:#d19a66">true</span>, password: <span style="color:#d19a66">true</span> &#125;);
+    <span style="color:#c678dd">return</span>;
+  &#125;
+  <span style="color:#7f8488">// submit</span>
+&#125;;</pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Валідація — UI відображення помилок</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// Поле з помилкою</span>
+&lt;div className=<span style="color:#98c379">"field"</span>&gt;
+  &lt;label htmlFor=<span style="color:#98c379">"email"</span>&gt;Email&lt;/label&gt;
+  &lt;input
+    id=<span style="color:#98c379">"email"</span>
+    name=<span style="color:#98c379">"email"</span>
+    value=&#123;form.email&#125;
+    onChange=&#123;handleChange&#125;
+    onBlur=&#123;handleBlur&#125;
+    className=&#123;errors.email &amp;&amp; touched.email
+      ? <span style="color:#98c379">"input-error"</span>
+      : <span style="color:#98c379">""</span>&#125;
+  /&gt;
+  &#123;errors.email &amp;&amp; touched.email &amp;&amp; (
+    <span style="color:#e06c75">&lt;p</span> <span style="color:#d19a66">className</span>=<span style="color:#98c379">"error"</span><span style="color:#e06c75">&gt;</span>
+      &#123;errors.email&#125;
+    <span style="color:#e06c75">&lt;/p&gt;</span>
+  )&#125;
+&lt;/div&gt;
+
+<span style="color:#7f8488">// CSS</span>
+<span style="color:#7f8488">.input-error &#123;</span>
+<span style="color:#7f8488">  border-color: red;</span>
+<span style="color:#7f8488">&#125;</span>
+<span style="color:#7f8488">.error &#123;</span>
+<span style="color:#7f8488">  color: red; font-size: 13px;</span>
+<span style="color:#7f8488">&#125;</span></pre>
+        </div>
+        <div style="flex: 1; font-size: 17px;">
+            <p><b>Принципи UI помилок:</b></p>
+            <ul>
+                <li>Показувати помилку <b>тільки після</b>
+                    <code>touched</code> (користувач зайшов у поле);</li>
+                <li>Прибирати помилку при початку виправлення;</li>
+                <li>Червоний border + текст під полем;</li>
+                <li>Aria-атрибути для accessibility:
+                    <code>aria-invalid</code>, <code>aria-describedby</code>;</li>
+                <li>Не блокувати введення — лише підказувати.</li>
+            </ul>
+            <p><b>Подія <code>onBlur</code></b> — коли поле
+                втратило фокус (найкращий момент для першої перевірки).</p>
+            <p><b>touched</b> — об'єкт, що фіксує, які поля
+                вже «відвідав» користувач.</p>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Form libraries — порівняння</h2>
+    <img src="pictures/react/5/form-libraries.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>React Hook Form + Zod — сучасний підхід</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// 1. Schema (Zod)</span>
+<span style="color:#c678dd">import</span> &#123; z &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"zod"</span>;
+
+<span style="color:#c678dd">const</span> schema = z.<span style="color:#61afef">object</span>(&#123;
+  name: z.string().<span style="color:#61afef">min</span>(<span style="color:#98c379">2</span>, <span style="color:#98c379">"Min 2 chars"</span>),
+  email: z.string().<span style="color:#61afef">email</span>(<span style="color:#98c379">"Invalid email"</span>),
+  password: z.string()
+    .<span style="color:#61afef">min</span>(<span style="color:#98c379">8</span>, <span style="color:#98c379">"Min 8 chars"</span>)
+    .<span style="color:#61afef">regex</span>(<span style="color:#98c379">/\d/</span>, <span style="color:#98c379">"Must have digit"</span>),
+&#125;);
+
+<span style="color:#c678dd">type</span> <span style="color:#61afef">FormData</span> = z.<span style="color:#61afef">infer</span>&lt;<span style="color:#c678dd">typeof</span> schema&gt;;
+<span style="color:#7f8488">// TS type auto-derived from schema!</span></pre>
+        </div>
+        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// 2. Component (RHF)</span>
+<span style="color:#c678dd">import</span> &#123; useForm &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"react-hook-form"</span>;
+<span style="color:#c678dd">import</span> &#123; zodResolver &#125; <span style="color:#c678dd">from</span>
+  <span style="color:#98c379">"@hookform/resolvers/zod"</span>;
+
+<span style="color:#c678dd">function</span> <span style="color:#61afef">RegisterForm</span>() &#123;
+  <span style="color:#c678dd">const</span> &#123;
+    register, handleSubmit,
+    formState: &#123; errors, isSubmitting &#125;
+  &#125; = <span style="color:#61afef">useForm</span>&lt;<span style="color:#61afef">FormData</span>&gt;(&#123;
+    resolver: <span style="color:#61afef">zodResolver</span>(schema)
+  &#125;);
+
+  <span style="color:#c678dd">const</span> <span style="color:#61afef">onSubmit</span> = <span style="color:#c678dd">async</span> (data: <span style="color:#61afef">FormData</span>) =&gt; &#123;
+    <span style="color:#c678dd">await</span> api.register(data);
+  &#125;;
+
+  <span style="color:#c678dd">return</span> (
+    &lt;form onSubmit=&#123;handleSubmit(onSubmit)&#125;&gt;
+      &lt;input &#123;...register(<span style="color:#98c379">"name"</span>)&#125; /&gt;
+      &#123;errors.name &amp;&amp; &lt;p&gt;&#123;errors.name.message&#125;&lt;/p&gt;&#125;
+      &lt;input &#123;...register(<span style="color:#98c379">"email"</span>)&#125; /&gt;
+      &#123;errors.email &amp;&amp; &lt;p&gt;&#123;errors.email.message&#125;&lt;/p&gt;&#125;
+      &lt;button disabled=&#123;isSubmitting&#125;&gt;Register&lt;/button&gt;
+    &lt;/form&gt;
+  );
+&#125;</pre>
+        </div>
+    </div>
+    <p style="font-size: 17px; margin-top: 10px;">
+        <b>Zod</b> визначає схему (validation + TS-тип одночасно).
+        <b>zodResolver</b> підключає її до RHF.
+        <b>register()</b> прив'язує input до RHF (uncontrolled &#8594; продуктивність).
+    </p>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Authentication Flow</h2>
+</section>
+
+<section class="slide">
+    <h2>Authentication Flow — повний цикл</h2>
+    <img src="pictures/react/5/auth-flow.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Auth — архітектура</h2>
+    <div style="font-size: 19px;">
+        <p><b>Authentication</b> — перевірка, <b>хто</b> користувач (login + password).</p>
+        <p><b>Authorization</b> — перевірка, <b>що</b> користувач може робити (role, permissions).</p>
+        <p><b>Компоненти auth-системи:</b></p>
+        <ul>
+            <li><b>AuthContext</b> — глобальний auth state (user, isAuthenticated);</li>
+            <li><b>useAuth hook</b> — доступ до auth state + методів (login, logout, register);</li>
+            <li><b>API layer</b> — <code>authApi.login()</code>, <code>authApi.me()</code>;</li>
+            <li><b>ProtectedRoute</b> — wrapper для захищених сторінок;</li>
+            <li><b>Axios interceptor</b> — додає token до всіх запитів;</li>
+            <li><b>Token storage</b> — localStorage або HttpOnly cookie.</li>
+        </ul>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Auth Context — архітектура</h2>
+    <img src="pictures/react/5/auth-context.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+</section>
+
+<section class="slide">
+    <h2>AuthContext — реалізація</h2>
+    <div style="font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// context/AuthContext.tsx</span>
+<span style="color:#c678dd">import</span> &#123; createContext, useContext, useState, useEffect, <span style="color:#c678dd">type</span> ReactNode &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+<span style="color:#c678dd">import</span> &#123; authApi &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"../api/auth"</span>;
+
+<span style="color:#c678dd">type</span> <span style="color:#61afef">User</span> = &#123; id: <span style="color:#c678dd">string</span>; name: <span style="color:#c678dd">string</span>; role: <span style="color:#c678dd">string</span> &#125;;
+<span style="color:#c678dd">type</span> <span style="color:#61afef">AuthState</span> = &#123;
+  user: <span style="color:#61afef">User</span> | <span style="color:#c678dd">null</span>;
+  isAuthenticated: <span style="color:#c678dd">boolean</span>;
+  loading: <span style="color:#c678dd">boolean</span>;
+  login: (email: <span style="color:#c678dd">string</span>, password: <span style="color:#c678dd">string</span>) =&gt; Promise&lt;<span style="color:#c678dd">void</span>&gt;;
+  logout: () =&gt; <span style="color:#c678dd">void</span>;
+&#125;;
+
+<span style="color:#c678dd">const</span> AuthContext = <span style="color:#61afef">createContext</span>&lt;<span style="color:#61afef">AuthState</span> | <span style="color:#c678dd">null</span>&gt;(<span style="color:#c678dd">null</span>);
+
+<span style="color:#c678dd">export function</span> <span style="color:#61afef">AuthProvider</span>(&#123; children &#125;: &#123; children: ReactNode &#125;) &#123;
+  <span style="color:#c678dd">const</span> [user, setUser] = <span style="color:#61afef">useState</span>&lt;<span style="color:#61afef">User</span> | <span style="color:#c678dd">null</span>&gt;(<span style="color:#c678dd">null</span>);
+  <span style="color:#c678dd">const</span> [loading, setLoading] = <span style="color:#61afef">useState</span>(<span style="color:#d19a66">true</span>);
+
+  <span style="color:#7f8488">// Check token on mount</span>
+  <span style="color:#61afef">useEffect</span>(() =&gt; &#123;
+    <span style="color:#c678dd">const</span> token = localStorage.<span style="color:#61afef">getItem</span>(<span style="color:#98c379">"token"</span>);
+    <span style="color:#c678dd">if</span> (token) &#123;
+      authApi.<span style="color:#61afef">me</span>(token).then(<span style="color:#e06c75">u</span> =&gt; <span style="color:#61afef">setUser</span>(<span style="color:#e06c75">u</span>)).<span style="color:#61afef">finally</span>(() =&gt; <span style="color:#61afef">setLoading</span>(<span style="color:#d19a66">false</span>));
+    &#125; <span style="color:#c678dd">else</span> &#123;
+      <span style="color:#61afef">setLoading</span>(<span style="color:#d19a66">false</span>);
+    &#125;
+  &#125;, []);
+
+  <span style="color:#c678dd">const</span> <span style="color:#61afef">login</span> = <span style="color:#c678dd">async</span> (email: <span style="color:#c678dd">string</span>, password: <span style="color:#c678dd">string</span>) =&gt; &#123;
+    <span style="color:#c678dd">const</span> &#123; token, user &#125; = <span style="color:#c678dd">await</span> authApi.<span style="color:#61afef">login</span>(email, password);
+    localStorage.<span style="color:#61afef">setItem</span>(<span style="color:#98c379">"token"</span>, token);
+    <span style="color:#61afef">setUser</span>(user);
+  &#125;;
+
+  <span style="color:#c678dd">const</span> <span style="color:#61afef">logout</span> = () =&gt; &#123;
+    localStorage.<span style="color:#61afef">removeItem</span>(<span style="color:#98c379">"token"</span>);
+    <span style="color:#61afef">setUser</span>(<span style="color:#c678dd">null</span>);
+  &#125;;
+
+  <span style="color:#c678dd">return</span> (
+    &lt;AuthContext.Provider value=&#123;&#123;
+      user, isAuthenticated: !!user, loading, login, logout
+    &#125;&#125;&gt;
+      &#123;children&#125;
+    &lt;/AuthContext.Provider&gt;
+  );
+&#125;
+
+<span style="color:#c678dd">export const</span> <span style="color:#61afef">useAuth</span> = () =&gt; &#123;
+  <span style="color:#c678dd">const</span> ctx = <span style="color:#61afef">useContext</span>(AuthContext);
+  <span style="color:#c678dd">if</span> (!ctx) <span style="color:#c678dd">throw new</span> <span style="color:#61afef">Error</span>(<span style="color:#98c379">"useAuth must be inside AuthProvider"</span>);
+  <span style="color:#c678dd">return</span> ctx;
+&#125;;</pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>useAuth hook — використання</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// LoginPage.tsx</span>
+<span style="color:#c678dd">function</span> <span style="color:#61afef">LoginPage</span>() &#123;
+  <span style="color:#c678dd">const</span> &#123; login &#125; = <span style="color:#61afef">useAuth</span>();
+  <span style="color:#c678dd">const</span> navigate = <span style="color:#61afef">useNavigate</span>();
+  <span style="color:#c678dd">const</span> location = <span style="color:#61afef">useLocation</span>();
+  <span style="color:#c678dd">const</span> [error, setError] = <span style="color:#61afef">useState</span>(<span style="color:#c678dd">null</span>);
+
+  <span style="color:#c678dd">const</span> from = location.state?.from?.pathname
+    || <span style="color:#98c379">"/dashboard"</span>;
+
+  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleSubmit</span> = <span style="color:#c678dd">async</span> (data) =&gt; &#123;
+    <span style="color:#c678dd">try</span> &#123;
+      <span style="color:#c678dd">await</span> <span style="color:#61afef">login</span>(data.email, data.password);
+      <span style="color:#61afef">navigate</span>(from, &#123; replace: <span style="color:#d19a66">true</span> &#125;);
+    &#125; <span style="color:#c678dd">catch</span> (e) &#123;
+      <span style="color:#61afef">setError</span>(<span style="color:#98c379">"Invalid credentials"</span>);
+    &#125;
+  &#125;;
+
+  <span style="color:#c678dd">return</span> (
+    &lt;LoginForm
+      onSubmit=&#123;handleSubmit&#125;
+      error=&#123;error&#125;
+    /&gt;
+  );
+&#125;</pre>
+        </div>
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// Navbar.tsx — показ залежно від auth</span>
+<span style="color:#c678dd">function</span> <span style="color:#61afef">Navbar</span>() &#123;
+  <span style="color:#c678dd">const</span> &#123; user, isAuthenticated, logout &#125; =
+    <span style="color:#61afef">useAuth</span>();
+  <span style="color:#c678dd">const</span> navigate = <span style="color:#61afef">useNavigate</span>();
+
+  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleLogout</span> = () =&gt; &#123;
+    <span style="color:#61afef">logout</span>();
+    <span style="color:#61afef">navigate</span>(<span style="color:#98c379">"/login"</span>);
+  &#125;;
+
+  <span style="color:#c678dd">return</span> (
+    &lt;nav&gt;
+      &#123;isAuthenticated ? (
+        &lt;&gt;
+          &lt;span&gt;Hello, &#123;user.name&#125;&lt;/span&gt;
+          &lt;button onClick=&#123;handleLogout&#125;&gt;
+            Logout
+          &lt;/button&gt;
+        &lt;/&gt;
+      ) : (
+        &lt;Link to=<span style="color:#98c379">"/login"</span>&gt;Login&lt;/Link&gt;
+      )&#125;
+    &lt;/nav&gt;
+  );
+&#125;</pre>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2 class="shout">JWT та Protected Routes</h2>
+</section>
+
+<section class="slide">
+    <h2>JWT (JSON Web Token) — структура</h2>
+    <img src="pictures/react/5/jwt-structure.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>JWT — як це працює</h2>
+    <div style="font-size: 19px;">
+        <p><b>JWT</b> — компактний, self-contained token для передачі
+            інформації між сторонами як JSON-об'єкт.</p>
+        <p><b>Структура:</b> <code>header.payload.signature</code>
+            (base64-encoded, розділені крапкою).</p>
+        <ul>
+            <li><b>Header</b> — алгоритм підпису (HS256, RS256);</li>
+            <li><b>Payload</b> — claims (user id, role, exp, iat);</li>
+            <li><b>Signature</b> — HMAC(header + payload, SECRET).</li>
+        </ul>
+        <p><b>Чому JWT:</b></p>
+        <ul>
+            <li><b>Stateless</b> — сервер не зберігає сесію;</li>
+            <li><b>Self-contained</b> — token містить user id + role;</li>
+            <li><b>Підпис</b> — захист від підробки (HMAC);</li>
+            <li><b>Expiration</b> — <code>exp</code> claim обмежує термін дії.</li>
+        </ul>
+        <p><b>Важливо:</b> payload <b>не зашифрований</b> (лише base64) —
+            не клади туди секрети!</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Токен зберігання — варіанти</h2>
+    <img src="pictures/react/5/token-storage.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Axios interceptor — додаємо token</h2>
+    <div style="font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// api/client.ts</span>
+<span style="color:#c678dd">import</span> axios <span style="color:#c678dd">from</span> <span style="color:#98c379">"axios"</span>;
+
+<span style="color:#c678dd">export const</span> apiClient = axios.<span style="color:#61afef">create</span>(&#123;
+  baseURL: <span style="color:#98c379">"https://api.example.com"</span>,
+&#125;);
+
+<span style="color:#7f8488">// Request interceptor — додаємо Authorization header</span>
+apiClient.interceptors.request.<span style="color:#61afef">use</span>((config) =&gt; &#123;
+  <span style="color:#c678dd">const</span> token = localStorage.<span style="color:#61afef">getItem</span>(<span style="color:#98c379">"token"</span>);
+  <span style="color:#c678dd">if</span> (token) &#123;
+    config.headers.Authorization = <span style="color:#98c379">`Bearer ${token}`</span>;
+  &#125;
+  <span style="color:#c678dd">return</span> config;
+&#125;);
+
+<span style="color:#7f8488">// Response interceptor — 401 &#8594; logout + redirect</span>
+apiClient.interceptors.response.<span style="color:#61afef">use</span>(
+  (response) =&gt; response,
+  (error) =&gt; &#123;
+    <span style="color:#c678dd">if</span> (error.response?.status === <span style="color:#98c379">401</span>) &#123;
+      localStorage.<span style="color:#61afef">removeItem</span>(<span style="color:#98c379">"token"</span>);
+      window.location.href = <span style="color:#98c379">"/login"</span>;
+    &#125;
+    <span style="color:#c678dd">return</span> Promise.<span style="color:#61afef">reject</span>(error);
+  &#125;
+);</pre>
+    </div>
+    <p style="font-size: 17px; margin-top: 10px;">
+        Усі API-запити автоматично отримують <code>Authorization: Bearer &lt;token&gt;</code>.
+        При 401 (token expired/invalid) — автоматичний logout + redirect на /login.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Protected Routes + Auth — зв'язок</h2>
+    <img src="pictures/react/5/auth-routes.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+</section>
+
+<section class="slide">
+    <h2>ProtectedRoute — з AuthContext</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// components/ProtectedRoute.tsx</span>
+<span style="color:#c678dd">import</span> &#123; Navigate, useLocation &#125;
+  <span style="color:#c678dd">from</span> <span style="color:#98c379">"react-router-dom"</span>;
+<span style="color:#c678dd">import</span> &#123; useAuth &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"../context/AuthContext"</span>;
+
+<span style="color:#c678dd">export function</span> <span style="color:#61afef">ProtectedRoute</span>(&#123;
+  children, roles = []
+&#125;: &#123;
+  children: ReactNode;
+  roles?: <span style="color:#c678dd">string</span>[];
+&#125;) &#123;
+  <span style="color:#c678dd">const</span> &#123; user, isAuthenticated, loading &#125; =
+    <span style="color:#61afef">useAuth</span>();
+  <span style="color:#c678dd">const</span> location = <span style="color:#61afef">useLocation</span>();
+
+  <span style="color:#7f8488">// Auth check in progress</span>
+  <span style="color:#c678dd">if</span> (loading) <span style="color:#c678dd">return</span> &lt;FullScreenLoader /&gt;;
+
+  <span style="color:#c678dd">if</span> (!isAuthenticated)
+    <span style="color:#c678dd">return</span> &lt;Navigate to=<span style="color:#98c379">"/login"</span>
+      state=&#123; from: location &#125; replace /&gt;;
+
+  <span style="color:#7f8488">// Role check</span>
+  <span style="color:#c678dd">if</span> (roles.length &gt; <span style="color:#98c379">0</span> &amp;&amp;
+      !roles.includes(user!.role))
+    <span style="color:#c678dd">return</span> &lt;Navigate to=<span style="color:#98c379">"/forbidden"</span> replace /&gt;;
+
+  <span style="color:#c678dd">return</span> &lt;&gt;&#123;children&#125;&lt;/&gt;;
+&#125;</pre>
+        </div>
+        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// App.tsx — структура з AuthProvider</span>
+&lt;AuthProvider&gt;
+  &lt;BrowserRouter&gt;
+    &lt;Routes&gt;
+      &lt;Route path=<span style="color:#98c379">"/login"</span>
+        element=&#123;&lt;LoginPage /&gt;&#125; /&gt;
+
+      &lt;Route path=<span style="color:#98c379">"/dashboard"</span> element=&#123;
+        <span style="color:#d19a66">&lt;ProtectedRoute&gt;</span>
+          &lt;DashboardLayout /&gt;
+        <span style="color:#d19a66">&lt;/ProtectedRoute&gt;</span>
+      &#125;&gt;
+        &lt;Route index
+          element=&#123;&lt;DashboardHome /&gt;&#125; /&gt;
+        &lt;Route path=<span style="color:#98c379">"users"</span>
+          element=&#123;&lt;UserList /&gt;&#125; /&gt;
+      &lt;/Route&gt;
+
+      &lt;Route path=<span style="color:#98c379">"/admin"</span> element=&#123;
+        <span style="color:#d19a66">&lt;ProtectedRoute</span>
+          <span style="color:#d19a66">roles</span>=&#123;[<span style="color:#98c379">"admin"</span>]&#125;<span style="color:#d19a66">&gt;</span>
+          &lt;AdminPanel /&gt;
+        <span style="color:#d19a66">&lt;/ProtectedRoute&gt;</span>
+      &#125; /&gt;
+    &lt;/Routes&gt;
+  &lt;/BrowserRouter&gt;
+&lt;/AuthProvider&gt;</pre>
+        </div>
+    </div>
+    <p style="font-size: 17px; margin-top: 10px;">
+        <b>loading</b> стан — поки AuthContext перевіряє token при завантаженні сторінки.
+        Без нього — при reload користувача одразу редиректить на /login.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Token Refresh — автоматичне оновлення</h2>
+    <img src="pictures/react/5/token-refresh.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Token Refresh — реалізація interceptor</h2>
+    <div style="font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#7f8488">// api/client.ts — refresh logic</span>
+<span style="color:#c678dd">let</span> isRefreshing = <span style="color:#d19a66">false</span>;
+<span style="color:#c678dd">let</span> failedQueue: (() =&gt; <span style="color:#c678dd">void</span>)[] = [];
+
+apiClient.interceptors.response.<span style="color:#61afef">use</span>(
+  (response) =&gt; response,
+  <span style="color:#c678dd">async</span> (error) =&gt; &#123;
+    <span style="color:#c678dd">const</span> originalRequest = error.config;
+
+    <span style="color:#7f8488">// 401 &#8594; try refresh once</span>
+    <span style="color:#c678dd">if</span> (error.response?.status === <span style="color:#98c379">401</span> &amp;&amp; !originalRequest._retry) &#123;
+      <span style="color:#c678dd">if</span> (isRefreshing) &#123;
+        <span style="color:#7f8488">// Queue until refresh done</span>
+        <span style="color:#c678dd">return new</span> <span style="color:#61afef">Promise</span>(<span style="color:#e06c75">resolve</span> =&gt; &#123;
+          failedQueue.<span style="color:#61afef">push</span>(() =&gt; <span style="color:#61afef">resolve</span>(apiClient(originalRequest)));
+        &#125;);
+      &#125;
+
+      originalRequest._retry = <span style="color:#d19a66">true</span>;
+      isRefreshing = <span style="color:#d19a66">true</span>;
+
+      <span style="color:#c678dd">try</span> &#123;
+        <span style="color:#c678dd">const</span> &#123; token &#125; = <span style="color:#c678dd">await</span> authApi.<span style="color:#61afef">refresh</span>();
+        localStorage.<span style="color:#61afef">setItem</span>(<span style="color:#98c379">"token"</span>, token);
+        failedQueue.<span style="color:#61afef">forEach</span>(<span style="color:#e06c75">cb</span> =&gt; <span style="color:#e06c75">cb</span>());
+        failedQueue = [];
+        <span style="color:#c678dd">return</span> apiClient(originalRequest);
+      &#125; <span style="color:#c678dd">catch</span> &#123;
+        <span style="color:#7f8488">// refresh failed &#8594; logout</span>
+        localStorage.<span style="color:#61afef">removeItem</span>(<span style="color:#98c379">"token"</span>);
+        window.location.href = <span style="color:#98c379">"/login"</span>;
+        <span style="color:#c678dd">return</span> Promise.<span style="color:#61afef">reject</span>(error);
+      &#125; <span style="color:#c678dd">finally</span> &#123;
+        isRefreshing = <span style="color:#d19a66">false</span>;
+      &#125;
+    &#125;
+
+    <span style="color:#c678dd">return</span> Promise.<span style="color:#61afef">reject</span>(error);
+  &#125;
+);</pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Security threats — XSS та CSRF</h2>
+    <img src="pictures/react/5/security-threats.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Auth — типові помилки</h2>
+    <ul style="font-size: 18px;">
+        <li><b>Token в localStorage без XSS-захисту</b> — <code>dangerouslySetInnerHTML</code> без санітизації. Рішення: DOMPurify, CSP headers;</li>
+        <li><b>Без loading-стану при перевірці token</b> — при reload користувача одразу редиректить на /login. Рішення: <code>loading</code> в AuthContext;</li>
+        <li><b>Token не видаляється при logout</b> — залишається в localStorage. Рішення: <code>localStorage.removeItem</code> + очистка state;</li>
+        <li><b>Без 401 interceptor</b> — token expired, але API-запити просто падають. Рішення: response interceptor + redirect на /login;</li>
+        <li><b>Protected route перевіряє лише <code>isAuthenticated</code></b> — без role check. Рішення: <code>roles</code> prop в ProtectedRoute;</li>
+        <li><b>Пароль у state без <code>type="password"</code></b> — видно на екрані. Рішення: завжди <code>type="password"</code>;</li>
+        <li><b>Frontend валідація як єдина</b> — обхід через curl. Рішення: <b>backend обов'язково валідує</b>.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Registration flow — реєстрація</h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
+<pre style="margin:0;"><span style="color:#c678dd">function</span> <span style="color:#61afef">RegisterPage</span>() &#123;
+  <span style="color:#c678dd">const</span> &#123; login &#125; = <span style="color:#61afef">useAuth</span>();
+  <span style="color:#c678dd">const</span> navigate = <span style="color:#61afef">useNavigate</span>();
+  <span style="color:#c678dd">const</span> [serverError, setServerError] =
+    <span style="color:#61afef">useState</span>(<span style="color:#c678dd">null</span>);
+
+  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleSubmit</span> = <span style="color:#c678dd">async</span> (data) =&gt; &#123;
+    <span style="color:#c678dd">try</span> &#123;
+      <span style="color:#7f8488">// 1. Register</span>
+      <span style="color:#c678dd">const</span> &#123; token, user &#125; =
+        <span style="color:#c678dd">await</span> authApi.<span style="color:#61afef">register</span>(data);
+      <span style="color:#7f8488">// 2. Auto-login</span>
+      localStorage.<span style="color:#61afef">setItem</span>(<span style="color:#98c379">"token"</span>, token);
+      <span style="color:#61afef">login</span>(data.email, data.password);
+      <span style="color:#7f8488">// 3. Redirect</span>
+      <span style="color:#61afef">navigate</span>(<span style="color:#98c379">"/dashboard"</span>);
+    &#125; <span style="color:#c678dd">catch</span> (e) &#123;
+      <span style="color:#61afef">setServerError</span>(e.response?.data?.message
+        || <span style="color:#98c379">"Registration failed"</span>);
+    &#125;
+  &#125;;
+
+  <span style="color:#c678dd">return</span> &lt;RegisterForm
+    onSubmit=&#123;handleSubmit&#125;
+    serverError=&#123;serverError&#125; /&gt;;
+&#125;</pre>
+        </div>
+        <div style="flex: 1; font-size: 17px;">
+            <p><b>Registration кроки:</b></p>
+            <ol>
+                <li>Форма: name, email, password, confirm;</li>
+                <li>Frontend валідація (Zod schema);</li>
+                <li>POST /api/register;</li>
+                <li>Успіх &#8594; auto-login (зберегти token);</li>
+                <li>Редирект на /dashboard;</li>
+                <li>Помилка (email exists) &#8594;
+                    показати serverError.</li>
+            </ol>
+            <p><b>Валідація password confirm:</b></p>
+            <p>Zod: <code>.refine(data =&gt; data.password
+                === data.confirm)</code></p>
+            <p><b>Server errors</b> (email exists) —
+                показуємо як <code>serverError</code>
+                окремо від field errors.</p>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Password handling — безпека</h2>
+    <div style="font-size: 19px;">
+        <p><b>Правила обробки паролів:</b></p>
+        <ul>
+            <li><b>Николи не логувати</b> пароль (<code>console.log</code>);</li>
+            <li><b>Николи не зберігати</b> пароль у state довше, ніж потрібно;</li>
+            <li><code>type="password"</code> — приховує введення;</li>
+            <li><code>autocomplete="new-password"</code> для registration;</li>
+            <li><code>autocomplete="current-password"</code> для login;</li>
+            <li><b>Хешування</b> — на backend (bcrypt, argon2), <b>не на frontend</b>;</li>
+            <li><b>HTTPS</b> — обов'язково, інакше пароль перехоплять;</li>
+            <li><b>Password strength meter</b> — показувати надійність;</li>
+            <li><b>Мінімум 8 символів</b>, букви + цифри + спецсимволи.</li>
+        </ul>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Підсумок</h2>
+    <ul style="font-size: 19px;">
+        <li><b>Controlled components</b> — React state є джерелом правди (за замовчуванням). <b>Uncontrolled</b> — DOM через ref (file input, 3rd-party).</li>
+        <li><b>Валідація</b>: onBlur (перша перевірка) + onChange (очистка error) + onSubmit (фінальна). <code>touched</code> для UX.</li>
+        <li><b>React Hook Form + Zod</b> — сучасний best practice: schema = validation + TS types, uncontrolled = продуктивність.</li>
+        <li><b>Frontend validation &#8800; security</b> — backend обов'язково валідує все.</li>
+        <li><b>Auth flow</b>: Login &#8594; POST /api/login &#8594; JWT &#8594; store (localStorage/cookie) &#8594; AuthContext &#8594; ProtectedRoute.</li>
+        <li><b>JWT</b> = header.payload.signature. Stateless, self-contained, signed. Payload не зашифрований!</li>
+        <li><b>AuthContext</b> — глобальний auth state + login/logout/register методи. <code>useAuth()</code> доступний скрізь.</li>
+        <li><b>Axios interceptor</b> — додає <code>Authorization: Bearer</code> до всіх запитів. 401 &#8594; logout або refresh.</li>
+        <li><b>Token refresh</b> — access token (short) + refresh token (long). Автоматичне оновлення через interceptor.</li>
+        <li><b>Security</b>: XSS (sanitize, CSP) + CSRF (SameSite, JWT in header). HttpOnly cookie — найбезпечніше.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Корисні ресурси</h2>
+    <ul style="font-size: 19px;">
+        <li><a href="https://react.dev/learn/forms" target="_blank">React Docs: Forms</a></li>
+        <li><a href="https://www.react-hook-form.com/" target="_blank">React Hook Form</a></li>
+        <li><a href="https://zod.dev/" target="_blank">Zod — schema validation</a></li>
+        <li><a href="https://github.com/jquense/yup" target="_blank">Yup (альтернатива Zod)</a></li>
+        <li><a href="https://jwt.io/" target="_blank">jwt.io — JWT debugger</a></li>
+        <li><a href="https://datatracker.ietf.org/doc/html/rfc7519" target="_blank">RFC 7519 — JWT specification</a></li>
+        <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html" target="_blank">OWASP JWT Cheat Sheet</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies" target="_blank">MDN: HTTP Cookies</a></li>
+        <li><a href="https://owasp.org/www-community/attacks/xss/" target="_blank">OWASP: XSS</a></li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Дякую за увагу!</h2>
+</section>
+
+<footer class="badge">
+    <a href="https://github.com/Computer-Science-Department-ChNU/client-web-systems" target="_blank">Fork me on
+        GitHub</a>
+</footer>
+
+<div class="progress"></div>
+
+<script src="node_modules/@shower/core/dist/index.js"></script>
+</body>
+</html>
