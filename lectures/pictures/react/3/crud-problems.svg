@@ -13,7 +13,7 @@
   <text x="40" y="188" fill="#51cf66" font-family="monospace" font-size="12">await create(); await refetchList()</text>
 
   <!-- Problem 2: race condition -->
-  <rect x="380" y="55" width="320" height="150" rx="8" fill="#1a1a2e" stroke:#ff6b6b"/>
+  <rect x="380" y="55" width="320" height="150" rx="8" fill="#1a1a2e" stroke="#ff6b6b"/>
   <text x="400" y="80" fill="#ff6b6b" font-family="monospace" font-size="13" font-weight="bold">&#10060; 2. Race condition (запит-перегонка)</text>
   <text x="400" y="105" fill="#ccc" font-family="monospace" font-size="12">// user types "a" then "ab"</text>
   <text x="400" y="123" fill="#ccc" font-family="monospace" font-size="12">fetch("a") // slow</text>
@@ -29,7 +29,7 @@
   <text x="40" y="320" fill="#51cf66" font-family="monospace" font-size="12">&#9989; try/catch + setError + UI toast</text>
 
   <!-- Problem 4: double fetch -->
-  <rect x="380" y="220" width="320" height="140" rx="8" fill="#1a1a2e" stroke:#ff6b6b"/>
+  <rect x="380" y="220" width="320" height="140" rx="8" fill="#1a1a2e" stroke="#ff6b6b"/>
   <text x="400" y="245" fill="#ff6b6b" font-family="monospace" font-size="13" font-weight="bold">&#10060; 4. Подвійний fetch (StrictMode)</text>
   <text x="400" y="270" fill="#ccc" font-family="monospace" font-size="12">// useEffect runs twice in dev</text>
   <text x="400" y="290" fill="#ccc" font-family="monospace" font-size="12">useEffect(() =&gt; fetch(), [])</text>

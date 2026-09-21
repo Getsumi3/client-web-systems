@@ -138,7 +138,7 @@
 
 <section class="slide">
     <h2>Стан запиту: loading &#8594; success / error</h2>
-    <img src="pictures/react/3/async-states.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <img src="pictures/react/3/async-states.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
 </section>
 
 <section class="slide">
@@ -761,7 +761,11 @@ apiClient.interceptors.response.<span style="color:#61afef">use</span>(
 <span style="color:#7f8488">// 4. hooks/useUsers.ts — state + API calls</span>
 <span style="color:#c678dd">export function</span> <span style="color:#61afef">useUsers</span>() &#123;
   <span style="color:#c678dd">const</span> [state, dispatch] = <span style="color:#61afef">useReducer</span>(reducer, initial);
-  <span style="color:#c678dd">const</span> refetch = <span style="color:#c678dd">async</span> () =&gt; &#123; dispatch(&#123;type:<span style="color:#98c379">"start"</span>&#125;); <span style="color:#c678dd">await</span> usersApi.list().then(d =&gt; dispatch(&#123;type:<span style="color:#98c379">"success"</span>, data:d&#125;)) &#125;;
+  <span style="color:#c678dd">const</span> refetch = <span style="color:#c678dd">async</span> () =&gt; &#123;
+    dispatch(&#123;type:<span style="color:#98c379">"start"</span>&#125;);
+    <span style="color:#c678dd">await</span> usersApi.list()
+      .then(d =&gt; dispatch(&#123;type:<span style="color:#98c379">"success"</span>, data:d&#125;));
+  &#125;;
   <span style="color:#61afef">useEffect</span>(() =&gt; &#123; refetch() &#125;, []);
   <span style="color:#c678dd">return</span> &#123; ...state, refetch &#125;;
 &#125;

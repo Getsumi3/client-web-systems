@@ -3,7 +3,7 @@
 
   <text x="360" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">Структура API-папки проєкту</text>
 
-  <rect x="180" y="55" width="360" height="270" rx="8" fill="#1a1a2e" stroke:#444"/>
+  <rect x="180" y="55" width="360" height="270" rx="8" fill="#1a1a2e" stroke="#444"/>
   <text x="195" y="80" fill="#61DAFB" font-family="monospace" font-size="14" font-weight="bold">src/</text>
   <text x="195" y="105" fill="#ccc" font-family="monospace" font-size="13">├── api/</text>
   <text x="215" y="125" fill="#d19a66" font-family="monospace" font-size="13">│   ├── client.ts        </text>
