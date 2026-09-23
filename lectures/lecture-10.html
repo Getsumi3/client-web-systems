@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <title>Лекція 5. Робота з API та CRUD-застосунками</title>
+    <title>Лекція 10. Робота з API та CRUD-застосунками</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="node_modules/@shower/ribbon/styles/index.css">
@@ -10,7 +10,7 @@
 <body class="shower list">
 
 <header class="caption">
-    <h1>Лекція 5. Робота з API та CRUD-застосунками</h1>
+    <h1>Лекція 10. Робота з API та CRUD-застосунками</h1>
     <p>
         <a href="index.html">Назад до змісту лекцій</a>
     </p>
@@ -18,7 +18,7 @@
 
 <section class="slide">
     <h2 class="shout">
-        Лекція 5. Робота з API та CRUD-застосунками
+        Лекція 10. Робота з API та CRUD-застосунками
     </h2>
 </section>
 
@@ -80,13 +80,13 @@
 
 <section class="slide">
     <h2>API Layer — архітектура</h2>
-    <img src="pictures/react/3/api-layer.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+    <img src="pictures/react/3/api-layer.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
 </section>
 
 <section class="slide">
     <h2>Перший запит: fetch()</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import { useState, useEffect } from "react";
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import { useState, useEffect } from "react";
 
 type User = { id: number; name: string };
 
@@ -136,7 +136,7 @@ function UserList() {
 
 <section class="slide">
     <h2>Стан запиту: loading &#8594; success / error</h2>
-    <img src="pictures/react/3/async-states.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+    <img src="pictures/react/3/async-states.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
 </section>
 
 <section class="slide">
@@ -161,7 +161,7 @@ function UserList() {
 <section class="slide">
     <h2>Обробка станів — приклад з useReducer</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">type State&lt;T&gt; = {
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">type State&lt;T&gt; = {
   status: "idle" | "loading"
         | "success" | "error";
   data: T | null;
@@ -186,7 +186,7 @@ function reducer&lt;T&gt;(
       return { status: "error", data: null, error: action.error };
   }
 }</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Custom Hook з useReducer
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Custom Hook з useReducer
 export function useAsync&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;, deps: any[] = []) {
   const [state, dispatch] =
     useReducer(reducer&lt;T&gt;, {
@@ -218,7 +218,7 @@ export function useAsync&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;, deps: any[] = [
 <section class="slide">
     <h2>UI-патерни для асинхронних станів</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function UserList() {
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">function UserList() {
   const { status, data, error } =
     useAsync(() =&gt; api.getUsers(), []);
 
@@ -264,7 +264,7 @@ export function useAsync&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;, deps: any[] = [
 <section class="slide">
     <h2>Error Boundaries — глобальний catch</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import { Component, type ReactNode } from "react";
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import { Component, type ReactNode } from "react";
 
 class ErrorBoundary extends Component {
   state = { hasError: false };
@@ -309,7 +309,7 @@ class ErrorBoundary extends Component {
 
 <section class="slide">
     <h2>CRUD &#8594; HTTP verbs &#8594; REST endpoints</h2>
-    <img src="pictures/react/3/crud-table.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <img src="pictures/react/3/crud-table.svg" alt="" style="display: block; margin: 0 auto; width: 80%;">
 </section>
 
 <section class="slide">
@@ -320,7 +320,7 @@ class ErrorBoundary extends Component {
 <section class="slide">
     <h2>Read — список + детальна сторінка</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// hooks/useUsers.ts
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// hooks/useUsers.ts
 export function useUsers() {
   const [state, setState] = useState&lt;
     { users: User[]; loading: boolean; error: string | null }
@@ -340,7 +340,7 @@ export function useUsers() {
 
   return { ...state, refetch };
 }</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Використання
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Використання
 function UserListPage() {
   const { users, loading, error, refetch } =
     useUsers();
@@ -368,7 +368,7 @@ function UserListPage() {
 <section class="slide">
     <h2>Create — додавання через форму</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function CreateUserForm() {
+        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">function CreateUserForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
@@ -423,7 +423,7 @@ function UserListPage() {
 <section class="slide">
     <h2>Update — редагування існуючого</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function EditUserPage(&#123; id &#125;: &#123; id: string &#125;) {
+        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">function EditUserPage(&#123; id &#125;: &#123; id: string &#125;) {
   const { data: user, loading } =
     useAsync(() =&gt; api.getUser(id), [id]);
 
@@ -473,7 +473,7 @@ function UserListPage() {
 <section class="slide">
     <h2>Delete — з підтвердженням</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function DeleteButton(&#123; id, onDeleted &#125;: &#123;
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">function DeleteButton(&#123; id, onDeleted &#125;: &#123;
   id: string;
   onDeleted: () =&gt; void;
 &#125;) {
@@ -523,7 +523,7 @@ function UserListPage() {
 <section class="slide">
     <h2>CRUD-проблеми та рішення</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; 1. Stale list (список не оновлюється)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// &#10060; 1. Stale list (список не оновлюється)
 // create item
 await axios.post("/api/users", data)
 // &#10007; list still shows old data!
@@ -536,7 +536,7 @@ axios.post(...) // без .catch
 // unhandled rejection
 
 // &#9989; try/catch + setError + UI toast</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; 2. Race condition (запит-перегонка)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// &#10060; 2. Race condition (запит-перегонка)
 // user types "a" then "ab"
 fetch("a") // slow
 fetch("ab") // fast, returns first
@@ -556,13 +556,13 @@ useEffect(() =&gt; fetch(), [])
 <section class="slide">
     <h2>AbortController — скасування запитів</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; Без скасування (race condition)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// &#10060; Без скасування (race condition)
 useEffect(() =&gt; {
   fetch(`/api?q=${query}`)
     .then(setData)
 }, [query])
 // старий запит може перезаписати новий</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#9989; З AbortController
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// &#9989; З AbortController
 useEffect(() =&gt; {
   const ctrl = new AbortController()
   fetch(url, { signal: ctrl.signal })
@@ -570,7 +570,7 @@ useEffect(() =&gt; {
 }, [query])</pre>
     </div>
     <p style="font-size: 16px;"><b>Axios варіант:</b></p>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">useEffect(() =&gt; {
+    <pre style="margin: 0; font-size: 10px; white-space: pre;">useEffect(() =&gt; {
   const ctrl = new AbortController()
   axios.get("/api/users", { signal: ctrl.signal })
     .then(res =&gt; setUsers(res.data))
@@ -603,7 +603,7 @@ useEffect(() =&gt; {
             <p style="font-size: 15px;">UI миттєво реагує.</p>
         </div>
     </div>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">const deleteOptimistic = async (id: string) =&gt; {
+    <pre style="margin: 0; font-size: 10px; white-space: pre;">const deleteOptimistic = async (id: string) =&gt; {
   const prev = items;                    // 1. save snapshot
   setItems(items.filter(i =&gt; i.id !== id)); // 2. update UI now
   try { await api.deleteUser(id); }       // 3. send request
@@ -615,7 +615,7 @@ useEffect(() =&gt; {
     <h2>Коли використовувати оптимістичні оновлення?</h2>
     <div class="columns two">
         <div style="font-size: 18px;">
-            <p><b>&#9989; Підходить:</b></p>
+            <p><b>Підходить:</b></p>
             <ul>
                 <li>Delete — видалення з списку (миттєво зникає);</li>
                 <li>Toggle (like / favorite) — швидка взаємодія;</li>
@@ -626,7 +626,7 @@ useEffect(() =&gt; {
                 користувач не чекає.</p>
         </div>
         <div style="font-size: 18px;">
-            <p><b>&#10060; Не підходить:</b></p>
+            <p><b>Не підходить:</b></p>
             <ul>
                 <li>Create з серверним ID — ID ще невідомий;</li>
                 <li>Платежі, транзакції — потрібне підтвердження;</li>
@@ -645,13 +645,13 @@ useEffect(() =&gt; {
 
 <section class="slide">
     <h2>fetch vs Axios — порівняння</h2>
-    <img src="pictures/react/3/fetch-vs-axios.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <img src="pictures/react/3/fetch-vs-axios.svg" alt="" style="display: block; margin: 0 auto; width: 80%;">
 </section>
 
 <section class="slide">
     <h2>Axios — налаштування instance</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// api/client.ts
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// api/client.ts
 import axios from "axios";
 
 export const apiClient = axios.create({
@@ -699,7 +699,7 @@ await apiClient.delete(`/users/${id}`);</pre>
 
 <section class="slide">
     <h2>Axios Interceptors — приклад</h2>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">// api/client.ts — interceptors
+    <pre style="margin: 0; font-size: 8px; white-space: pre;">// api/client.ts — interceptors
 import axios from "axios";
 
 export const apiClient = axios.create(&#123; baseURL: "https://api.example.com" &#125;);
@@ -729,7 +729,7 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   &#125;
 );</pre>
-    <p style="font-size: 17px; margin-top: 10px;">
+    <p style="font-size: 16px;">
         <b>Interceptors</b> — глобальні «фільтри» для всіх запитів/відповідей.
         Призначення: auth headers, error handling, logging, retry, metrics.
     </p>
@@ -738,7 +738,7 @@ apiClient.interceptors.response.use(
 <section class="slide">
     <h2>API Layer — endpoint-функції</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// types/api.ts
+        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">// types/api.ts
 export type User = &#123;
   id: string;
   name: string;
@@ -790,7 +790,7 @@ export const usersApi = &#123;
 
 <section class="slide">
     <h2>Структура API-папки проєкту</h2>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">src/
+    <pre style="margin: 0; font-size: 10px; white-space: pre;">src/
 ├── api/
 │   ├── client.ts        // axios instance
 │   ├── users.ts         // CRUD endpoints
@@ -806,7 +806,7 @@ export const usersApi = &#123;
 
 <section class="slide">
     <h2>Повний CRUD-флоу — зв'язки шарів</h2>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">// 1. types/api.ts — типи
+    <pre style="margin: 0; font-size: 8px; white-space: pre;">// 1. types/api.ts — типи
 export type User = &#123; id: string; name: string; email: string &#125;;
 
 // 2. api/client.ts — axios instance + interceptors
@@ -868,7 +868,7 @@ function UserListPage() &#123;
                 <li>кілька компонентів можуть використовувати ті ж дані;</li>
                 <li>потрібен retry, refetch, optimistic.</li>
             </ul>
-            <p>&#8594; <b>TanStack Query, SWR</b> (Лекція 6)</p>
+            <p>&#8594; <b>TanStack Query, SWR</b> (Лекція 11)</p>
         </div>
         <div style="font-size: 18px;">
             <p><b>Client state (UI state):</b></p>
@@ -918,7 +918,7 @@ function UserListPage() &#123;
         <li><a href="https://axios-http.com/docs/interceptors" target="_blank">Axios Interceptors</a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API" target="_blank">MDN: Fetch API</a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController" target="_blank">MDN: AbortController</a></li>
-        <li><a href="https://tanstack.com/query/latest/docs/overview" target="_blank">TanStack Query Overview (Лекція 6)</a></li>
+        <li><a href="https://tanstack.com/query/latest/docs/overview" target="_blank">TanStack Query Overview (Лекція 11)</a></li>
         <li><a href="https://restfulapi.net/" target="_blank">REST API Tutorial</a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status" target="_blank">MDN: HTTP Status Codes</a></li>
     </ul>

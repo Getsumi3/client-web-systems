@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <title>Лекція 6. Routing та архітектура React-застосунку</title>
+    <title>Лекція 11. Routing та архітектура React-застосунку</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="node_modules/@shower/ribbon/styles/index.css">
@@ -10,7 +10,7 @@
 <body class="shower list">
 
 <header class="caption">
-    <h1>Лекція 6. Routing та архітектура React-застосунку</h1>
+    <h1>Лекція 11. Routing та архітектура React-застосунку</h1>
     <p>
         <a href="index.html">Назад до змісту лекцій</a>
     </p>
@@ -18,7 +18,7 @@
 
 <section class="slide">
     <h2 class="shout">
-        Лекція 6. Routing та архітектура React-застосунку
+        Лекція 11. Routing та архітектура React-застосунку
     </h2>
 </section>
 
@@ -38,12 +38,12 @@
 
 <section class="slide">
     <h2>SPA vs MPA — навігація</h2>
-    <img src="pictures/react/4/spa-vs-mpa.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <img src="pictures/react/4/spa-vs-mpa.svg" alt="" style="display: block; margin: 0 auto; width: 80%;">
 </section>
 
 <section class="slide">
     <h2>Що таке SPA-маршрутизація?</h2>
-    <div style="font-size: 19px;">
+    <div style="font-size: 18px;">
         <p><b>SPA (Single-Page Application)</b> — застосунок завантажується
             один раз, далі навігація відбувається <b>без перезавантаження сторінки</b>.</p>
         <p><b>Маршрутизація (routing)</b> — механізм, що зіставляє URL-адресу
@@ -62,7 +62,7 @@
 
 <section class="slide">
     <h2>Навіщо роутинг у SPA?</h2>
-    <ul style="font-size: 19px;">
+    <ul style="font-size: 18px;">
         <li><b>Bookmarkable URLs</b> — користувач може зберегти посилання на конкретну сторінку;</li>
         <li><b>Shareable</b> — відправити посилання колезі, він побачить те саме;</li>
         <li><b>Back/Forward</b> — кнопки браузера працюють природньо;</li>
@@ -76,13 +76,13 @@
 <section class="slide">
     <h2>URL як джерело правди (state)</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; State в компоненті
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// &#10060; State в компоненті
 const [page, setPage] = useState(1);
 const [filter, setFilter] = useState("all");
 const [tab, setTab] = useState("details");
 
 // втрачається при reload, не ділиться</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#9989; State в URL (router)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// &#9989; State в URL (router)
 /products?page=2&amp;filter=active
 /users/42?tab=details
 
@@ -99,7 +99,7 @@ const [tab, setTab] = useState("details");
 
 <section class="slide">
     <h2>React Router — компонентна модель</h2>
-    <img src="pictures/react/4/router-components.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
+    <img src="pictures/react/4/router-components.svg" alt="" style="display: block; margin: 0 auto; width: 70%;">
 </section>
 
 <section class="slide">
@@ -122,7 +122,7 @@ const [tab, setTab] = useState("details");
 <section class="slide">
     <h2>React Router — базова конфігурація</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// JSX-стиль (декларативний)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// JSX-стиль (декларативний)
 import &#123; BrowserRouter, Routes, Route, Link &#125;
   from "react-router-dom";
 
@@ -141,7 +141,7 @@ function App() &#123;
     &lt;/BrowserRouter&gt;
   );
 &#125;</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Data API стиль (v6.4+, рекомендований)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Data API стиль (v6.4+, рекомендований)
 import &#123; createBrowserRouter, RouterProvider &#125;
   from "react-router-dom";
 
@@ -167,7 +167,7 @@ function App() &#123;
 <section class="slide">
     <h2>Router hooks — навігація в коді</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// useParams — params з URL
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// useParams — params з URL
 function UserDetail() {
   const { id } = useParams();
   // URL: /users/42  &#8594; id="42"
@@ -181,7 +181,7 @@ function ProductList() {
   const page = params.get("page") ?? "1";
   // URL: /products?page=3
 }</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// useNavigate — програмна навігація
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// useNavigate — програмна навігація
 function LoginForm() {
   const navigate = useNavigate();
   const handleSubmit = async () => {
@@ -206,7 +206,7 @@ function LoginForm() {
 <section class="slide">
     <h2>Route Parameters — динамічні шляхи</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Конфігурація маршруту з параметром
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Конфігурація маршруту з параметром
 &lt;Route path="/users/:id"
   element=&#123;&lt;UserDetail /&gt;&#125; /&gt;
 
@@ -243,7 +243,7 @@ function UserDetail() &#123;
 <section class="slide">
     <h2>Query Parameters — useSearchParams</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import &#123; useSearchParams &#125; from "react-router-dom";
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import &#123; useSearchParams &#125; from "react-router-dom";
 
 function ProductList() &#123;
   const [params, setParams] =
@@ -292,7 +292,7 @@ function ProductList() &#123;
 
 <section class="slide">
     <h2>Nested Routes — приклад коду</h2>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">// Layout-компонент з Outlet — місце для дочірніх маршрутів
+    <pre style="margin: 0; font-size: 10px; white-space: pre;">// Layout-компонент з Outlet — місце для дочірніх маршрутів
 function Layout() &#123;
   return (
     &lt;div&gt;
@@ -327,7 +327,7 @@ function Layout() &#123;
 <section class="slide">
     <h2>Nested Routes — глибше вкладення</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Кілька рівнів вкладеності
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Кілька рівнів вкладеності
 &lt;Route path="/dashboard" element=&#123;&lt;DashboardLayout /&gt;&#125;&gt;
   &lt;Route index element=&#123;&lt;DashboardHome /&gt;&#125; /&gt;
   &lt;Route path="users" element=&#123;&lt;UsersLayout /&gt;&#125;&gt;
@@ -365,7 +365,7 @@ function Layout() &#123;
 <section class="slide">
     <h2>Protected Routes — реалізація</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// components/ProtectedRoute.tsx
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// components/ProtectedRoute.tsx
 import &#123; Navigate, useLocation &#125; from "react-router-dom";
 import &#123; useAuth &#125; from "../hooks/useAuth";
 
@@ -383,7 +383,7 @@ export function ProtectedRoute(
 
   return &lt;&gt;&#123;children&#125;&lt;/&gt;;
 &#125;</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Використання в Routes
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Використання в Routes
 &lt;Routes&gt;
   &lt;Route path="/login" element=&#123;&lt;Login /&gt;&#125; /&gt;
 
@@ -411,7 +411,7 @@ const from = location.state?.from?.pathname || "/dashboard";
 
 <section class="slide">
     <h2>Role-based Routes — розширення</h2>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">// ProtectedRoute з перевіркою ролі
+    <pre style="margin: 0; font-size: 10px; white-space: pre;">// ProtectedRoute з перевіркою ролі
 export function ProtectedRoute(&#123;
   children, roles = []
 &#125;: &#123;
@@ -441,13 +441,13 @@ export function ProtectedRoute(&#123;
 <section class="slide">
     <h2>Lazy Loading Routes — code splitting</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Без lazy — один бандл
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Без lazy — один бандл
 import Home from "./Home";
 import Users from "./Users";
 import Settings from "./Settings";
 
 // all loaded upfront (~500KB)</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// З lazy — split per route
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// З lazy — split per route
 const Home = lazy(() =&gt; import("./Home"));
 const Users = lazy(() =&gt; import("./Users"));
 const Settings = lazy(() =&gt; import("./Settings"));
@@ -455,7 +455,7 @@ const Settings = lazy(() =&gt; import("./Settings"));
 // each loaded on demand (~50KB)</pre>
     </div>
     <p style="font-size: 16px; margin-top: 15px;"><b>Suspense</b> — fallback під час завантаження:</p>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">&lt;Suspense fallback={&lt;Spinner /&gt;}&gt;
+    <pre style="margin: 0; font-size: 10px; white-space: pre;">&lt;Suspense fallback={&lt;Spinner /&gt;}&gt;
   &lt;Routes&gt;...&lt;/Routes&gt;
 &lt;/Suspense&gt;
 // показує spinner поки chunk завантажується</pre>
@@ -464,7 +464,7 @@ const Settings = lazy(() =&gt; import("./Settings"));
 <section class="slide">
     <h2>Lazy Loading — приклад коду</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import &#123; lazy, Suspense &#125; from "react";
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import &#123; lazy, Suspense &#125; from "react";
 import &#123; BrowserRouter, Routes, Route &#125;
   from "react-router-dom";
 
@@ -509,7 +509,7 @@ function App() &#123;
 <section class="slide">
     <h2>404 сторінка — NotFound</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Catch-all маршрут — має бути останнім
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Catch-all маршрут — має бути останнім
 &lt;Routes&gt;
   &lt;Route path="/" element=&#123;&lt;Home /&gt;&#125; /&gt;
   &lt;Route path="/users" element=&#123;&lt;UserList /&gt;&#125; /&gt;
@@ -548,7 +548,7 @@ function NotFound() &#123;
 
 <section class="slide">
     <h2>Структура React-застосунку</h2>
-    <img src="pictures/react/4/app-structure.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+    <img src="pictures/react/4/app-structure.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
 </section>
 
 <section class="slide">
@@ -608,7 +608,7 @@ function NotFound() &#123;
 
 <section class="slide">
     <h2>Feature-first структура</h2>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">src/
+    <pre style="margin: 0; font-size: 10px; white-space: pre;">src/
 ├── app/                    // global setup
 │   ├── router.tsx          // routes config
 │   ├── providers.tsx       // Context providers
@@ -629,7 +629,7 @@ function NotFound() &#123;
     <div class="columns two">
         <div style="font-size: 17px;">
             <p><b>Type-first (за типом файлу):</b></p>
-            <pre style="margin: 0; font-size: 12px; white-space: pre;">src/
+            <pre style="margin: 0; font-size: 10px; white-space: pre;">src/
 ├── components/
 │   ├── LoginForm.tsx
 │   ├── ProductList.tsx
@@ -645,7 +645,7 @@ function NotFound() &#123;
         </div>
         <div style="font-size: 17px;">
             <p><b>Feature-first (за доменом):</b></p>
-            <pre style="margin: 0; font-size: 12px; white-space: pre;">src/
+            <pre style="margin: 0; font-size: 10px; white-space: pre;">src/
 ├── features/
 │   ├── auth/
 │   │   ├── LoginForm.tsx
@@ -665,7 +665,7 @@ function NotFound() &#123;
 <section class="slide">
     <h2>Container vs Presentational</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Container (logic)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Container (logic)
 function UserListContainer() {
   const { users, loading, error }
     = useUsers();
@@ -674,7 +674,7 @@ function UserListContainer() {
   return &lt;UserListView users={users}
     onDelete={handleDelete} /&gt;;
 }</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Presentational (UI only)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Presentational (UI only)
 function UserListView(props: {
   users: User[];
   onDelete: (id: string) =&gt; void;
@@ -696,7 +696,7 @@ function UserListView(props: {
 <section class="slide">
     <h2>Сучасний підхід: Hooks замість Containers</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Логіка в Custom Hook
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Логіка в Custom Hook
 export function useUsers() &#123;
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -715,7 +715,7 @@ export function useUsers() &#123;
 
   return &#123; users, loading, remove &#125;;
 &#125;</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Компонент — лише UI + виклик hook
+        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">// Компонент — лише UI + виклик hook
 function UserListPage() &#123;
   const &#123; users, loading, remove &#125; =
     useUsers();
@@ -742,10 +742,9 @@ function UserListView(&#123; users, onDelete &#125;) &#123;
   &lt;/ul&gt;;
 &#125;</pre>
     </div>
-    <p style="font-size: 17px; margin-top: 10px;">
+    <p style="font-size: 16px;">
         Custom Hook витягує логіку, компонент залишається чистим UI.
-        <b>Перевага над Container-компонентом:</b> hook можна перевикористати
-        в кількох компонентах.
+        <b>Перевага над Container-компонентом:</b> hook можна перевикористати в кількох компонентах.
     </p>
 </section>
 
@@ -756,7 +755,7 @@ function UserListView(&#123; users, onDelete &#125;) &#123;
 <section class="slide">
     <h2>Component Composition — патерни</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 1. children prop
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 1. children prop
 &lt;Card&gt;
   &lt;h2&gt;Title&lt;/h2&gt;
   &lt;p&gt;Content&lt;/p&gt;
@@ -769,7 +768,7 @@ function withAuth(Component) {
     if (!auth) return &lt;Login /&gt;;
     return &lt;Component {...props} /&gt;;
   }}</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 2. render props
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 2. render props
 &lt;DataProvider render={data =&gt;
   &lt;List items={data} /&gt;
 } /&gt;
@@ -781,7 +780,7 @@ function Page() {
     useAuth();
   if (!data) return &lt;Login /&gt;;
 }</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 3. compound components
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 3. compound components
 &lt;Tabs&gt;
   &lt;Tabs.List&gt;...&lt;/Tabs.List&gt;
   &lt;Tabs.Panel&gt;...&lt;/Tabs.Panel&gt;
@@ -800,7 +799,7 @@ function Page() {
 <section class="slide">
     <h2>1. children — базовий патерн</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Card — універсальна обгортка
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Card — універсальна обгортка
 function Card(&#123; children, title &#125;: &#123;
   children: ReactNode;
   title: string;
@@ -840,8 +839,8 @@ function Card(&#123; children, title &#125;: &#123;
 
 <section class="slide">
     <h2>2. Compound Components — складені</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Tabs =Tabs.List + Tabs.Panel
+    <div style="display: flex; gap: 10px;">
+        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">// Tabs =Tabs.List + Tabs.Panel
 function Tabs(&#123; children &#125;) &#123;
   const [active, setActive] = useState(0);
   return (
@@ -871,7 +870,7 @@ Tabs.Panel = function(&#123; index, children &#125;) &#123;
   &lt;Tabs.Panel index=&#123;0&#125;&gt;...&lt;/Tabs.Panel&gt;
   &lt;Tabs.Panel index=&#123;1&#125;&gt;...&lt;/Tabs.Panel&gt;
 &lt;/Tabs&gt;</pre>
-        <div style="flex: 1; font-size: 17px;">
+        <div style="flex: 1; font-size: 12px;">
             <p><b>Compound Components</b> — група компонентів,
                 що працюють разом через спільний Context.</p>
             <p><b>Приклади:</b></p>
@@ -896,7 +895,7 @@ Tabs.Panel = function(&#123; index, children &#125;) &#123;
 <section class="slide">
     <h2>3. Render Props — функція як child</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Компонент приймає функцію-рендерер
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Компонент приймає функцію-рендерер
 function DataList&lt;T&gt;(&#123;
   items, renderItem
 &#125;: &#123;
@@ -922,7 +921,7 @@ function DataList&lt;T&gt;(&#123;
     &lt;/div&gt;
   )&#125;
 /&gt;</pre>
-        <div style="flex: 1; font-size: 17px;">
+        <div style="flex: 1; font-size: 16px;">
             <p><b>Render prop</b> — проп-функція, що повертає JSX.</p>
             <p>Компонент делегує рендер викликучу.</p>
             <p><b>Призначення:</b></p>
@@ -932,7 +931,7 @@ function DataList&lt;T&gt;(&#123;
                 <li>Кастомізація рендеру.</li>
             </ul>
             <p><b>Варіація — function as child:</b></p>
-            <pre style="margin: 0; font-size: 12px; white-space: pre;">&lt;DataProvider&gt;
+            <pre style="margin: 0; font-size: 10px; white-space: pre;">&lt;DataProvider&gt;
   &#123;(data) =&gt; &lt;List items=&#123;data&#125; /&gt;&#125;
 &lt;/DataProvider&gt;</pre>
             <p><b>Зауваження:</b> у сучасному React частіше
@@ -944,7 +943,7 @@ function DataList&lt;T&gt;(&#123;
 <section class="slide">
     <h2>4. Slot Props — кілька «слотів»</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Layout приймає кілька "слотів" через props
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Layout приймає кілька "слотів" через props
 function PageLayout(&#123;
   header, sidebar, children
 &#125;: &#123;
@@ -993,7 +992,7 @@ function PageLayout(&#123;
 <section class="slide">
     <h2>5. HOC (Higher-Order Component) — legacy</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// HOC — функція, що приймає компонент і повертає новий
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// HOC — функція, що приймає компонент і повертає новий
 function withAuth&lt;P&gt;(
   Component: ComponentType&lt;P&gt;
 ) &#123;
@@ -1082,7 +1081,7 @@ export default withAuth(DashboardPage);</pre>
 <section class="slide">
     <h2>Composition — вирішення props drilling</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; Props drilling
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// &#10060; Props drilling
 &lt;App user=&#123;user&#125;&gt;
   &lt;Layout user=&#123;user&#125;&gt;          // не потрібен
     &lt;Sidebar user=&#123;user&#125;&gt;       // не потрібен
@@ -1100,7 +1099,7 @@ export default withAuth(DashboardPage);</pre>
   /&gt;
 &lt;/App&gt;
 // Layout не знає про user взагалі!</pre>
-        <div style="flex: 1; font-size: 17px;">
+        <div style="flex: 1; font-size: 16px;">
             <p><b>Композиція замість props drilling:</b></p>
             <p>Замість прокидання <code>user</code> через
                 Layout і Sidebar — <b>передаємо готовий елемент</b>
@@ -1112,7 +1111,7 @@ export default withAuth(DashboardPage);</pre>
                 <li>Немає зайвих re-render;</li>
                 <li>Зрозуміло, де дані використовуються.</li>
             </ul>
-            <p>Альтернатива — <b>Context API</b> (Лекція 2),
+            <p>Альтернатива — <b>Context API</b> (Лекція 9),
                 якщо user потрібен у багатьох місцях.</p>
         </div>
     </div>
@@ -1120,7 +1119,7 @@ export default withAuth(DashboardPage);</pre>
 
 <section class="slide">
     <h2>Архітектурні принципи — підсумок</h2>
-    <ul style="font-size: 19px;">
+    <ul style="font-size: 18px;">
         <li><b>Single Responsibility</b> — кожен компонент має одну відповідальність;</li>
         <li><b>Separation of Concerns</b> — UI, логіка, data — окремі шари;</li>
         <li><b>DRY</b> — перевикористання через Custom Hooks + composition;</li>
@@ -1147,7 +1146,7 @@ export default withAuth(DashboardPage);</pre>
 
 <section class="slide">
     <h2>Підсумок</h2>
-    <ul style="font-size: 19px;">
+    <ul style="font-size: 18px;">
         <li><b>SPA-маршрутизація</b> — навігація без перезавантаження через History API. React Router — стандарт.</li>
         <li><b>React Router</b>: <code>BrowserRouter</code>, <code>Routes</code>, <code>Route</code>, <code>Link</code>, <code>Outlet</code>, <code>Navigate</code>. Hooks: <code>useParams</code>, <code>useNavigate</code>, <code>useSearchParams</code>, <code>useLocation</code>.</li>
         <li><b>Route params</b> (<code>:id</code>) + <b>query params</b> (<code>?page=2</code>) — URL як джерело правди.</li>
@@ -1162,7 +1161,7 @@ export default withAuth(DashboardPage);</pre>
 
 <section class="slide">
     <h2>Корисні ресурси</h2>
-    <ul style="font-size: 19px;">
+    <ul style="font-size: 18px;">
         <li><a href="https://reactrouter.com/" target="_blank">React Router — офіційна документація</a></li>
         <li><a href="https://reactrouter.com/start/data" target="_blank">React Router: Data API (v6.4+)</a></li>
         <li><a href="https://reactrouter.com/api/hooks" target="_blank">React Router Hooks API</a></li>

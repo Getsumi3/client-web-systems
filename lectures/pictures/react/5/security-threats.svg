@@ -26,7 +26,7 @@
   <!-- Summary -->
   <rect x="20" y="235" width="680" height="85" rx="8" fill="#2a2a3e" stroke="#444"/>
   <text x="40" y="260" fill="#61DAFB" font-family="monospace" font-size="14" font-weight="bold">Token strategy:</text>
-  <text x="260" y="260" fill="#ccc" font-family="monospace" font-size="13">JWT in Authorization header &#8594; immune to CSRF (no cookie auto-send)</text>
+  <text x="180" y="260" fill="#ccc" font-family="monospace" font-size="13">JWT in Authorization header &#8594; immune to CSRF (no cookie auto-send)</text>
   <text x="40" y="285" fill="#ccc" font-family="monospace" font-size="13">BUT vulnerable to XSS if stored in localStorage &#8594; protect from XSS</text>
   <text x="40" y="310" fill="#888" font-family="monospace" font-size="12">HttpOnly cookie &#8594; immune to XSS but needs CSRF protection (SameSite + token)</text>
 </svg>

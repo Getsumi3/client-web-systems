@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380">
-  <rect width="720" height="380" fill="#1e1e2e"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 450" width="720" height="450">
+  <rect width="720" height="4560" fill="#1e1e2e"/>
 
   <text x="360" y="35" text-anchor="middle" fill="#51cf66" font-family="monospace" font-size="18" font-weight="bold">Context — рішення props drilling</text>
 
   <!-- Context Provider wraps everything -->
-  <rect x="40" y="55" width="640" height="290" rx="10" fill="none" stroke="#51cf66" stroke-width="2" stroke-dasharray="8,4"/>
+  <rect x="40" y="55" width="640" height="345" rx="10" fill="none" stroke="#51cf66" stroke-width="2" stroke-dasharray="8,4"/>
   <text x="60" y="75" fill="#51cf66" font-family="monospace" font-size="13" font-weight="bold">UserContext.Provider value=&#123;user&#125;</text>
 
   <!-- App -->
@@ -24,14 +24,14 @@
   <text x="360" y="280" text-anchor="middle" fill="#fff" font-family="monospace" font-size="14" font-weight="bold">Sidebar</text>
 
   <!-- UserProfile consumes context directly -->
-  <line x1="200" y1="320" x2="280" y2="320" stroke="#51cf66" stroke-width="2" marker-end="url(#g)"/>
+  <line x1="200" y1="350" x2="280" y2="350" stroke="#51cf66" stroke-width="2" marker-end="url(#g)"/>
 
-  <rect x="280" y="295" width="160" height="50" rx="8" fill="#51cf66"/>
-  <text x="360" y="325" text-anchor="middle" fill="#1e1e2e" font-family="monospace" font-size="14" font-weight="bold">UserProfile</text>
+  <rect x="280" y="325" width="160" height="50" rx="8" fill="#51cf66"/>
+  <text x="360" y="355" text-anchor="middle" fill="#1e1e2e" font-family="monospace" font-size="14" font-weight="bold">UserProfile</text>
 
-  <text x="110" y="325" fill="#51cf66" font-family="monospace" font-size="12">useContext()</text>
+  <text x="110" y="355" fill="#51cf66" font-family="monospace" font-size="12">useContext()</text>
 
-  <text x="360" y="365" text-anchor="middle" fill="#aaa" font-family="sans-serif" font-size="13">UserProfile читає user напряму з Context &#8212; без передачі через props</text>
+  <text x="360" y="425" text-anchor="middle" fill="#aaa" font-family="sans-serif" font-size="13">UserProfile читає user напряму з Context &#8212; без передачі через props</text>
 
   <defs>
     <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">

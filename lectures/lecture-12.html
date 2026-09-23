@@ -57,14 +57,14 @@
 <section class="slide">
     <h2>Controlled vs Uncontrolled</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Controlled (React керує)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Controlled (React керує)
 const [name, setName] = useState("")
 &lt;input
   value={name}
   onChange={e =&gt; setName(e.target.value)}
 /&gt;
 // state → input → state (loop)</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Uncontrolled (DOM керує)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Uncontrolled (DOM керує)
 const inputRef = useRef()
 &lt;input
   ref={inputRef}
@@ -82,7 +82,7 @@ const inputRef = useRef()
 <section class="slide">
     <h2>Controlled Component — приклад</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function LoginForm() &#123;
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">function LoginForm() &#123;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -108,7 +108,7 @@ const inputRef = useRef()
     &lt;/form&gt;
   );
 &#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
+        <div style="flex: 1; font-size: 14px;">
             <p><b>Controlled pattern:</b></p>
             <ol>
                 <li><code>useState</code> зберігає значення;</li>
@@ -132,7 +132,7 @@ const inputRef = useRef()
 <section class="slide">
     <h2>Uncontrolled Component — приклад</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import &#123; useRef &#125; from "react";
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import &#123; useRef &#125; from "react";
 
 function QuickForm() &#123;
   const emailRef = useRef&lt;HTMLInputElement&gt;(null);
@@ -156,7 +156,7 @@ function QuickForm() &#123;
     &lt;/form&gt;
   );
 &#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
+        <div style="flex: 1; font-size: 14px;">
             <p><b>Uncontrolled pattern:</b></p>
             <ol>
                 <li><code>useRef</code> посилається на DOM-вузол;</li>
@@ -179,13 +179,13 @@ function QuickForm() &#123;
 
 <section class="slide">
     <h2>Form lifecycle — стани</h2>
-    <img src="pictures/react/5/form-lifecycle.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <img src="pictures/react/5/form-lifecycle.svg" alt="" style="display: block; margin: 0 auto; width: 80%;">
 </section>
 
 <section class="slide">
     <h2>Багатопольна форма з одним state-об'єктом</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">type FormData = &#123;
+        <pre style="flex: 1; margin: 0; font-size: 7px; white-space: pre;">type FormData = &#123;
   name: string;
   email: string;
   age: number;
@@ -223,7 +223,7 @@ function UserForm() &#123;
     &lt;/form&gt;
   );
 &#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
+        <div style="flex: 1; font-size: 14px;">
             <p><b>Один state-об'єкт</b> для всіх полів форми.</p>
             <p><b>Переваги:</b></p>
             <ul>
@@ -255,7 +255,7 @@ function UserForm() &#123;
     <h2>Валідація — коли перевіряти</h2>
     <div style="display: flex; gap: 20px;">
         <div style="flex: 1;">
-            <pre style="margin: 0; font-size: 12px; white-space: pre;">// 1. On Submit
+            <pre style="margin: 0; font-size: 10px; white-space: pre;">// 1. On Submit
 handleSubmit = (e) =&gt; {
   e.preventDefault();
   const errors = validate(form);
@@ -271,7 +271,7 @@ handleSubmit = (e) =&gt; {
                 <li><code>onSubmit</code> → validate all fields before submit.</li>
             </ol>
         </div>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 2. On Change (live)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 2. On Change (live)
 handleChange = (e) =&gt; {
   const { name, value } = e.target;
   setForm(f =&gt; ({...f, [name]: value}));
@@ -293,7 +293,7 @@ handleBlur = (e) =&gt; {
 
 <section class="slide">
     <h2>Валідація — ручний підхід</h2>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">type FormErrors = &#123; name?: string; email?: string; password?: string &#125;;
+    <pre style="margin: 0; font-size: 8px; white-space: pre;">type FormErrors = &#123; name?: string; email?: string; password?: string &#125;;
 
 function validate(form: FormData): FormErrors &#123;
   const errors: FormErrors = &#123;&#125;;
@@ -330,7 +330,7 @@ const handleSubmit = (e) =&gt; &#123;
 <section class="slide">
     <h2>Валідація — UI відображення помилок</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Поле з помилкою
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Поле з помилкою
 &lt;div className="field"&gt;
   &lt;label htmlFor="email"&gt;Email&lt;/label&gt;
   &lt;input
@@ -355,9 +355,9 @@ const handleSubmit = (e) =&gt; &#123;
   border-color: red;
 &#125;
 .error &#123;
-  color: red; font-size: 12px;
+  color: red; font-size: 10px;
 &#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
+        <div style="flex: 1; font-size: 16px;">
             <p><b>Принципи UI помилок:</b></p>
             <ul>
                 <li>Показувати помилку <b>тільки після</b>
@@ -378,13 +378,13 @@ const handleSubmit = (e) =&gt; &#123;
 
 <section class="slide">
     <h2>Form libraries — порівняння</h2>
-    <img src="pictures/react/5/form-libraries.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <img src="pictures/react/5/form-libraries.svg" alt="" style="display: block; margin: 0 auto; width: 80%;">
 </section>
 
 <section class="slide">
     <h2>React Hook Form + Zod — сучасний підхід</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 1. Schema (Zod)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 1. Schema (Zod)
 import &#123; z &#125; from "zod";
 
 const schema = z.object(&#123;
@@ -397,7 +397,7 @@ const schema = z.object(&#123;
 
 type FormData = z.infer&lt;typeof schema&gt;;
 // TS type auto-derived from schema!</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 2. Component (RHF)
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 2. Component (RHF)
 import &#123; useForm &#125; from "react-hook-form";
 import &#123; zodResolver &#125; from
   "@hookform/resolvers/zod";
@@ -438,7 +438,7 @@ function RegisterForm() &#123;
 
 <section class="slide">
     <h2>Authentication Flow — повний цикл</h2>
-    <img src="pictures/react/5/auth-flow.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <img src="pictures/react/5/auth-flow.svg" alt="" style="display: block; margin: 0 auto; width: 80%;">
 </section>
 
 <section class="slide">
@@ -465,7 +465,7 @@ function RegisterForm() &#123;
 
 <section class="slide">
     <h2>AuthContext — реалізація</h2>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">// context/AuthContext.tsx
+    <pre style="margin: 0; font-size: 5px; white-space: pre;">// context/AuthContext.tsx
 import &#123; createContext, useContext, useState, useEffect, type ReactNode &#125; from "react";
 import &#123; authApi &#125; from "../api/auth";
 
@@ -524,7 +524,7 @@ export const useAuth = () =&gt; &#123;
 <section class="slide">
     <h2>useAuth hook — використання</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// LoginPage.tsx
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// LoginPage.tsx
 function LoginPage() &#123;
   const &#123; login &#125; = useAuth();
   const navigate = useNavigate();
@@ -550,7 +550,7 @@ function LoginPage() &#123;
     /&gt;
   );
 &#125;</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Navbar.tsx — показ залежно від auth
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Navbar.tsx — показ залежно від auth
 function Navbar() &#123;
   const &#123; user, isAuthenticated, logout &#125; =
     useAuth();
@@ -585,12 +585,12 @@ function Navbar() &#123;
 
 <section class="slide">
     <h2>JWT (JSON Web Token) — структура</h2>
-    <img src="pictures/react/5/jwt-structure.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+    <img src="pictures/react/5/jwt-structure.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
 </section>
 
 <section class="slide">
     <h2>JWT — як це працює</h2>
-    <div style="font-size: 19px;">
+    <div style="font-size: 14px;">
         <p><b>JWT</b> — компактний, self-contained token для передачі
             інформації між сторонами як JSON-об'єкт.</p>
         <p><b>Структура:</b> <code>header.payload.signature</code>
@@ -619,7 +619,7 @@ function Navbar() &#123;
 
 <section class="slide">
     <h2>Axios interceptor — додаємо token</h2>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">// api/client.ts
+    <pre style="margin: 0; font-size: 10px; white-space: pre;">// api/client.ts
 import axios from "axios";
 
 export const apiClient = axios.create(&#123;
@@ -660,7 +660,7 @@ apiClient.interceptors.response.use(
 <section class="slide">
     <h2>ProtectedRoute — з AuthContext</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// components/ProtectedRoute.tsx
+        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">// components/ProtectedRoute.tsx
 import &#123; Navigate, useLocation &#125;
   from "react-router-dom";
 import &#123; useAuth &#125; from "../context/AuthContext";
@@ -689,7 +689,7 @@ export function ProtectedRoute(&#123;
 
   return &lt;&gt;&#123;children&#125;&lt;/&gt;;
 &#125;</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// App.tsx — структура з AuthProvider
+        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">// App.tsx — структура з AuthProvider
 &lt;AuthProvider&gt;
   &lt;BrowserRouter&gt;
     &lt;Routes&gt;
@@ -717,7 +717,7 @@ export function ProtectedRoute(&#123;
   &lt;/BrowserRouter&gt;
 &lt;/AuthProvider&gt;</pre>
     </div>
-    <p style="font-size: 17px; margin-top: 10px;">
+    <p style="font-size: 16px; margin-top: 10px;">
         <b>loading</b> стан — поки AuthContext перевіряє token при завантаженні сторінки.
         Без нього — при reload користувача одразу редиректить на /login.
     </p>
@@ -725,12 +725,12 @@ export function ProtectedRoute(&#123;
 
 <section class="slide">
     <h2>Token Refresh — автоматичне оновлення</h2>
-    <img src="pictures/react/5/token-refresh.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <img src="pictures/react/5/token-refresh.svg" alt="" style="display: block; margin: 0 auto; width: 80%;">
 </section>
 
 <section class="slide">
     <h2>Token Refresh — реалізація interceptor</h2>
-    <pre style="margin: 0; font-size: 12px; white-space: pre;">// api/client.ts — refresh logic
+    <pre style="margin: 0; font-size: 7px; white-space: pre;">// api/client.ts — refresh logic
 let isRefreshing = false;
 let failedQueue: (() =&gt; void)[] = [];
 
@@ -793,7 +793,7 @@ apiClient.interceptors.response.use(
 <section class="slide">
     <h2>Registration flow — реєстрація</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function RegisterPage() &#123;
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">function RegisterPage() &#123;
   const &#123; login &#125; = useAuth();
   const navigate = useNavigate();
   const [serverError, setServerError] =
@@ -819,7 +819,7 @@ apiClient.interceptors.response.use(
     onSubmit=&#123;handleSubmit&#125;
     serverError=&#123;serverError&#125; /&gt;;
 &#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
+        <div style="flex: 1; font-size: 14px;">
             <p><b>Registration кроки:</b></p>
             <ol>
                 <li>Форма: name, email, password, confirm;</li>

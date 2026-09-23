@@ -29,7 +29,7 @@
   <!-- Validation libs -->
   <rect x="20" y="275" width="680" height="90" rx="8" fill="#2a2a3e" stroke="#444"/>
   <text x="40" y="300" fill="#61DAFB" font-family="monospace" font-size="14" font-weight="bold">Validation schemas:</text>
-  <text x="260" y="300" fill="#ccc" font-family="monospace" font-size="13">Zod (TS-first, recommended)  |  Yup (popular)  |  Joi (server-focused)</text>
+  <text x="200" y="300" fill="#ccc" font-family="monospace" font-size="13">Zod (TS-first, recommended)  |  Yup (popular)  |  Joi (server-focused)</text>
   <text x="40" y="330" fill="#ccc" font-family="monospace" font-size="13">RHF + Zod = modern best practice: schema &#8594; type-safe form + validation in one place</text>
   <text x="40" y="355" fill="#888" font-family="monospace" font-size="12">zodResolver(schema) connects Zod schema to RHF</text>
 </svg>

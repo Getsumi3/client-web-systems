@@ -38,6 +38,6 @@
   <!-- Recommendation -->
   <rect x="20" y="275" width="680" height="70" rx="8" fill="#2a2a3e" stroke="#61DAFB"/>
   <text x="40" y="300" fill="#61DAFB" font-family="monospace" font-size="14" font-weight="bold">Recommendation:</text>
-  <text x="260" y="300" fill="#ccc" font-family="monospace" font-size="13">HttpOnly cookie (most secure) &gt; localStorage (common for SPA)</text>
+  <text x="180" y="300" fill="#ccc" font-family="monospace" font-size="13">HttpOnly cookie (most secure) &gt; localStorage (common for SPA)</text>
   <text x="40" y="325" fill="#888" font-family="monospace" font-size="12">If localStorage &#8594; protect from XSS (CSP, sanitize inputs, avoid dangerouslySetInnerHTML)</text>
 </svg>

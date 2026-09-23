@@ -1,8 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380">
   <rect width="720" height="380" fill="#1e1e2e"/>
 
-  <text x="360" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">Form lifecycle — стани</text>
-
   <!-- States -->
   <rect x="30" y="60" width="130" height="55" rx="8" fill="#2a2a3e" stroke="#888"/>
   <text x="95" y="88" text-anchor="middle" fill="#888" font-family="monospace" font-size="14" font-weight="bold">idle</text>

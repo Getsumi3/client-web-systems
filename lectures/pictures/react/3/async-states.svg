@@ -1,8 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420">
   <rect width="720" height="420" fill="#1e1e2e"/>
 
-  <text x="360" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">Стан запиту: loading &#8594; success / error</text>
-
   <!-- Idle -->
   <rect x="30" y="60" width="140" height="60" rx="8" fill="#2a2a3e" stroke="#888"/>
   <text x="100" y="90" text-anchor="middle" fill="#888" font-family="monospace" font-size="14" font-weight="bold">idle</text>

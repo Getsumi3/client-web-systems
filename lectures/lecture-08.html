@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <title>Лекція 8. State Management та Production React</title>
+    <title>Лекція 8. React Fundamentals та ментальна модель React</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="node_modules/@shower/ribbon/styles/index.css">
@@ -10,7 +10,7 @@
 <body class="shower list">
 
 <header class="caption">
-    <h1>Лекція 8. State Management та Production React</h1>
+    <h1>Лекція 8. React Fundamentals та ментальна модель React</h1>
     <p>
         <a href="index.html">Назад до змісту лекцій</a>
     </p>
@@ -18,1014 +18,699 @@
 
 <section class="slide">
     <h2 class="shout">
-        Лекція 8. State Management та Production React
+        Лекція 8. React Fundamentals та ментальна модель React
     </h2>
 </section>
 
 <section class="slide">
     <h2>План лекції:</h2>
     <ol>
-        <li>Коли useState і Context вже недостатньо та навіщо потрібен глобальний state management?</li>
-        <li>Як використовувати Zustand для управління client state?</li>
-        <li>Чим client state відрізняється від server state та як TanStack Query вирішує проблеми роботи з API-даними?</li>
-        <li>Як масштабувати та оптимізувати React-застосунок за допомогою Custom Hooks, component patterns і performance techniques?</li>
+        <li>Що таке React і як він відрізняється від Vue та інших frontend-фреймворків?</li>
+        <li>Як побудована компонентна модель React та як створювати UI за допомогою JSX/TSX?</li>
+        <li>Як у React відбувається передача даних між компонентами через props та state?</li>
+        <li>Як працює rendering у React та чому зміна state призводить до оновлення UI?</li>
     </ol>
 </section>
 
 <section class="slide">
-    <h2 class="shout">Глобальний State Management</h2>
-</section>
-
-<section class="slide">
-    <h2>Еволюція стану в React</h2>
-    <img src="pictures/react/6/when-global-state.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
-</section>
-
-<section class="slide">
-    <h2>Коли useState + Context недостатньо</h2>
-    <div style="font-size: 19px;">
-        <p><b>Context API</b> — чудовий інструмент, але має обмеження:</p>
-        <ul>
-            <li><b>Будь-яка зміна value &#8594; re-render ВСІХ consumers</b>,
-                навіть якщо вони використовують лише одне поле;</li>
-            <li><b>Немає селективної підписки</b> — не можна підписатися лише на
-                <code>user.name</code>, ігноруючи <code>user.role</code>;</li>
-            <li><b>Немає middleware</b> — немає devtools, persistence, time-travel;</li>
-            <li><b>Немає async actions</b> — складно робити складні flows;</li>
-            <li><b>Provider wrapper</b> — треба обгортати дерево.</li>
-        </ul>
-        <p><b>Коли потрібен state manager:</b></p>
-        <ul>
-            <li>Кілька незалежних «слайсів» стану (cart, user, theme, filters);</li>
-            <li>Часті оновлення + багато компонентів-споживачів;</li>
-            <li>Потрібна persistence (localStorage sync);</li>
-            <li>Потрібні DevTools для відлагодження;</li>
-            <li>Складні async flows.</li>
-        </ul>
+    <h2>Що таке React?</h2>
+    <div style="display: flex; align-items: center; gap: 30px;">
+        <div style="font-size: 19px;">
+            <p><b>React</b> — це JavaScript-бібліотека з відкритим кодом
+                для розробки користувацьких інтерфейсів,
+                створена командою Facebook (Meta) у 2013 році.</p>
+            <p>React дозволяє будувати UI з невеликих ізольованих
+                частин — <b>компонентів</b>, які описують стан
+                інтерфейсу, а React автоматично оновлює DOM
+                при зміні цього стану.</p>
+            <p>React є основою для екосистеми: React Native
+                (мобільні застосунки), Next.js (SSR/фреймворк),
+                Remix, Astro та ін.</p>
+        </div>
+        <img src="pictures/react/1/logo.svg" style="flex-shrink: 0" width="160" alt="React logo">
     </div>
 </section>
 
 <section class="slide">
-    <h2>State Management — огляд інструментів</h2>
-    <img src="pictures/react/6/state-tools-overview.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <h2>Історія створення React</h2>
+    <div style="font-size: 18px;">
+        <p>React був створений <b>Jordan Walke</b> — інженером Facebook —
+            у 2011 році. На той час команді Facebook потрібен був інструмент
+            для ефективного управління складним UI з великим обсягом
+            інтерактивних елементів (списки новин, чат, сповіщення).</p>
+        <p>Перше використання React відбулося у <b>Facebook Ads</b> (2011),
+            а згодом — у <b>Instagram</b> (2012). У траві <b>2013</b> року
+            React був відкритий на JSConf US.</p>
+        <p>React ввів у масову свідомість такі концепції як
+            <b>Virtual DOM</b>, <b>компонентна архітектура</b>,
+            <b>односторонній потік даних</b> та <b>JSX</b>.</p>
+    </div>
 </section>
 
 <section class="slide">
-    <h2 class="shout">Zustand — Client State</h2>
+    <h2>Історія розвитку React</h2>
+    <img src="pictures/react/1/history.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
 </section>
 
 <section class="slide">
-    <h2>Zustand — архітектура</h2>
-    <img src="pictures/react/6/zustand-architecture.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
-</section>
-
-<section class="slide">
-    <h2>Zustand — базовий store</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// store/useStore.ts
-import &#123; create &#125; from "zustand";
-
-type Store = &#123;
-  user: User | null;
-  cart: CartItem[];
-  theme: string;
-  // actions
-  login: (user: User) =&gt; void;
-  logout: () =&gt; void;
-  addToCart: (item: CartItem) =&gt; void;
-  setTheme: (theme: string) =&gt; void;
-&#125;;
-
-export const useStore = create&lt;Store&gt;((set, get) =&gt; (&#123;
-  user: null,
-  cart: [],
-  theme: "light",
-
-  login: (user) =&gt; set(&#123; user &#125;),
-  logout: () =&gt; set(&#123; user: null &#125;),
-  addToCart: (item) =&gt; set((state) =&gt; (&#123;
-    cart: [...state.cart, item]
-  &#125;)),
-  setTheme: (theme) =&gt; set(&#123; theme &#125;),
-&#125;));</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>Zustand</b> — мінімалістичний state manager
-                (~1KB).</p>
-            <p><b>Особливості:</b></p>
-            <ul>
-                <li><b>Store</b> — звичайний hook
-                    <code>useStore</code>;</li>
-                <li><b>set()</b> — оновлення стану
-                    (як useState, але глобально);</li>
-                <li><b>get()</b> — читання поточного стану;</li>
-                <li><b>Без Provider</b> — store живе
-                    поза деревом компонентів;</li>
-                <li><b>State + actions</b> в одному об'єкті.</li>
-            </ul>
-            <p><b>Встановлення:</b>
-                <code>npm install zustand</code></p>
+    <h2>React — це бібліотека, а не фреймворк</h2>
+    <div class="columns two">
+        <div>
+            <p style="font-size: 18px;"><b>React позиціонується як бібліотека</b>
+                для побудови UI, а не повноцінний фреймворк.</p>
+            <p style="font-size: 18px;">React відповідає лише за
+                <b>rendering</b> — перетворення стану на UI.
+                Роутинг, управління станом, валідація форм,
+                HTTP-клієнти — все це розробник обирає сам.</p>
+            <p style="font-size: 18px;">Це дає <b>гнучкість</b>: ви
+                можете комбінувати React з будь-якими
+                інструментами.</p>
+        </div>
+        <div>
+            <p style="font-size: 18px;">Фреймворки (Vue, Angular, Svelte)
+                дають більше «з коробки»: роутер, стейт-менеджер,
+                директиви, форми тощо.</p>
+            <p style="font-size: 18px;">React натомість пропонує
+                <b>екосистему</b>: React Router, Redux/Zustand,
+                React Hook Form, TanStack Query та інші.</p>
+            <p style="font-size: 18px;">Для повноцінних застосунків
+                використовують мета-фреймворки: <b>Next.js</b>,
+                <b>Remix</b>.</p>
         </div>
     </div>
 </section>
 
 <section class="slide">
-    <h2>Zustand — селективна підписка</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#9989; Selective subscription
-function Navbar() &#123;
-  // only re-renders when user changes
-  const user = useStore(s =&gt; s.user);
-  return &lt;nav&gt;Hello, &#123;user?.name&#125;&lt;/nav&gt;;
-&#125;
-
-function CartIcon() &#123;
-  // only re-renders when cart.length changes
-  const count = useStore(s =&gt; s.cart.length);
-  return &lt;span&gt;Cart (&#123;count&#125;)&lt;/span&gt;;
-&#125;
-
-// &#9989; Multiple fields
-const &#123; user, theme &#125; = useStore(s =&gt; (&#123;
-  user: s.user, theme: s.theme
-&#125;));
-
-// &#9989; Actions (stable references)
-const addToCart = useStore(s =&gt; s.addToCart);
-
-// &#9989; Get without subscribe
-const items = useStore.getState().cart;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>Селектор</b> — функція
-                <code>(state) =&gt; value</code>.</p>
-            <p><b>Перевага над Context:</b></p>
-            <ul>
-                <li>Компонент <b>не</b> перерендериться,
-                    якщо змінюється поле, яке він не читає;</li>
-                <li>Можна повернути об'єкт з кількох полів
-                    (з <code>shallow</code> comparator);</li>
-                <li>Actions стабільні
-                    (не треба <code>useCallback</code>);</li>
-                <li><code>getState()</code> — читання без
-                    підписки (в event handlers).</li>
-            </ul>
-            <p><b>Shallow compare для об'єктів:</b></p>
-            <p><code>import &#123; shallow &#125; from "zustand/shallow"</code><br>
-                <code>useStore(selector, shallow)</code></p>
-        </div>
-    </div>
+    <h2>React vs Vue — порівняння підходів</h2>
+    <img src="pictures/react/1/vue-vs-react.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
 </section>
 
 <section class="slide">
-    <h2>Zustand — middleware</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// persist — localStorage sync
-import { persist } from "zustand/middleware"
-
-const useStore = create(persist(
-  (set) =&gt; ({ theme: "light", ... }),
-  { name: "app-storage" }
-))</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// devtools — Redux DevTools
-import { devtools } from "zustand/middleware"
-
-const useStore = create(devtools(
-  (set) =&gt; ({ ... }),
-  { name: "my-store" }
-))</pre>
-    </div>
-    <p style="font-size: 16px; margin-top: 15px;"><b>Комбінація middleware (persist + devtools):</b></p>
-<pre style="margin: 0; font-size: 12px; white-space: pre;">const useStore = create(devtools(persist(
-  (set, get) =&gt; ({
-    user: null, cart: [], login: (u) =&gt; set({ user: u }),
-  }),
-  { name: "app-store" }
-)))</pre>
-</section>
-
-<section class="slide">
-    <h2>Zustand — async actions</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">export const useStore = create&lt;Store&gt;((set, get) =&gt; (&#123;
-  user: null,
-  loading: false,
-  error: null,
-
-  // Async action built-in!
-  login: async (email: string, password: string) =&gt; &#123;
-    set(&#123; loading: true, error: null &#125;);
-    try &#123;
-      const &#123; user, token &#125; = await authApi.login(email, password);
-      localStorage.setItem("token", token);
-      set(&#123; user, loading: false &#125;);
-    &#125; catch (e) &#123;
-      set(&#123; error: e.message, loading: false &#125;);
-    &#125;
-  &#125;,
-
-  // Read current state with get()
-  checkout: async () =&gt; &#123;
-    const cart = get().cart;
-    await ordersApi.create(&#123; items: cart &#125;);
-    set(&#123; cart: [] &#125;);
-  &#125;,
-&#125;));</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>Async в Zustand</b> — просто
-                <code>async</code> функція в store.</p>
-            <p><b>Без thunk/saga</b> — як у Redux.</p>
-            <p><b>get()</b> — читання стану без підписки
-                (всередині actions).</p>
-            <p><b>Виклик з компонента:</b></p>
-            <pre style="margin: 0; font-size: 12px; white-space: pre;">const login = useStore(s =&gt; s.login);
-const loading = useStore(s =&gt; s.loading);
-
-const handleSubmit = async () =&gt; {
-  await login(email, password);
-  navigate("/dashboard");
-};</pre>
-            <p>Компонент <b>не містить логіки</b> —
-                лише викликає action.</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Zustand — slices (модульний store)</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// store/userSlice.ts
-export const createUserSlice = (set, get) =&gt; (&#123;
-  user: null,
-  login: async (email, pwd) =&gt; &#123; ... &#125;,
-  logout: () =&gt; set(&#123; user: null &#125;),
-&#125;);
-
-// store/cartSlice.ts
-export const createCartSlice = (set, get) =&gt; (&#123;
-  cart: [],
-  addToCart: (item) =&gt; set(s =&gt; (&#123;
-    cart: [...s.cart, item]
-  &#125;)),
-  removeFromCart: (id) =&gt; set(s =&gt; (&#123;
-    cart: s.cart.filter(i =&gt; i.id !== id)
-  &#125;)),
-&#125;);
-
-// store/index.ts &#8212; combine slices
-export const useStore = create(&#123;
-  ...createUserSlice,
-  ...createCartSlice,
-&#125;);</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>Slices патерн</b> — розділення store
-                на логічні частини.</p>
-            <p><b>Переваги:</b></p>
-            <ul>
-                <li>Кожен slice — окремий файл;</li>
-                <li>Легко знайти та підтримувати;</li>
-                <li>Композиція через spread;</li>
-                <li>Можна тестувати окремо;</li>
-                <li>Slices можуть викликати один одного
-                    через <code>get()</code>.</li>
-            </ul>
-            <p>Аналог — <b>Redux Toolkit slices</b>,
-                але без boilerplate.</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2 class="shout">Server State — TanStack Query</h2>
-</section>
-
-<section class="slide">
-    <h2>Client State vs Server State</h2>
-    <img src="pictures/react/6/client-vs-server.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
-</section>
-
-<section class="slide">
-    <h2>Чому server state — інший?</h2>
-    <div style="font-size: 19px;">
-        <p>Server state має унікальні властивості, яких немає у client state:</p>
-        <ul>
-            <li><b>Може бути застарілим</b> — інший користувач змінив дані на сервері,
-                ваш кеш — outdated;</li>
-            <li><b>Спільний</b> — кілька компонентів використовують ті самі дані;</li>
-            <li><b>Потребує invalidation</b> — після мутації треба оновити кеш;</li>
-            <li><b>Потребує cache</b> — щоб не refetch при кожному mount;</li>
-            <li><b>Потребує retry</b> — мережа може бути нестабільною;</li>
-            <li><b>Потребує optimistic updates</b> — для швидкого UX;</li>
-            <li><b>Потребує pagination / infinite scroll</b> — для великих списків.</li>
-        </ul>
-        <p><b>useState + useEffect</b> не рішення для server state.
-            <b>TanStack Query</b> автоматизує все це.</p>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>TanStack Query — як це працює</h2>
-    <img src="pictures/react/6/tanstack-query.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
-</section>
-
-<section class="slide">
-    <h2>TanStack Query — cache lifecycle</h2>
-    <img src="pictures/react/6/query-cache-lifecycle.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
-</section>
-
-<section class="slide">
-    <h2>Ручний CRUD vs TanStack Query</h2>
-    <div style="display: flex; gap: 20px;">
-        <div style="flex: 1;">
-            <pre style="margin: 0; font-size: 12px; white-space: pre;">// Ручний (useState + useEffect)
-const [users, setUsers] = useState()
-const [loading, setLoading] = useState()
-const [error, setError] = useState()
-
-useEffect(() =&gt; {
-  fetch(...).then(setUsers)
-}, [])</pre>
-            <ul style="font-size: 15px; list-style: none; padding-left: 0;">
-                <li>&#10060; no cache (refetch on every mount)</li>
-                <li>&#10060; no dedup (2 components = 2 fetch)</li>
-                <li>&#10060; no refetch on focus/reconnect</li>
-                <li>&#10060; manual refetch after mutation</li>
-                <li>&#10060; no pagination/infinite helpers</li>
-                <li>&#10060; race conditions to handle</li>
-                <li>&#10060; no prefetch, no optimistic</li>
-            </ul>
-            <p style="font-size: 15px;">~50 lines of boilerplate per query</p>
-        </div>
-        <div style="flex: 1;">
-            <pre style="margin: 0; font-size: 12px; white-space: pre;">// TanStack Query
-const { data, isLoading, error }
-  = useQuery({
-    queryKey: ["users"],
-    queryFn: () =&gt; api.getUsers()
-  })</pre>
-            <ul style="font-size: 15px; list-style: none; padding-left: 0;">
-                <li>&#9989; automatic cache + dedup</li>
-                <li>&#9989; refetch on focus/reconnect</li>
-                <li>&#9989; invalidation after mutation</li>
-                <li>&#9989; pagination, infinite scroll</li>
-                <li>&#9989; prefetch, optimistic updates</li>
-                <li>&#9989; retry, rollback on error</li>
-                <li>&#9989; DevTools, no race conditions</li>
-            </ul>
-            <p style="font-size: 15px;">~3 lines of code per query<br>
-                <code>useMutation</code> + <code>invalidateQueries</code></p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>TanStack Query — useQuery</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import &#123; useQuery &#125; from "@tanstack/react-query";
-
-function UserList() &#123;
-  const &#123;
-    data,        // User[] | undefined
-    isLoading,   // boolean (first load)
-    isFetching,  // boolean (any fetch)
-    isError,     // boolean
-    error,       // Error | null
-    refetch,     // () =&gt; Promise
-  &#125; = useQuery(&#123;
-    queryKey: ["users"],
-    queryFn: () =&gt; usersApi.list(),
-    staleTime: 60 * 1000,  // 60s fresh
-    refetchOnWindowFocus: true,
-  &#125;);
-
-  if (isLoading) return &lt;Spinner /&gt;;
-  if (isError) return &lt;ErrorView error=&#123;error&#125; onRetry=&#123;refetch&#125; /&gt;;
-
-  return (
-    &lt;ul&gt;
-      &#123;data.map(u =&gt; &lt;li key=&#123;u.id&#125;&gt;&#123;u.name&#125;&lt;/li&gt;)&#125;
-    &lt;/ul&gt;
-  );
-&#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>useQuery</b> — хук для читання server state.</p>
-            <p><b>queryKey</b> — унікальний ключ для кешу
-                (як <code>["users"]</code>,
-                <code>["user", "42"]</code>,
-                <code>["products", &#123;page: 2&#125;]</code>).</p>
-            <p><b>queryFn</b> — функція, що повертає Promise
-                (fetcher).</p>
-            <p><b>Автоматично:</b></p>
-            <ul>
-                <li>кешує результат;</li>
-                <li>дедуплікує паралельні запити;</li>
-                <li>refetch на focus/reconnect;</li>
-                <li>retry при помилці (3 рази).</li>
-            </ul>
-            <p><b>isLoading</b> — перший load (даних ще немає).
-                <b>isFetching</b> — будь-який fetch
-                (включає background refetch).</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>TanStack Query — useMutation</h2>
-    <img src="pictures/react/6/use-mutation.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
-</section>
-
-<section class="slide">
-    <h2>TanStack Query — useMutation код</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import &#123;
-  useMutation, useQueryClient
-&#125; from "@tanstack/react-query";
-
-function DeleteUser(&#123; id &#125;) &#123;
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation(&#123;
-    mutationFn: () =&gt; usersApi.delete(id),
-
-    // Optimistic update
-    onMutate: async () =&gt; &#123;
-      await queryClient.cancelQueries(&#123; queryKey: ["users"] &#125;);
-      const prev = queryClient.getQueryData(["users"]);
-      queryClient.setQueryData(["users"], old =&gt;
-        old?.filter(u =&gt; u.id !== id));
-      return &#123; prev &#125;;
-    &#125;,
-
-    onError: (_err, _vars, ctx) =&gt; &#123;
-      queryClient.setQueryData(["users"], ctx.prev);
-    &#125;,
-
-    onSettled: () =&gt; &#123;
-      queryClient.invalidateQueries(&#123; queryKey: ["users"] &#125;);
-    &#125;,
-  &#125;);
-
-  return &lt;button onClick=&#123;() =&gt; mutation.mutate()&#125;
-    disabled=&#123;mutation.isPending&#125;&gt;
-    &#123;mutation.isPending ? "Deleting..." : "Delete"&#125;
-  &lt;/button&gt;;
-&#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>useMutation</b> — для CUD-операцій
-                (Create, Update, Delete).</p>
-            <p><b>Ключові callback-и:</b></p>
-            <ul>
-                <li><b>onMutate</b> — до виклику API
-                    (optimistic update);</li>
-                <li><b>onSuccess</b> — після успіху
-                    (invalidate);</li>
-                <li><b>onError</b> — при помилці
-                    (rollback);</li>
-                <li><b>onSettled</b> — після будь-якого
-                    результату.</li>
-            </ul>
-            <p><b>invalidateQueries</b> — позначає кеш
-                як stale &#8594; автоматичний refetch.</p>
-            <p><b>Optimistic update</b> — оновлюємо кеш
-                до відповіді сервера, відкочуємо при error.</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>TanStack Query — pagination</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function ProductList() &#123;
-  const [page, setPage] = useState(1);
-
-  const &#123; data, isPending, isPlaceholderData &#125; =
-    useQuery(&#123;
-      queryKey: ["products", &#123; page &#125;],
-      queryFn: () =&gt; productsApi.list(page),
-      keepPreviousData: true,
-      placeholderData: keepPreviousData,
-    &#125;);
-
-  return (
-    &lt;&gt;
-      &lt;ul&gt;
-        &#123;data?.items.map(p =&gt; (
-          &lt;li key=&#123;p.id&#125;&gt;
-            &#123;p.name&#125;
-          &lt;/li&gt;
-        ))&#125;
-      &lt;/ul&gt;
-      &lt;button
-        onClick=&#123;() =&gt; setPage(p =&gt; p - 1)&#125;
-        disabled=&#123;page === 1&#125;
-      &gt;Prev&lt;/button&gt;
-      &lt;button
-        onClick=&#123;() =&gt; setPage(p =&gt; p + 1)&#125;
-        disabled=&#123;isPlaceholderData&#125;
-      &gt;Next&lt;/button&gt;
-    &lt;/&gt;
-  );
-&#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>Pagination</b> — <code>page</code> в queryKey.</p>
-            <p><b>keepPreviousData</b> — при зміні сторінки
-                показуємо старі дані, поки нові вантажаться
-                (немає «мерцання» списку).</p>
-            <p><b>isPlaceholderData</b> — true, коли
-                показуються старі дані (для disabled кнопок).</p>
-            <p><b>Infinite scroll</b> —
-                <code>useInfiniteQuery</code>:</p>
-            <ul>
-                <li>автоматичний fetch наступної сторінки;</li>
-                <li><code>hasNextPage</code>,
-                    <code>fetchNextPage</code>;</li>
-                <li>ідеально для стрічок (feed).</li>
-            </ul>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>TanStack Query — setup</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// main.tsx — setup QueryClient
-import &#123;
-  QueryClient, QueryClientProvider
-&#125; from "@tanstack/react-query";
-import &#123; ReactQueryDevtools &#125; from
-  "@tanstack/react-query-devtools";
-
-const queryClient = new QueryClient(&#123;
-  defaultOptions: &#123;
-    queries: &#123;
-      staleTime: 60 * 1000,      // 1 min
-      retry: 3,
-      refetchOnWindowFocus: true,
-    &#125;,
-  &#125;,
-&#125;);
-
-ReactDOM.createRoot(document.getElementById("root")!)
-  .render(
-    &lt;QueryClientProvider client=&#123;queryClient&#125;&gt;
-      &lt;App /&gt;
-      &lt;ReactQueryDevtools /&gt;  // dev only
-    &lt;/QueryClientProvider&gt;
-  );</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>QueryClient</b> — глобальний кеш-менеджер.</p>
-            <p><b>Default options:</b></p>
-            <ul>
-                <li><b>staleTime</b> — скільки дані
-                    «свіжі» (без refetch);</li>
-                <li><b>retry</b> — кількість спроб при error;</li>
-                <li><b>refetchOnWindowFocus</b> —
-                    refetch при поверненні на вкладку;</li>
-                <li><b>gcTime</b> — скільки кеш живе
-                    після відписки (default 5 хв).</li>
-            </ul>
-            <p><b>DevTools</b> — візуальний інспектор
-                всіх queries (кеш, статус, timeline).</p>
-            <p><b>Встановлення:</b><br>
-                <code>npm install @tanstack/react-query
-                @tanstack/react-query-devtools</code></p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Zustand + TanStack Query — разом</h2>
-    <div style="font-size: 19px;">
-        <p><b>Найкраща практика</b> — використовувати обидва інструменти разом,
-            кожен для свого типу стану:</p>
-        <ul>
-            <li><b>Zustand</b> — client state (theme, UI, cart draft, sidebar open,
-                filters not in URL);</li>
-            <li><b>TanStack Query</b> — server state (users, products, orders,
-                everything from API);</li>
-            <li><b>useState</b> — локальний short-lived state (form input, modal toggle);</li>
-            <li><b>URL (router)</b> — shareable state (page, filter, sort, tab).</li>
-        </ul>
-        <p><b>Не змішувати:</b> не зберігай server дані в Zustand.
-            Zustand лише для client-only state.</p>
-        <p><b>Auth state</b> — може бути в Zustand (user, isAuthenticated),
-            але token в localStorage/cookie.</p>
-    </div>
-</section>
-
-<section class="slide">
-    <h2 class="shout">Performance Techniques</h2>
-</section>
-
-<section class="slide">
-    <h2>React Performance — що оптимізувати</h2>
-    <img src="pictures/react/6/performance-overview.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
-</section>
-
-<section class="slide">
-    <h2>React.memo, useMemo, useCallback</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// React.memo
-// Skip re-render if props
-// are shallow-equal
-const Item = memo(
-  ({ id, name }) =&gt; (
-    &lt;li&gt;{name}&lt;/li&gt;
-  )
-)
-// for components</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// useMemo
-// Cache computed value
-// recalc only if deps change
-const sorted = useMemo(
-  () =&gt; items
-    .sort(...),
-  [items]
-)
-// for expensive calc</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// useCallback
-// Stable function reference
-// (for memo children)
-const handleClick =
-  useCallback((id) =&gt; {
-    deleteItem(id)
-  }, [deleteItem])
-
-// for callbacks passed</pre>
-    </div>
-    <p style="font-size: 16px; margin-top: 15px;"><b>Як вони працюють разом:</b></p>
-    <ul style="font-size: 15px;">
-        <li>Parent renders &#8594; new function created &#8594; <code>memo(Item)</code> sees new prop &#8594; re-renders anyway</li>
-        <li>Fix: <code>useCallback(fn, deps)</code> &#8594; same ref &#8594; <code>memo(Item)</code> skips &#8594; no re-render</li>
-        <li>&#9888;&#65039; Don't wrap everything — memo/useMemo/useCallback have their own cost</li>
-        <li>Use only when profiling shows a real bottleneck (large lists, expensive renders)</li>
-        <li>React 19: React Compiler may auto-optimize many of these cases in the future</li>
-    </ul>
-</section>
-
-<section class="slide">
-    <h2>React.memo — приклад</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Без memo &#8212; re-renders on every parent render
-function ListItem(&#123; item, onDelete &#125;) &#123;
-  return &lt;li&gt;
-    &#123;item.name&#125;
-    &lt;button onClick=&#123;() =&gt; onDelete(item.id)&#125;&gt;X&lt;/button&gt;
-  &lt;/li&gt;;
-&#125;
-
-// З memo &#8212; skip if props unchanged
-import &#123; memo &#125; from "react";
-
-const ListItem = memo(function ListItem(&#123;
-  item, onDelete
-&#125;: &#123; item: Item; onDelete: (id: string) =&gt; void &#125;) &#123;
-  return &lt;li&gt;
-    &#123;item.name&#125;
-    &lt;button onClick=&#123;() =&gt; onDelete(item.id)&#125;&gt;X&lt;/button&gt;
-  &lt;/li&gt;;
-&#125;);
-
-// Custom comparison (if needed)
-const ListItem = memo(Component, (prev, next) =&gt; &#123;
-  return prev.item.id === next.item.id
-    &amp;&amp; prev.item.name === next.item.name;
-&#125;);</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>React.memo</b> — HOC, що пропускає re-render,
-                якщо props <b>shallow-equal</b>.</p>
-            <p><b>Коли використовувати:</b></p>
-            <ul>
-                <li>Списки з багатьох елементів
-                    (Item в .map);</li>
-                <li>Компоненти з дорогим рендером;</li>
-                <li>Компоненти, що часто отримують
-                    однакові props.</li>
-            </ul>
-            <p><b>Коли НЕ використовувати:</b></p>
-            <ul>
-                <li>Прості компоненти (memo сам має cost);</li>
-                <li>Якщо props завжди нові
-                    (об'єкти, функції без useCallback);</li>
-                <li>Дерево й так легке.</li>
-            </ul>
-            <p><b>Custom compare</b> — для глибокого
-                порівняння (повільніше, але точніше).</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>useMemo та useCallback — коли потрібні</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// useMemo &#8212; cache expensive calc
-function ProductGrid(&#123; products, query &#125;) &#123;
-  const filtered = useMemo(
-    () =&gt; products
-      .filter(p =&gt; p.name.includes(query))
-      .sort((a, b) =&gt; a.name.localeCompare(b.name)),
-    [products, query]
-  );
-  return &lt;ul&gt;&#123;filtered.map(...)&#125;&lt;/ul&gt;;
-&#125;
-
-// useCallback &#8212; stable function for memo child
-function UserList(&#123; users &#125;) &#123;
-  const handleDelete = useCallback(
-    (id: string) =&gt; usersApi.delete(id),
-    []
-  );
-
-  return users.map(u =&gt; (
-    &lt;ListItem
-      key={u.id}
-      item={u}
-      onDelete={handleDelete}
-    /&gt;
-  ));
-&#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>useMemo</b> — кешує <b>значення</b>.</p>
-            <p><b>useCallback</b> — кешує <b>функцію</b>
-                (еквівалент
-                <code>useMemo(() =&gt; fn, deps)</code>).</p>
-            <p><b>Коли useMemo:</b></p>
-            <ul>
-                <li>Дорогі обчислення (sort, filter, map
-                    великих масивів);</li>
-                <li>Об'єкт/масив, що передається
-                    в memo-компонент.</li>
-            </ul>
-            <p><b>Коли useCallback:</b></p>
-            <ul>
-                <li>Функція передається в memo-компонент
-                    (щоб props не змінювались);</li>
-                <li>Функція &#8212; dep в useEffect.</li>
-            </ul>
-            <p><b>React 19:</b> React Compiler автоматично
-                оптимізує багато з цих випадків.</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>List Virtualization — render only visible</h2>
-    <img src="pictures/react/6/virtualization.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
-</section>
-
-<section class="slide">
-    <h2>Virtualization — приклад (react-window)</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import &#123; FixedSizeList as List &#125;
-  from "react-window";
-
-function BigList(&#123; items &#125;: &#123;
-  items: Item[]
-&#125;) &#123;
-  const Row = (&#123; index, style &#125;) =&gt; (
-    &lt;div style=&#123;style&#125;&gt;
-      &#123;items[index].name&#125;
-    &lt;/div&gt;
-  );
-
-  return (
-    &lt;List
-      height=&#123;600&#125;
-      width=&#123;"100%"&#125;
-      itemCount=&#123;items.length&#125;
-      itemSize=&#123;50&#125;
-    &gt;
-      &#123;Row&#125;
-    &lt;/List&gt;
-  );
-&#125;
-
-// 10,000 items &#8594; only ~12 rows in DOM
-// scroll is butter-smooth</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>react-window</b> — бібліотека для
-                virtualization списків.</p>
-            <p><b>Принцип:</b> рендерить лише
-                <b>видимі</b> елементи + невеликий буфер.
-                Решта — порожній простір з scroll.</p>
-            <p><b>Переваги:</b></p>
-            <ul>
-                <li>DOM: 12 nodes замість 10,000;</li>
-                <li>Швидкий scroll;</li>
-                <li>Мала пам'ять;</li>
-                <li>Працює з 100k+ елементів.</li>
-            </ul>
-            <p><b>Альтернативи:</b>
-                <code>@tanstack/react-virtual</code>,
-                <code>react-virtuoso</code>.</p>
-            <p><b>Коли:</b> списки &gt; 100 елементів,
-                таблиці, feed.</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Code Splitting — зменшення bundle</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 1. Route splitting
-const Home = lazy(
-  () =&gt; import("./Home")
-)
-
-// Each route = separate chunk
-// loaded on navigation</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 2. Component splitting
-const Modal = lazy(
-  () =&gt; import("./Modal")
-)
-
-// Heavy components loaded
-// on demand (modal, chart)</pre>
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 3. Vendor splitting
-// vite.config.ts
-manualChunks: {
-  react: ["react",
-    "react-dom"]
-}
-
-// Libs cached separately</pre>
-    </div>
-    <p style="font-size: 16px; margin-top: 15px;"><b>Bundle analysis tools:</b></p>
-    <ul style="font-size: 15px;">
-        <li><code>vite-bundle-visualizer</code> / <code>webpack-bundle-analyzer</code> — see what's inside your bundle</li>
-        <li>Lighthouse — measure Performance score, LCP, TBT, CLS</li>
-        <li>Target: first load JS &lt; 200KB gzipped | LCP &lt; 2.5s | INP &lt; 200ms</li>
-    </ul>
-</section>
-
-<section class="slide">
-    <h2>Transition та useDeferredValue</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// useTransition &#8212; mark update as non-urgent
-import &#123; useTransition &#125; from "react";
-
-function Search() &#123;
-  const [query, setQuery] = useState("");
-  const [isPending, startTransition] =
-    useTransition();
-
-  const onChange = (e) =&gt; &#123;
-    setQuery(e.target.value); // urgent (input)
-    startTransition(() =&gt; &#123;
-      setResults(filter(e.target.value)); // non-urgent
-    &#125;);
-  &#125;;
-
-  return &lt;&gt;
-    &lt;input value=&#123;query&#125; onChange=&#123;onChange&#125; /&gt;
-    &#123;isPending &amp;&amp; &lt;Spinner /&gt;&#125;
-    &lt;List items=&#123;results&#125; /&gt;
-  &lt;/&gt;;
-&#125;
-
-// useDeferredValue &#8212; defer a value
-const deferredQuery = useDeferredValue(query);
-// results use deferredQuery, input uses query</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>Concurrent React</b> (React 18+) —
-                пріоритезация оновлень.</p>
-            <p><b>useTransition</b> — позначає оновлення
-                як <b>non-urgent</b> (може перерватись).</p>
-            <p><b>use case:</b> input швидко оновлюється,
-                важкий список &#8212; в фоні.</p>
-            <p><b>useDeferredValue</b> — «відкладене»
-                значення для дорогих обчислень.</p>
-            <p><b>Переваги:</b></p>
-            <ul>
-                <li>Input залишається responsive;</li>
-                <li>Список оновлюється без блокування;</li>
-                <li>isPending &#8212; показати spinner;</li>
-                <li>Без Web Worker чи debounce hack.</li>
-            </ul>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>React Profiler — як знайти вузькі місця</h2>
-    <div style="font-size: 19px;">
-        <p><b>React DevTools Profiler</b> — запис рендерів,
-            показує що, чому і скільки рендерилось.</p>
-        <ul>
-            <li><b>Record</b> — почати запис дій користувача;</li>
-            <li><b>Flamegraph</b> — час рендеру кожного компонента;</li>
-            <li><b>Ranked</b> — компоненти, відсортовані за часом;</li>
-            <li><b>Component</b> — props/state на кожному рендері;</li>
-            <li><b>Why did this render?</b> — причина (props change, state, parent).</li>
-        </ul>
-        <p><b>Що шукати:</b></p>
-        <ul>
-            <li>Компоненти, що рендеряться <b>занадто часто</b>;</li>
-            <li>Рендери, де props <b>не змінилися</b> (&#8594; React.memo);</li>
-            <li>Дорогі обчислення на кожному рендері (&#8594; useMemo);</li>
-            <li>Списки, що рендеряться повністю (&#8594; virtualization).</li>
-        </ul>
-        <p><b>Правило:</b> <i>Measure first, optimize second</i>.
-            Не оптимізуй те, що не є проблемою.</p>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Production checklist</h2>
+    <h2>React vs Vue — ключові відмінності</h2>
     <table style="font-size: 16px; width: 100%; border-collapse: collapse; margin-left: 0; ">
         <thead>
             <tr style="background: var(--brand-color-prinmary); color: #fff;">
-                <th style="padding: 8px; text-align: left;">Категорія</th>
-                <th style="padding: 8px; text-align: left;">Що перевірити</th>
+                <th style="padding: 8px; text-align: left;">Аспект</th>
+                <th style="padding: 8px; text-align: left;">React</th>
+                <th style="padding: 8px; text-align: left;">Vue</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td style="padding: 6px;"><b>Bundle</b></td>
-                <td style="padding: 6px;">Lazy routes, vendor split, tree-shaking, bundle analyzer</td>
+                <td style="padding: 6px;"><b>Синтаксис UI</b></td>
+                <td style="padding: 6px;">JSX / TSX (JS-подібний)</td>
+                <td style="padding: 6px;">Шаблони (HTML-подібні)</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>State</b></td>
-                <td style="padding: 6px;">Zustand for client, TanStack Query for server, no duplication</td>
+                <td style="padding: 6px;"><b>Реактивність</b></td>
+                <td style="padding: 6px;">setState &#8594; re-render (явний)</td>
+                <td style="padding: 6px;">Проксі-реактивність (автоматична)</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>Performance</b></td>
-                <td style="padding: 6px;">React.memo for lists, virtualization, useMemo/useCallback (profiled)</td>
+                <td style="padding: 6px;"><b>Потік даних</b></td>
+                <td style="padding: 6px;">Односторонній (top-down)</td>
+                <td style="padding: 6px;">Односторонній + v-model (двостороннє)</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>API</b></td>
-                <td style="padding: 6px;">TanStack Query cache, invalidation, optimistic, error boundaries</td>
+                <td style="padding: 6px;"><b>Оновлення DOM</b></td>
+                <td style="padding: 6px;">Virtual DOM + Reconciliation</td>
+                <td style="padding: 6px;">Реактивні залежності (точково)</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>Routing</b></td>
-                <td style="padding: 6px;">Lazy routes, protected routes, 404, error boundaries per route</td>
+                <td style="padding: 6px;"><b>Стан компонента</b></td>
+                <td style="padding: 6px;">Hooks: useState, useReducer</td>
+                <td style="padding: 6px;">ref(), reactive(), data()</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>Forms</b></td>
-                <td style="padding: 6px;">React Hook Form + Zod, validation UX, accessibility</td>
+                <td style="padding: 6px;"><b>Типізація</b></td>
+                <td style="padding: 6px;">TSX — нативна підтримка</td>
+                <td style="padding: 6px;">defineProps&lt;T&gt;, vue-tsc</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>Security</b></td>
-                <td style="padding: 6px;">XSS protection, auth flow, token refresh, HTTPS, CSP</td>
-            </tr>
-            <tr>
-                <td style="padding: 6px;"><b>Monitoring</b></td>
-                <td style="padding: 6px;">Error tracking (Sentry), analytics, performance monitoring</td>
-            </tr>
-            <tr>
-                <td style="padding: 6px;"><b>Testing</b></td>
-                <td style="padding: 6px;">Vitest + Testing Library, E2E (Playwright), component tests</td>
+                <td style="padding: 6px;"><b>Позиціонування</b></td>
+                <td style="padding: 6px;">Бібліотека (UI only)</td>
+                <td style="padding: 6px;">Прогресивний фреймворк</td>
             </tr>
         </tbody>
     </table>
 </section>
 
 <section class="slide">
-    <h2>Testing React — огляд</h2>
+    <h2>Що спільного у React та Vue?</h2>
+    <ul style="font-size: 19px;">
+        <li><b>Компонентна архітектура</b> — UI розбивається на багаторазові, самодостатні блоки.</li>
+        <li><b>Декларативний підхід</b> — описуємо «що» відобразити, а не «як» маніпулювати DOM.</li>
+        <li><b>Virtual DOM</b> — обидва використовують проміжне дерево для оптимізації оновлень.</li>
+        <li><b>Односторонній потік даних</b> — props передаються вниз, події піднімаються вгору.</li>
+        <li><b>Підтримка TypeScript</b> — обидва мають інструменти для статичної типізації.</li>
+        <li><b>Екосистема та спільнота</b> — багата кількість плагінів, інструментів, навчальних матеріалів.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Компонентна модель та JSX</h2>
+</section>
+
+<section class="slide">
+    <h2>Компонентна модель React</h2>
     <div style="font-size: 19px;">
-        <p><b>В testing React використовують:</b></p>
+        <p><b>Компонент</b> у React — це звичайна <b>JavaScript-функція</b>,
+            яка приймає об'єкт пропсів і повертає опис UI (JSX).</p>
+        <p>Компоненти можна <b>компонувати</b>: один компонент може
+            рендерити інші компоненти, утворюючи дерево.</p>
+        <p>Кожен компонент — це <b>ізольована одиниця</b> зі своїм
+            станом, логікою та UI. Це дозволяє:</p>
         <ul>
-            <li><b>Vitest</b> / Jest — test runner;</li>
-            <li><b>React Testing Library</b> — render + interact з компонентами
-                (<code>render()</code>, <code>screen</code>, <code>fireEvent</code>, <code>userEvent</code>);</li>
-            <li><b>MSW</b> (Mock Service Worker) — mock API-запитів;</li>
-            <li><b>Playwright</b> / Cypress — E2E тести (реальний браузер).</li>
+            <li>повторно використовувати код (DRY);</li>
+            <li>тестувати компоненти окремо;</li>
+            <li>розділити роботу між розробниками.</li>
         </ul>
-        <p><b>Принцип Testing Library:</b> test як користувач
-            взаємодіє з UI, а не як компонент реалізований.</p>
-        <p><b>Що тестувати:</b> behavior, не implementation.</p>
-        <p><b>React 19:</b> <code>act()</code> більше не потрібен
-            для більшості випадків.</p>
     </div>
 </section>
 
 <section class="slide">
-    <h2>Підсумок</h2>
+    <h2>Дерево компонентів React</h2>
+    <img src="pictures/react/1/components.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+</section>
+
+<section class="slide">
+    <h2>JSX — синтаксис для опису UI</h2>
+    <div style="font-size: 19px;">
+        <p><b>JSX</b> (JavaScript XML) — це розширення синтаксису JavaScript,
+            яке дозволяє писати HTML-подібний код безпосередньо у JS.</p>
+        <p>JSX <b>не є</b> шаблонною мовою — це синтаксичний цукор над
+            викликами <code>React.createElement()</code>.</p>
+        <p>На відміну від Vue-шаблонів (HTML-подібних), JSX — це
+            <b>повноцінний JavaScript</b>: ви можете використовувати
+            будь-які JS-вирази всередині фігурних дужок <code>&#123;&#125;</code>.</p>
+        <p><b>TSX</b> — це JSX з підтримкою TypeScript-типів.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>JSX &#8651; React.createElement</h2>
+<pre style="margin: 0; font-size: 10px; white-space: pre;">// JSX (описуємо UI)
+const el = (
+  &lt;div className="card"&gt;
+    &lt;h1&gt;Hello&lt;/h1&gt;
+    &lt;p&gt;{name}&lt;/p&gt;
+  &lt;/div&gt;
+);
+
+// React.createElement
+const el = React.createElement(
+  "div",
+  { className: "card" },
+  React.createElement("h1", null, "Hello"),
+  React.createElement("p", null, name)
+);</pre>
+    <p style="font-size: 17px; margin-top: 15px;">
+        JSX — це синтаксичний цукор над викликами <code>createElement</code>.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>JSX — приклад компонента</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">function Welcome(props) {
+  return (
+    &lt;div className="greeting"&gt;
+      &lt;h1&gt;Hello, {props.name}!&lt;/h1&gt;
+      &lt;p&gt;Welcome to React.&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// TSX з типами
+function Welcome(props: {
+  name: string;
+}) {
+  return (
+    &lt;div className="greeting"&gt;
+      &lt;h1&gt;Hello, {props.name}!&lt;/h1&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+    </div>
+    <p style="font-size: 17px; margin-top: 15px;">
+        <b>Правила JSX:</b>
+        компонент починається з великої літери &#8594;
+        один кореневий елемент (або Fragment <code>&lt;&gt;...&lt;/&gt;</code>) &#8594;
+        <code>className</code> замість <code>class</code> &#8594;
+        вирази у <code>&#123;&#125;</code>.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>JSX — умовний рендеринг та списки</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Умовний рендеринг
+function Greeting(props) {
+  return (
+    &lt;div&gt;
+      {props.isLoggedIn
+        ? &lt;p&gt;Welcome back!&lt;/p&gt;
+        : &lt;p&gt;Please log in.&lt;/p&gt;}
+    &lt;/div&gt;
+  );
+}</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Рендеринг списків
+function ItemList(props) {
+  return (
+    &lt;ul&gt;
+      {props.items.map(item =&gt; (
+        &lt;li key={item.id}&gt;
+          {item.name}
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</pre>
+    </div>
+    <p style="font-size: 17px; margin-top: 15px;">
+        У Vue для цього є директиви <code>v-if</code> та <code>v-for</code>.
+        У React — це <b>звичайні JS-вирази</b> (тернарний оператор, <code>&amp;&amp;</code>, <code>.map()</code>).
+        Атрибут <code>key</code> обов'язковий для елементів списку.
+    </p>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Props та State</h2>
+</section>
+
+<section class="slide">
+    <h2>Ментальна модель React: UI = f(state)</h2>
+    <img src="pictures/react/1/mental-model.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+    <p style="text-align: center; font-size: 17px; margin-top: 10px;">
+        <b>UI — це функція від стану.</b> Змінив state &#8594; React перераховує UI.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Props — передача даних вниз</h2>
+    <div style="font-size: 19px;">
+        <p><b>Props</b> (properties) — це дані, які батьківський компонент
+            передає дочірньому через атрибути JSX.</p>
+        <p>Props — <b>read-only</b> (тільки для читання). Дочірній компонент
+            не повинен змінювати свої props — це контракт React.</p>
+        <p>Потік даних у React завжди <b>односторонній</b> (top-down):
+            батько &#8594; дочірній компонент через props.</p>
+        <p>Щоб передати подію вгору, батько передає <b>callback-функцію</b>
+            через props, а дочірній компонент викликає її.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Props та callbacks — потоки даних</h2>
+    <img src="pictures/react/1/props-state.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>Props — приклад</h2>
+    <pre style="margin: 0; font-size: 10px; white-space: pre;">// Батьківський компонент
+function App() {
+  const [name, setName] = useState("Anna");
+
+  return (
+    &lt;div&gt;
+      &lt;Profile name={name} age={25} /&gt;
+      &lt;Profile name={"Oleg"} age={30} /&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Дочірній компонент (TSX)
+function Profile(props: { name: string; age: number }) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{props.name}&lt;/h2&gt;
+      &lt;p&gt;Age: {props.age}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+    <p style="font-size: 17px; margin-top: 10px;">
+        Кожен виклик <code>&lt;Profile /&gt;</code> — це окремий екземпляр
+        з власними props. Props можна типізувати через TypeScript-інтерфейси.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>State — внутрішній стан компонента</h2>
+    <div style="font-size: 19px;">
+        <p><b>State</b> — це дані, які компонент зберігає всередині себе
+            і які можуть <b>змінюватися</b> з часом.</p>
+        <p>Коли state змінюється &#8594; React <b>автоматично</b>
+            перерендерить компонент і його дочірні елементи.</p>
+        <p>State — це <b>приватне</b> для конкретного екземпляра компонента.
+            На відміну від props, state створюється і управляється
+            самим компонентом.</p>
+        <p>У сучасному React state керується через <b>Hooks</b>:
+            <code>useState</code>, <code>useReducer</code>,
+            <code>useRef</code>.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>useState — приклад</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] =
+    useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button
+        onClick={() =&gt; setCount(count + 1)}
+      &gt;
+        Increment
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+        <div style="flex: 1; font-size: 16px;">
+            <p><b>useState(initialValue)</b> повертає пару:</p>
+            <ul>
+                <li><code>count</code> — поточне значення</li>
+                <li><code>setCount</code> — функція-оновлювач</li>
+            </ul>
+            <p><b>Важливо:</b></p>
+            <ul>
+                <li>state не змінюється напряму
+                    (<code>count = 5</code> &#10007;)</li>
+                <li>лише через setter:
+                    <code>setCount(5)</code> &#10003;</li>
+                <li>оновлення state — <b>асинхронні</b>
+                    (батчинг)</li>
+                <li>state може бути об'єктом,
+                    масивом, примітивом</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Props vs State — порівняння</h2>
+    <table style="font-size: 17px; width: 100%; border-collapse: collapse; margin-left: 0; ">
+        <thead>
+            <tr style="background: var(--brand-color-prinmary); color: #fff;">
+                <th style="padding: 8px; text-align: left;">Властивість</th>
+                <th style="padding: 8px; text-align: left;">Props</th>
+                <th style="padding: 8px; text-align: left;">State</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding: 6px;"><b>Джерело</b></td>
+                <td style="padding: 6px;">Передаються від батька</td>
+                <td style="padding: 6px;">Створюються в компоненті</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px;"><b>Мутація</b></td>
+                <td style="padding: 6px;">Read-only</td>
+                <td style="padding: 6px;">Можна змінювати (через setter)</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px;"><b>Доступ</b></td>
+                <td style="padding: 6px;">Через аргумент функції</td>
+                <td style="padding: 6px;">Через useState / useReducer</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px;"><b>Тригер re-render</b></td>
+                <td style="padding: 6px;">Зміна props у батька</td>
+                <td style="padding: 6px;">Виклик setter-функції</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px;"><b>Аналог у Vue</b></td>
+                <td style="padding: 6px;">defineProps / props</td>
+                <td style="padding: 6px;">ref() / reactive() / data()</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="slide">
+    <h2>Підняття стану (Lifting State Up)</h2>
+    <div style="font-size: 18px;">
+        <p>Якщо два дочірніх компоненти потребують доступ до одних даних &#8594;
+            <b>стан піднімається до спільного батька</b>, а дочірні отримують
+            його через props.</p>
+        <p>Це ключовий принцип React: <b>стан живе в найближчому спільному предку</b>
+            компонентів, які його використовують.</p>
+        <p>Для складних застосунків з глобальним станом використовують
+            контекст (<code>useContext</code>) або стейт-менеджери
+            (<code>Redux</code>, <code>Zustand</code>, <code>Jotai</code>).</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Rendering у React</h2>
+</section>
+
+<section class="slide">
+    <h2>Як працює rendering у React</h2>
+    <img src="pictures/react/1/rendering.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
+</section>
+
+<section class="slide">
+    <h2>Rendering — крок за кроком</h2>
+    <ol style="font-size: 19px;">
+        <li><b>setState / dispatch</b> — компонент викликає функцію-оновлювач,
+            повідомляючи React, що state змінився.</li>
+        <li><b>Re-render</b> — React заново викликає функцію компонента,
+            отримує нове JSX-дерево (новий Virtual DOM).</li>
+        <li><b>Reconciliation (примирення)</b> — React порівнює нове
+            Virtual DOM-дерево з попереднім (diffing алгоритм) і
+            визначає, що саме змінилося.</li>
+        <li><b>Commit</b> — React застосовує лише <b>змінені</b> вузли
+            до реального DOM (мінімум DOM-операцій).</li>
+    </ol>
+</section>
+
+<section class="slide">
+    <h2>Чому зміна state призводить до оновлення UI?</h2>
+    <div style="font-size: 19px;">
+        <p>React побудований на принципі <b>UI = f(state)</b>.
+            UI — це функція від стану: якщо state змінюється,
+            то результат функції (UI) також змінюється.</p>
+        <p>Тому React <b>автоматично</b> перерендерить компонент
+            при кожному виклику <code>setState</code> — щоб
+            переконатися, що UI відповідає новому стану.</p>
+        <p>Це фундаментальна відмінність від Vue, де реактивність
+            відстежує залежності автоматично (через Proxy) і оновлює
+            лише конкретні DOM-вузли. У React — <b>перерендериться весь
+            компонент</b>, а Virtual DOM вже оптимізує оновлення.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Virtual DOM та Reconciliation</h2>
+    <div style="font-size: 19px;">
+        <p><b>Virtual DOM</b> — легковагне JavaScript-представлення
+            реального DOM. Кожен компонент повертає дерево
+            <code>ReactElement</code>-об'єктів.</p>
+        <p><b>Diffing алгоритм</b> — React порівнює старе і нове
+            VDOM-дерева за <b>трьома евристиками</b>:</p>
+        <ul>
+            <li>Різні типи елементів &#8594; усе піддерево замінюється;</li>
+            <li>Однакові типи &#8594; оновлюються лише атрибути;</li>
+            <li>Списки &#8594; ключі (<code>key</code>) допомагають
+                ідентифікувати елементи при перестановках.</li>
+        </ul>
+        <p>Результат diffing — мінімальний набір DOM-операцій
+            (<b>commit phase</b>).</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>React Fiber — архітектура рендеринга</h2>
+    <div style="font-size: 19px;">
+        <p>Починаючи з React 16, внутрішній алгоритм рендеринга
+            називається <b>Fiber</b>. Це переписаний reconciliation-движок.</p>
+        <p><b>Fiber</b> дозволяє:</p>
+        <ul>
+            <li><b>Припиняти і відновлювати</b> рендеринг
+                (incremental rendering) — React може розбити
+                велику роботу на частини;</li>
+            <li><b>Пріоритезувати</b> оновлення — UI-оновлення
+                мають вищий пріоритет ніж data-fetching;</li>
+            <li><b>Concurrent rendering</b> (React 18+) —
+                <code>useTransition</code>, <code>useDeferredValue</code>,
+                <code>Suspense</code>.</li>
+        </ul>
+        <p>Fiber-дерево — це ланцюг «робочих одиниць» (units of work),
+            які React обробляє частинами.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Батчинг оновлень (Batching)</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Без батчингу — 2 re-render
+function Bad() {
+  const [a, setA] = useState(0);
+  const [b, setB] = useState(0);
+
+  const handle = () =&gt; {
+    setA(1); // re-render 1
+    setB(1); // re-render 2
+  };
+}</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// З батчингом — 1 re-render
+function Good() {
+  const [a, setA] = useState(0);
+  const [b, setB] = useState(0);
+
+  const handle = () =&gt; {
+    setA(1);
+    setB(1);
+    // React 18+ автоматично
+    // батчить обидва виклики
+  };
+}</pre>
+    </div>
+    <p style="font-size: 17px; margin-top: 15px;">
+        <b>React 18+</b> автоматично батчить оновлення навіть у
+        промісах, setTimeout та event-хендлерах. Це зменшує
+        кількість re-render і підвищує продуктивність.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>React 19 та Server Components</h2>
+    <div style="font-size: 19px;">
+        <p><b>React Server Components (RSC)</b> — компоненти, які
+            виконуються <b>на сервері</b> і ніколи не гідратується
+            на клієнті. Вони:</p>
+        <ul>
+            <li>можуть читати файли, БД, робити API-запити напряму;</li>
+            <li>не збільшують JS-бандл клієнта (0 KB JS);</li>
+            <li>можуть передавати дані клієнтським компонентам.</li>
+        </ul>
+        <p><b>React 19</b> додав: Actions (форм-обробка), <code>use()</code>
+            хук, оптимістичні оновлення, документні метадані.</p>
+        <p>Це зближуює React з фреймворками Next.js, Remix, які
+            використовують RSC для SSR/SSG.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Налаштування середовища для React</h2>
     <ul style="font-size: 19px;">
-        <li><b>useState</b> &#8594; <b>Context</b> &#8594; <b>Zustand</b> &#8594; <b>Redux Toolkit</b> — еволюція state management. Context обмежений (re-render all), Zustand — селективна підписка + middleware.</li>
-        <li><b>Zustand</b> — ~1KB, без Provider, selectors, persist + devtools middleware, async actions, slices патерн.</li>
-        <li><b>Client state</b> (UI, theme, cart) vs <b>Server state</b> (API data) — різні інструменти для різних потреб.</li>
-        <li><b>TanStack Query</b> — cache, dedup, refetch on focus, invalidation, optimistic, pagination, DevTools. Замінює ручний useEffect + fetch.</li>
-        <li><b>useQuery</b> — читання, <b>useMutation</b> — зміна + invalidate.</li>
-        <li><b>Performance</b>: React.memo (skip re-render), useMemo (cache calc), useCallback (stable fn), virtualization (big lists), lazy loading, code splitting.</li>
-        <li><b>Concurrent React</b>: useTransition, useDeferredValue — пріоритезация оновлень.</li>
-        <li><b>Profile first</b> &#8212; React DevTools Profiler. Не оптимізуй гіпотетичне.</li>
-        <li><b>React 19</b> &#8212; React Compiler автоматизує багато оптимізацій.</li>
+        <li>
+            <a href="https://react.dev/learn/start-a-new-react-project" target="_blank">Створення нового React-проєкту</a>
+        </li>
+        <li>Швидко спробувати React у пісочницях:
+            <ul>
+                <li><a href="https://codesandbox.io/p/sandbox/new?utm_source=react.dev" target="_blank">CodeSandbox</a></li>
+                <li><a href="https://stackblitz.com/edit/react-18-typescript" target="_blank">StackBlitz</a></li>
+                <li><a href="https://playcode.io/react" target="_blank">PlayCode</a></li>
+            </ul>
+        </li>
+        <li>Створення локального застосунку:
+            <ul>
+                <li><b>Vite + React</b> (рекомендовано): <code>npm create vite@latest my-app -- --template react-ts</code></li>
+                <li><b>Next.js</b> (для SSR/RSC): <code>npx create-next-app@latest</code></li>
+                <li><b>create-react-app</b> — deprecated, не рекомендується</li>
+            </ul>
+        </li>
+        <li>Передумови: Node.js 18+, знання HTML/CSS/JS/TS.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Структура React-застосунку (Vite)</h2>
+    <div style="display: flex; gap: 30px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">
+my-app/
+├── src/
+│   ├── components/
+│   │   ├── Button.tsx
+│   │   └── Header.tsx
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── index.css
+├── public/
+├── index.html
+├── package.json
+├── tsconfig.json
+└── vite.config.ts</pre>
+        <div style="flex: 1; font-size: 17px;">
+            <p><b>main.tsx</b> — точка входу, монтує
+                React-застосунок у DOM.</p>
+            <p><b>App.tsx</b> — кореневий компонент.</p>
+            <p><b>components/</b> — папка для
+                багаторазових компонентів.</p>
+            <p><b>index.html</b> — HTML-шаблон з
+                <code>&lt;div id="root"&gt;</code>.</p>
+            <p>React монтується в один DOM-вузол —
+                <b>single root</b> (на відміну від Vue,
+                де може бути кілька app-інстансів).</p>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Життєвий цикл компонента (Hooks)</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import { useState, useEffect } from "react";
+
+function DataFetcher() {
+  const [data, setData] =
+    useState(null);
+
+  useEffect(() =&gt; {
+    fetch("/api/data")
+      .then(r =&gt; r.json())
+      .then(setData);
+
+    // cleanup (unmount)
+    return () =&gt; cleanup();
+  }, []); // deps
+
+  return &lt;div&gt;{data}&lt;/div&gt;;
+}</pre>
+        <div style="flex: 1; font-size: 17px;">
+            <p><b>Основні Hooks:</b></p>
+            <ul>
+                <li><code>useState</code> — локальний стан</li>
+                <li><code>useEffect</code> — побічні ефекти
+                    (fetch, підписки, DOM)</li>
+                <li><code>useRef</code> — мутабельне значення
+                    без re-render</li>
+                <li><code>useMemo</code> — мемоізація значення</li>
+                <li><code>useCallback</code> — мемоізація функції</li>
+                <li><code>useContext</code> — доступ до контексту</li>
+                <li><code>useReducer</code> — складний стан
+                    (як Redux локально)</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Підсумок: ментальна модель React</h2>
+    <ul style="font-size: 19px;">
+        <li><b>UI = f(state)</b> — інтерфейс є функцією від стану. Змінив state &#8594; отримав новий UI.</li>
+        <li><b>Односторонній потік даних</b> — props вниз, події (callbacks) вгору.</li>
+        <li><b>Компоненти — це функції</b> (не класи в сучасному React), які повертають JSX.</li>
+        <li><b>JSX = JS</b> — вирази, а не шаблони. Уся логіка — це JavaScript.</li>
+        <li><b>Virtual DOM + Reconciliation</b> — React порівнює дерева і оновлює лише змінене в DOM.</li>
+        <li><b>Hooks</b> — стан та побічні ефекти у функціональних компонентах.</li>
+        <li><b>React — бібліотека</b>, а не фреймворк. Гнучкість + екосистема.</li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>Корисні ресурси</h2>
     <ul style="font-size: 19px;">
-        <li><a href="https://zustand-demo.pmnd.rs/" target="_blank">Zustand — офіційна документація</a></li>
-        <li><a href="https://zustand.docs.pmnd.rs/middleware" target="_blank">Zustand Middleware (persist, devtools)</a></li>
-        <li><a href="https://tanstack.com/query/latest/docs/react/overview" target="_blank">TanStack Query — React Overview</a></li>
-        <li><a href="https://tanstack.com/query/latest/docs/react/guides/queries" target="_blank">TanStack Query: Queries Guide</a></li>
-        <li><a href="https://tanstack.com/query/latest/docs/react/guides/mutations" target="_blank">TanStack Query: Mutations Guide</a></li>
-        <li><a href="https://react.dev/reference/react/memo" target="_blank">React.memo API</a></li>
-        <li><a href="https://react.dev/reference/react/useMemo" target="_blank">React.useMemo API</a></li>
-        <li><a href="https://react.dev/reference/react/useTransition" target="_blank">React.useTransition</a></li>
-        <li><a href="https://github.com/bvaughn/react-window" target="_blank">react-window — virtualization</a></li>
-        <li><a href="https://react.dev/learn/render-and-commit" target="_blank">React: Render and Commit</a></li>
-        <li><a href="https://testing-library.com/docs/react-testing-library/intro/" target="_blank">React Testing Library</a></li>
+        <li><a href="https://react.dev" target="_blank">react.dev — офіційна документація (новий інтерактивний туторіал)</a></li>
+        <li><a href="https://react.dev/learn" target="_blank">React Learn — інтерактивний курс</a></li>
+        <li><a href="https://react.dev/reference/react" target="_blank">React API Reference</a></li>
+        <li><a href="https://www.typescriptlang.org/docs/handbook/react.html" target="_blank">TypeScript + React</a></li>
+        <li><a href="https://vitejs.dev/guide/" target="_blank">Vite — інструмент збірки</a></li>
+        <li><a href="https://nextjs.org/docs" target="_blank">Next.js — React фреймворк</a></li>
     </ul>
 </section>
 

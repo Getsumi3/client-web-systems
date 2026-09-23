@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380">
-  <rect width="720" height="380" fill="#1e1e2e"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 380" width="720" height="380">
+  <rect width="780" height="380" fill="#1e1e2e"/>
 
   <text x="360" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">State &#8593; Props &#8594; UI</text>
 

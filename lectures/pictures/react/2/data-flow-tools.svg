@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
-  <rect width="640" height="360" fill="#1e1e2e"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380">
+  <rect width="640" height="380" fill="#1e1e2e"/>
 
   <text x="320" y="35" text-anchor="middle" fill="#61DAFB" font-family="monospace" font-size="18" font-weight="bold">React State — два основні рівні</text>
 
   <!-- Column 1: Local -->
-  <rect x="40" y="60" width="250" height="270" rx="8" fill="#2a2a3e" stroke="#51cf66"/>
+  <rect x="40" y="60" width="250" height="300" rx="8" fill="#2a2a3e" stroke="#51cf66"/>
   <text x="165" y="90" text-anchor="middle" fill="#51cf66" font-family="monospace" font-size="16" font-weight="bold">Local State</text>
   <text x="60" y="120" fill="#ccc" font-family="monospace" font-size="14">useState</text>
   <text x="60" y="145" fill="#ccc" font-family="monospace" font-size="14">useReducer</text>
@@ -17,7 +17,7 @@
   <text x="60" y="340" fill="#888" font-family="monospace" font-size="12">спільного батька</text>
 
   <!-- Column 2: Shared -->
-  <rect x="320" y="60" width="280" height="270" rx="8" fill="#2a2a3e" stroke="#d19a66"/>
+  <rect x="320" y="60" width="280" height="300" rx="8" fill="#2a2a3e" stroke="#d19a66"/>
   <text x="460" y="90" text-anchor="middle" fill="#d19a66" font-family="monospace" font-size="16" font-weight="bold">Shared State</text>
   <text x="340" y="120" fill="#ccc" font-family="monospace" font-size="14">useContext</text>
   <text x="340" y="145" fill="#ccc" font-family="monospace" font-size="14">+ useState / useReducer</text>

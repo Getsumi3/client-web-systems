@@ -4,7 +4,14 @@
 
 - [**Лекція 1.** Строга типізація у вебі: екосистема мови TypeScript.](lecture-01.html)
 - [**Лекція 2.** Знайомство з фреймворком Vue.js](lecture-02.html)
--
+- 
+- 
+- [**Лекція 8.** React Fundamentals та ментальна модель React](lecture-08.html)
+- [**Лекція 9.** State, Effects та архітектура компонентів](lecture-09.html)
+- [**Лекція 10.** Робота з API та CRUD-застосунками](lecture-10.html)
+- [**Лекція 11.** Routing та архітектура React-застосунку](lecture-11.html)
+- [**Лекція 12.** Forms, Validation та Authentication](lecture-12.html)
+- [**Лекція 13.** State Management та Production React](lecture-13.html)
 
 ## Локальний запуск
 
