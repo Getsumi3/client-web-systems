@@ -209,34 +209,47 @@
 
 <section class="slide">
     <h2>JSX &#8651; React.createElement</h2>
-    <img src="pictures/react/1/jsx.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+<pre style="margin: 0; font-size: 13px; white-space: pre;">// JSX (описуємо UI)
+const el = (
+  &lt;div className="card"&gt;
+    &lt;h1&gt;Hello&lt;/h1&gt;
+    &lt;p&gt;{name}&lt;/p&gt;
+  &lt;/div&gt;
+);
+
+// React.createElement
+const el = React.createElement(
+  "div",
+  { className: "card" },
+  React.createElement("h1", null, "Hello"),
+  React.createElement("p", null, name)
+);</pre>
+    <p style="font-size: 17px; margin-top: 15px;">
+        JSX — це синтаксичний цукор над викликами <code>createElement</code>.
+    </p>
 </section>
 
 <section class="slide">
     <h2>JSX — приклад компонента</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 15px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">function</span> <span style="color:#61afef">Welcome</span>(<span style="color:#e06c75">props</span>) {
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;div</span> <span style="color:#d19a66">className</span>=<span style="color:#98c379">"greeting"</span><span style="color:#e06c75">&gt;</span>
-      <span style="color:#e06c75">&lt;h1&gt;</span>Hello, {<span style="color:#e06c75">props</span>.name}!<span style="color:#e06c75">&lt;/h1&gt;</span>
-      <span style="color:#e06c75">&lt;p&gt;</span>Welcome to React.<span style="color:#e06c75">&lt;/p&gt;</span>
-    <span style="color:#e06c75">&lt;/div&gt;</span>
+        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">function Welcome(props) {
+  return (
+    &lt;div className="greeting"&gt;
+      &lt;h1&gt;Hello, {props.name}!&lt;/h1&gt;
+      &lt;p&gt;Welcome to React.&lt;/p&gt;
+    &lt;/div&gt;
   );
 }</pre>
-        </div>
-        <div style="flex: 1; font-size: 15px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// TSX з типами</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Welcome</span>(<span style="color:#e06c75">props</span>: {
-  name: <span style="color:#c678dd">string</span>;
+        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">// TSX з типами
+function Welcome(props: {
+  name: string;
 }) {
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;div</span> <span style="color:#d19a66">className</span>=<span style="color:#98c379">"greeting"</span><span style="color:#e06c75">&gt;</span>
-      <span style="color:#e06c75">&lt;h1&gt;</span>Hello, {<span style="color:#e06c75">props</span>.name}!<span style="color:#e06c75">&lt;/h1&gt;</span>
-    <span style="color:#e06c75">&lt;/div&gt;</span>
+  return (
+    &lt;div className="greeting"&gt;
+      &lt;h1&gt;Hello, {props.name}!&lt;/h1&gt;
+    &lt;/div&gt;
   );
 }</pre>
-        </div>
     </div>
     <p style="font-size: 17px; margin-top: 15px;">
         <b>Правила JSX:</b>
@@ -250,32 +263,28 @@
 <section class="slide">
     <h2>JSX — умовний рендеринг та списки</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 14px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Умовний рендеринг</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Greeting</span>(<span style="color:#e06c75">props</span>) {
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;div&gt;</span>
-      {<span style="color:#e06c75">props</span>.isLoggedIn
-        ? <span style="color:#e06c75">&lt;p&gt;</span>Welcome back!<span style="color:#e06c75">&lt;/p&gt;</span>
-        : <span style="color:#e06c75">&lt;p&gt;</span>Please log in.<span style="color:#e06c75">&lt;/p&gt;</span>}
-    <span style="color:#e06c75">&lt;/div&gt;</span>
+        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">// Умовний рендеринг
+function Greeting(props) {
+  return (
+    &lt;div&gt;
+      {props.isLoggedIn
+        ? &lt;p&gt;Welcome back!&lt;/p&gt;
+        : &lt;p&gt;Please log in.&lt;/p&gt;}
+    &lt;/div&gt;
   );
 }</pre>
-        </div>
-        <div style="flex: 1; font-size: 14px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Рендеринг списків</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">ItemList</span>(<span style="color:#e06c75">props</span>) {
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;ul&gt;</span>
-      {<span style="color:#e06c75">props</span>.items.map(<span style="color:#e06c75">item</span> =&gt; (
-        <span style="color:#e06c75">&lt;li</span> <span style="color:#d19a66">key</span>={<span style="color:#e06c75">item</span>.id}<span style="color:#e06c75">&gt;</span>
-          {<span style="color:#e06c75">item</span>.name}
-        <span style="color:#e06c75">&lt;/li&gt;</span>
+        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">// Рендеринг списків
+function ItemList(props) {
+  return (
+    &lt;ul&gt;
+      {props.items.map(item =&gt; (
+        &lt;li key={item.id}&gt;
+          {item.name}
+        &lt;/li&gt;
       ))}
-    <span style="color:#e06c75">&lt;/ul&gt;</span>
+    &lt;/ul&gt;
   );
 }</pre>
-        </div>
     </div>
     <p style="font-size: 17px; margin-top: 15px;">
         У Vue для цього є директиви <code>v-if</code> та <code>v-for</code>.
@@ -317,29 +326,27 @@
 
 <section class="slide">
     <h2>Props — приклад</h2>
-    <div style="font-size: 14px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Батьківський компонент</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">App</span>() {
-  <span style="color:#c678dd">const</span> [name, setName] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">"Anna"</span>);
+    <pre style="margin: 0; font-size: 13px; white-space: pre;">// Батьківський компонент
+function App() {
+  const [name, setName] = useState("Anna");
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;div&gt;</span>
-      <span style="color:#e06c75">&lt;Profile</span> <span style="color:#d19a66">name</span>={<span style="color:#e06c75">name</span>} <span style="color:#d19a66">age</span>={<span style="color:#98c379">25</span>} /&gt;
-      <span style="color:#e06c75">&lt;Profile</span> <span style="color:#d19a66">name</span>={<span style="color:#98c379">"Oleg"</span>} <span style="color:#d19a66">age</span>={<span style="color:#98c379">30</span>} /&gt;
-    <span style="color:#e06c75">&lt;/div&gt;</span>
+  return (
+    &lt;div&gt;
+      &lt;Profile name={name} age={25} /&gt;
+      &lt;Profile name={"Oleg"} age={30} /&gt;
+    &lt;/div&gt;
   );
 }
 
-<span style="color:#7f8488">// Дочірній компонент (TSX)</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Profile</span>(<span style="color:#e06c75">props</span>: { name: <span style="color:#c678dd">string</span>; age: <span style="color:#c678dd">number</span> }) {
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;div&gt;</span>
-      <span style="color:#e06c75">&lt;h2&gt;</span>{<span style="color:#e06c75">props</span>.name}<span style="color:#e06c75">&lt;/h2&gt;</span>
-      <span style="color:#e06c75">&lt;p&gt;</span>Age: {<span style="color:#e06c75">props</span>.age}<span style="color:#e06c75">&lt;/p&gt;</span>
-    <span style="color:#e06c75">&lt;/div&gt;</span>
+// Дочірній компонент (TSX)
+function Profile(props: { name: string; age: number }) {
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{props.name}&lt;/h2&gt;
+      &lt;p&gt;Age: {props.age}&lt;/p&gt;
+    &lt;/div&gt;
   );
 }</pre>
-    </div>
     <p style="font-size: 17px; margin-top: 10px;">
         Кожен виклик <code>&lt;Profile /&gt;</code> — це окремий екземпляр
         з власними props. Props можна типізувати через TypeScript-інтерфейси.
@@ -365,25 +372,23 @@
 <section class="slide">
     <h2>useState — приклад</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 14px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">import</span> { useState } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">import { useState } from "react";
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Counter</span>() {
-  <span style="color:#c678dd">const</span> [count, setCount] =
-    <span style="color:#61afef">useState</span>(<span style="color:#98c379">0</span>);
+function Counter() {
+  const [count, setCount] =
+    useState(0);
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;div&gt;</span>
-      <span style="color:#e06c75">&lt;p&gt;</span>Count: {<span style="color:#e06c75">count</span>}<span style="color:#e06c75">&lt;/p&gt;</span>
-      <span style="color:#e06c75">&lt;button</span>
-        <span style="color:#d19a66">onClick</span>={() =&gt; <span style="color:#61afef">setCount</span>(<span style="color:#e06c75">count</span> + <span style="color:#98c379">1</span>)}
-      <span style="color:#e06c75">&gt;</span>
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button
+        onClick={() =&gt; setCount(count + 1)}
+      &gt;
         Increment
-      <span style="color:#e06c75">&lt;/button&gt;</span>
-    <span style="color:#e06c75">&lt;/div&gt;</span>
+      &lt;/button&gt;
+    &lt;/div&gt;
   );
 }</pre>
-        </div>
         <div style="flex: 1; font-size: 16px;">
             <p><b>useState(initialValue)</b> повертає пару:</p>
             <ul>
@@ -542,32 +547,28 @@
 <section class="slide">
     <h2>Батчинг оновлень (Batching)</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 14px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Без батчингу — 2 re-render</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Bad</span>() {
-  <span style="color:#c678dd">const</span> [a, setA] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">0</span>);
-  <span style="color:#c678dd">const</span> [b, setB] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">0</span>);
+        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">// Без батчингу — 2 re-render
+function Bad() {
+  const [a, setA] = useState(0);
+  const [b, setB] = useState(0);
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">handle</span> = () =&gt; {
-    <span style="color:#61afef">setA</span>(<span style="color:#98c379">1</span>); <span style="color:#7f8488">// re-render 1</span>
-    <span style="color:#61afef">setB</span>(<span style="color:#98c379">1</span>); <span style="color:#7f8488">// re-render 2</span>
+  const handle = () =&gt; {
+    setA(1); // re-render 1
+    setB(1); // re-render 2
   };
 }</pre>
-        </div>
-        <div style="flex: 1; font-size: 14px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// З батчингом — 1 re-render</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Good</span>() {
-  <span style="color:#c678dd">const</span> [a, setA] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">0</span>);
-  <span style="color:#c678dd">const</span> [b, setB] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">0</span>);
+        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">// З батчингом — 1 re-render
+function Good() {
+  const [a, setA] = useState(0);
+  const [b, setB] = useState(0);
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">handle</span> = () =&gt; {
-    <span style="color:#61afef">setA</span>(<span style="color:#98c379">1</span>);
-    <span style="color:#61afef">setB</span>(<span style="color:#98c379">1</span>);
-    <span style="color:#7f8488">// React 18+ автоматично</span>
-    <span style="color:#7f8488">// батчить обидва виклики</span>
+  const handle = () =&gt; {
+    setA(1);
+    setB(1);
+    // React 18+ автоматично
+    // батчить обидва виклики
   };
 }</pre>
-        </div>
     </div>
     <p style="font-size: 17px; margin-top: 15px;">
         <b>React 18+</b> автоматично батчить оновлення навіть у
@@ -621,8 +622,7 @@
 <section class="slide">
     <h2>Структура React-застосунку (Vite)</h2>
     <div style="display: flex; gap: 30px;">
-        <div style="font-size: 14px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.6; flex: 1;">
-<pre style="margin:0; white-space: pre; ">
+        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">
 my-app/
 ├── src/
 │   ├── components/
@@ -636,7 +636,6 @@ my-app/
 ├── package.json
 ├── tsconfig.json
 └── vite.config.ts</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>main.tsx</b> — точка входу, монтує
                 React-застосунок у DOM.</p>
@@ -655,25 +654,23 @@ my-app/
 <section class="slide">
     <h2>Життєвий цикл компонента (Hooks)</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 15px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">import</span> { useState, useEffect } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">import { useState, useEffect } from "react";
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">DataFetcher</span>() {
-  <span style="color:#c678dd">const</span> [data, setData] =
-    <span style="color:#61afef">useState</span>(<span style="color:#c678dd">null</span>);
+function DataFetcher() {
+  const [data, setData] =
+    useState(null);
 
-  <span style="color:#61afef">useEffect</span>(() =&gt; {
-    <span style="color:#61afef">fetch</span>(<span style="color:#98c379">"/api/data"</span>)
-      .then(<span style="color:#e06c75">r</span> =&gt; <span style="color:#e06c75">r</span>.json())
-      .then(<span style="color:#61afef">setData</span>);
+  useEffect(() =&gt; {
+    fetch("/api/data")
+      .then(r =&gt; r.json())
+      .then(setData);
 
-    <span style="color:#7f8488">// cleanup (unmount)</span>
-    <span style="color:#c678dd">return</span> () =&gt; <span style="color:#61afef">cleanup</span>();
-  }, []); <span style="color:#7f8488">// deps</span>
+    // cleanup (unmount)
+    return () =&gt; cleanup();
+  }, []); // deps
 
-  <span style="color:#c678dd">return</span> <span style="color:#e06c75">&lt;div&gt;</span>{<span style="color:#e06c75">data</span>}<span style="color:#e06c75">&lt;/div&gt;</span>;
+  return &lt;div&gt;{data}&lt;/div&gt;;
 }</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Основні Hooks:</b></p>
             <ul>
