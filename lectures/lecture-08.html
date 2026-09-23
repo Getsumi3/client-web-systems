@@ -82,34 +82,32 @@
 <section class="slide">
     <h2>Zustand — базовий store</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// store/useStore.ts</span>
-<span style="color:#c678dd">import</span> &#123; create &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"zustand"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// store/useStore.ts
+import &#123; create &#125; from "zustand";
 
-<span style="color:#c678dd">type</span> <span style="color:#61afef">Store</span> = &#123;
-  user: <span style="color:#61afef">User</span> | <span style="color:#c678dd">null</span>;
-  cart: <span style="color:#61afef">CartItem</span>[];
-  theme: <span style="color:#c678dd">string</span>;
-  <span style="color:#7f8488">// actions</span>
-  login: (user: <span style="color:#61afef">User</span>) =&gt; <span style="color:#c678dd">void</span>;
-  logout: () =&gt; <span style="color:#c678dd">void</span>;
-  addToCart: (item: <span style="color:#61afef">CartItem</span>) =&gt; <span style="color:#c678dd">void</span>;
-  setTheme: (theme: <span style="color:#c678dd">string</span>) =&gt; <span style="color:#c678dd">void</span>;
+type Store = &#123;
+  user: User | null;
+  cart: CartItem[];
+  theme: string;
+  // actions
+  login: (user: User) =&gt; void;
+  logout: () =&gt; void;
+  addToCart: (item: CartItem) =&gt; void;
+  setTheme: (theme: string) =&gt; void;
 &#125;;
 
-<span style="color:#c678dd">export const</span> useStore = <span style="color:#61afef">create</span>&lt;<span style="color:#61afef">Store</span>&gt;((set, get) =&gt; (&#123;
-  user: <span style="color:#c678dd">null</span>,
+export const useStore = create&lt;Store&gt;((set, get) =&gt; (&#123;
+  user: null,
   cart: [],
-  theme: <span style="color:#98c379">"light"</span>,
+  theme: "light",
 
-  login: (user) =&gt; <span style="color:#61afef">set</span>(&#123; user &#125;),
-  logout: () =&gt; <span style="color:#61afef">set</span>(&#123; user: <span style="color:#c678dd">null</span> &#125;),
-  addToCart: (item) =&gt; <span style="color:#61afef">set</span>((state) =&gt; (&#123;
+  login: (user) =&gt; set(&#123; user &#125;),
+  logout: () =&gt; set(&#123; user: null &#125;),
+  addToCart: (item) =&gt; set((state) =&gt; (&#123;
     cart: [...state.cart, item]
   &#125;)),
-  setTheme: (theme) =&gt; <span style="color:#61afef">set</span>(&#123; theme &#125;),
+  setTheme: (theme) =&gt; set(&#123; theme &#125;),
 &#125;));</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Zustand</b> — мінімалістичний state manager
                 (~1KB).</p>
@@ -133,31 +131,29 @@
 <section class="slide">
     <h2>Zustand — селективна підписка</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// &#9989; Selective subscription</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Navbar</span>() &#123;
-  <span style="color:#7f8488">// only re-renders when user changes</span>
-  <span style="color:#c678dd">const</span> user = <span style="color:#61afef">useStore</span>(<span style="color:#e06c75">s</span> =&gt; <span style="color:#e06c75">s</span>.user);
-  <span style="color:#c678dd">return</span> &lt;nav&gt;Hello, &#123;user?.name&#125;&lt;/nav&gt;;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#9989; Selective subscription
+function Navbar() &#123;
+  // only re-renders when user changes
+  const user = useStore(s =&gt; s.user);
+  return &lt;nav&gt;Hello, &#123;user?.name&#125;&lt;/nav&gt;;
 &#125;
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">CartIcon</span>() &#123;
-  <span style="color:#7f8488">// only re-renders when cart.length changes</span>
-  <span style="color:#c678dd">const</span> count = <span style="color:#61afef">useStore</span>(<span style="color:#e06c75">s</span> =&gt; <span style="color:#e06c75">s</span>.cart.length);
-  <span style="color:#c678dd">return</span> &lt;span&gt;Cart (&#123;count&#125;)&lt;/span&gt;;
+function CartIcon() &#123;
+  // only re-renders when cart.length changes
+  const count = useStore(s =&gt; s.cart.length);
+  return &lt;span&gt;Cart (&#123;count&#125;)&lt;/span&gt;;
 &#125;
 
-<span style="color:#7f8488">// &#9989; Multiple fields</span>
-<span style="color:#c678dd">const</span> &#123; user, theme &#125; = <span style="color:#61afef">useStore</span>(<span style="color:#e06c75">s</span> =&gt; (&#123;
-  user: <span style="color:#e06c75">s</span>.user, theme: <span style="color:#e06c75">s</span>.theme
+// &#9989; Multiple fields
+const &#123; user, theme &#125; = useStore(s =&gt; (&#123;
+  user: s.user, theme: s.theme
 &#125;));
 
-<span style="color:#7f8488">// &#9989; Actions (stable references)</span>
-<span style="color:#c678dd">const</span> addToCart = <span style="color:#61afef">useStore</span>(<span style="color:#e06c75">s</span> =&gt; <span style="color:#e06c75">s</span>.addToCart);
+// &#9989; Actions (stable references)
+const addToCart = useStore(s =&gt; s.addToCart);
 
-<span style="color:#7f8488">// &#9989; Get without subscribe</span>
-<span style="color:#c678dd">const</span> items = <span style="color:#61afef">useStore</span>.getState().cart;</pre>
-        </div>
+// &#9989; Get without subscribe
+const items = useStore.getState().cart;</pre>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Селектор</b> — функція
                 <code>(state) =&gt; value</code>.</p>
@@ -181,38 +177,58 @@
 
 <section class="slide">
     <h2>Zustand — middleware</h2>
-    <img src="pictures/react/6/zustand-middleware.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// persist — localStorage sync
+import { persist } from "zustand/middleware"
+
+const useStore = create(persist(
+  (set) =&gt; ({ theme: "light", ... }),
+  { name: "app-storage" }
+))</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// devtools — Redux DevTools
+import { devtools } from "zustand/middleware"
+
+const useStore = create(devtools(
+  (set) =&gt; ({ ... }),
+  { name: "my-store" }
+))</pre>
+    </div>
+    <p style="font-size: 16px; margin-top: 15px;"><b>Комбінація middleware (persist + devtools):</b></p>
+<pre style="margin: 0; font-size: 12px; white-space: pre;">const useStore = create(devtools(persist(
+  (set, get) =&gt; ({
+    user: null, cart: [], login: (u) =&gt; set({ user: u }),
+  }),
+  { name: "app-store" }
+)))</pre>
 </section>
 
 <section class="slide">
     <h2>Zustand — async actions</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">export const</span> useStore = <span style="color:#61afef">create</span>&lt;<span style="color:#61afef">Store</span>&gt;((set, get) =&gt; (&#123;
-  user: <span style="color:#c678dd">null</span>,
-  loading: <span style="color:#d19a66">false</span>,
-  error: <span style="color:#c678dd">null</span>,
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">export const useStore = create&lt;Store&gt;((set, get) =&gt; (&#123;
+  user: null,
+  loading: false,
+  error: null,
 
-  <span style="color:#7f8488">// Async action built-in!</span>
-  login: <span style="color:#c678dd">async</span> (email: <span style="color:#c678dd">string</span>, password: <span style="color:#c678dd">string</span>) =&gt; &#123;
-    <span style="color:#61afef">set</span>(&#123; loading: <span style="color:#d19a66">true</span>, error: <span style="color:#c678dd">null</span> &#125;);
-    <span style="color:#c678dd">try</span> &#123;
-      <span style="color:#c678dd">const</span> &#123; user, token &#125; = <span style="color:#c678dd">await</span> authApi.login(email, password);
-      localStorage.<span style="color:#61afef">setItem</span>(<span style="color:#98c379">"token"</span>, token);
-      <span style="color:#61afef">set</span>(&#123; user, loading: <span style="color:#d19a66">false</span> &#125;);
-    &#125; <span style="color:#c678dd">catch</span> (e) &#123;
-      <span style="color:#61afef">set</span>(&#123; error: e.message, loading: <span style="color:#d19a66">false</span> &#125;);
+  // Async action built-in!
+  login: async (email: string, password: string) =&gt; &#123;
+    set(&#123; loading: true, error: null &#125;);
+    try &#123;
+      const &#123; user, token &#125; = await authApi.login(email, password);
+      localStorage.setItem("token", token);
+      set(&#123; user, loading: false &#125;);
+    &#125; catch (e) &#123;
+      set(&#123; error: e.message, loading: false &#125;);
     &#125;
   &#125;,
 
-  <span style="color:#7f8488">// Read current state with get()</span>
-  checkout: <span style="color:#c678dd">async</span> () =&gt; &#123;
-    <span style="color:#c678dd">const</span> cart = <span style="color:#61afef">get</span>().cart;
-    <span style="color:#c678dd">await</span> ordersApi.create(&#123; items: cart &#125;);
-    <span style="color:#61afef">set</span>(&#123; cart: [] &#125;);
+  // Read current state with get()
+  checkout: async () =&gt; &#123;
+    const cart = get().cart;
+    await ordersApi.create(&#123; items: cart &#125;);
+    set(&#123; cart: [] &#125;);
   &#125;,
 &#125;));</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Async в Zustand</b> — просто
                 <code>async</code> функція в store.</p>
@@ -220,7 +236,7 @@
             <p><b>get()</b> — читання стану без підписки
                 (всередині actions).</p>
             <p><b>Виклик з компонента:</b></p>
-            <pre style="font-size: 13px; background: #1e1e2e; color: #ccc; padding: 10px; border-radius: 6px; margin: 0;">const login = useStore(s =&gt; s.login);
+            <pre style="margin: 0; font-size: 12px; white-space: pre;">const login = useStore(s =&gt; s.login);
 const loading = useStore(s =&gt; s.loading);
 
 const handleSubmit = async () =&gt; {
@@ -236,31 +252,29 @@ const handleSubmit = async () =&gt; {
 <section class="slide">
     <h2>Zustand — slices (модульний store)</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// store/userSlice.ts</span>
-<span style="color:#c678dd">export const</span> createUserSlice = (set, get) =&gt; (&#123;
-  user: <span style="color:#c678dd">null</span>,
-  login: <span style="color:#c678dd">async</span> (email, pwd) =&gt; &#123; ... &#125;,
-  logout: () =&gt; <span style="color:#61afef">set</span>(&#123; user: <span style="color:#c678dd">null</span> &#125;),
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// store/userSlice.ts
+export const createUserSlice = (set, get) =&gt; (&#123;
+  user: null,
+  login: async (email, pwd) =&gt; &#123; ... &#125;,
+  logout: () =&gt; set(&#123; user: null &#125;),
 &#125;);
 
-<span style="color:#7f8488">// store/cartSlice.ts</span>
-<span style="color:#c678dd">export const</span> createCartSlice = (set, get) =&gt; (&#123;
+// store/cartSlice.ts
+export const createCartSlice = (set, get) =&gt; (&#123;
   cart: [],
-  addToCart: (item) =&gt; <span style="color:#61afef">set</span>(<span style="color:#e06c75">s</span> =&gt; (&#123;
+  addToCart: (item) =&gt; set(s =&gt; (&#123;
     cart: [...s.cart, item]
   &#125;)),
-  removeFromCart: (id) =&gt; <span style="color:#61afef">set</span>(<span style="color:#e06c75">s</span> =&gt; (&#123;
-    cart: s.cart.filter(<span style="color:#e06c75">i</span> =&gt; i.id !== id)
+  removeFromCart: (id) =&gt; set(s =&gt; (&#123;
+    cart: s.cart.filter(i =&gt; i.id !== id)
   &#125;)),
 &#125;);
 
-<span style="color:#7f8488">// store/index.ts &#8212; combine slices</span>
-<span style="color:#c678dd">export const</span> useStore = <span style="color:#61afef">create</span>(&#123;
+// store/index.ts &#8212; combine slices
+export const useStore = create(&#123;
   ...createUserSlice,
   ...createCartSlice,
 &#125;);</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Slices патерн</b> — розділення store
                 на логічні частини.</p>
@@ -319,40 +333,78 @@ const handleSubmit = async () =&gt; {
 
 <section class="slide">
     <h2>Ручний CRUD vs TanStack Query</h2>
-    <img src="pictures/react/6/manual-vs-query.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1;">
+            <pre style="margin: 0; font-size: 12px; white-space: pre;">// Ручний (useState + useEffect)
+const [users, setUsers] = useState()
+const [loading, setLoading] = useState()
+const [error, setError] = useState()
+
+useEffect(() =&gt; {
+  fetch(...).then(setUsers)
+}, [])</pre>
+            <ul style="font-size: 15px; list-style: none; padding-left: 0;">
+                <li>&#10060; no cache (refetch on every mount)</li>
+                <li>&#10060; no dedup (2 components = 2 fetch)</li>
+                <li>&#10060; no refetch on focus/reconnect</li>
+                <li>&#10060; manual refetch after mutation</li>
+                <li>&#10060; no pagination/infinite helpers</li>
+                <li>&#10060; race conditions to handle</li>
+                <li>&#10060; no prefetch, no optimistic</li>
+            </ul>
+            <p style="font-size: 15px;">~50 lines of boilerplate per query</p>
+        </div>
+        <div style="flex: 1;">
+            <pre style="margin: 0; font-size: 12px; white-space: pre;">// TanStack Query
+const { data, isLoading, error }
+  = useQuery({
+    queryKey: ["users"],
+    queryFn: () =&gt; api.getUsers()
+  })</pre>
+            <ul style="font-size: 15px; list-style: none; padding-left: 0;">
+                <li>&#9989; automatic cache + dedup</li>
+                <li>&#9989; refetch on focus/reconnect</li>
+                <li>&#9989; invalidation after mutation</li>
+                <li>&#9989; pagination, infinite scroll</li>
+                <li>&#9989; prefetch, optimistic updates</li>
+                <li>&#9989; retry, rollback on error</li>
+                <li>&#9989; DevTools, no race conditions</li>
+            </ul>
+            <p style="font-size: 15px;">~3 lines of code per query<br>
+                <code>useMutation</code> + <code>invalidateQueries</code></p>
+        </div>
+    </div>
 </section>
 
 <section class="slide">
     <h2>TanStack Query — useQuery</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">import</span> &#123; useQuery &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"@tanstack/react-query"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import &#123; useQuery &#125; from "@tanstack/react-query";
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">UserList</span>() &#123;
-  <span style="color:#c678dd">const</span> &#123;
-    data,        <span style="color:#7f8488">// User[] | undefined</span>
-    isLoading,   <span style="color:#7f8488">// boolean (first load)</span>
-    isFetching,  <span style="color:#7f8488">// boolean (any fetch)</span>
-    isError,     <span style="color:#7f8488">// boolean</span>
-    error,       <span style="color:#7f8488">// Error | null</span>
-    refetch,     <span style="color:#7f8488">// () =&gt; Promise</span>
-  &#125; = <span style="color:#61afef">useQuery</span>(&#123;
-    queryKey: [<span style="color:#98c379">"users"</span>],
+function UserList() &#123;
+  const &#123;
+    data,        // User[] | undefined
+    isLoading,   // boolean (first load)
+    isFetching,  // boolean (any fetch)
+    isError,     // boolean
+    error,       // Error | null
+    refetch,     // () =&gt; Promise
+  &#125; = useQuery(&#123;
+    queryKey: ["users"],
     queryFn: () =&gt; usersApi.list(),
-    staleTime: <span style="color:#98c379">60</span> * <span style="color:#98c379">1000</span>,  <span style="color:#7f8488">// 60s fresh</span>
-    refetchOnWindowFocus: <span style="color:#d19a66">true</span>,
+    staleTime: 60 * 1000,  // 60s fresh
+    refetchOnWindowFocus: true,
   &#125;);
 
-  <span style="color:#c678dd">if</span> (isLoading) <span style="color:#c678dd">return</span> &lt;Spinner /&gt;;
-  <span style="color:#c678dd">if</span> (isError) <span style="color:#c678dd">return</span> &lt;ErrorView error=&#123;error&#125; onRetry=&#123;refetch&#125; /&gt;;
+  if (isLoading) return &lt;Spinner /&gt;;
+  if (isError) return &lt;ErrorView error=&#123;error&#125; onRetry=&#123;refetch&#125; /&gt;;
 
-  <span style="color:#c678dd">return</span> (
+  return (
     &lt;ul&gt;
-      &#123;data.map(<span style="color:#e06c75">u</span> =&gt; &lt;li key=&#123;u.id&#125;&gt;&#123;u.name&#125;&lt;/li&gt;)&#125;
+      &#123;data.map(u =&gt; &lt;li key=&#123;u.id&#125;&gt;&#123;u.name&#125;&lt;/li&gt;)&#125;
     &lt;/ul&gt;
   );
 &#125;</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>useQuery</b> — хук для читання server state.</p>
             <p><b>queryKey</b> — унікальний ключ для кешу
@@ -383,41 +435,39 @@ const handleSubmit = async () =&gt; {
 <section class="slide">
     <h2>TanStack Query — useMutation код</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">import</span> &#123;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import &#123;
   useMutation, useQueryClient
-&#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"@tanstack/react-query"</span>;
+&#125; from "@tanstack/react-query";
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">DeleteUser</span>(&#123; id &#125;) &#123;
-  <span style="color:#c678dd">const</span> queryClient = <span style="color:#61afef">useQueryClient</span>();
+function DeleteUser(&#123; id &#125;) &#123;
+  const queryClient = useQueryClient();
 
-  <span style="color:#c678dd">const</span> mutation = <span style="color:#61afef">useMutation</span>(&#123;
+  const mutation = useMutation(&#123;
     mutationFn: () =&gt; usersApi.delete(id),
 
-    <span style="color:#7f8488">// Optimistic update</span>
-    onMutate: <span style="color:#c678dd">async</span> () =&gt; &#123;
-      <span style="color:#c678dd">await</span> queryClient.cancelQueries(&#123; queryKey: [<span style="color:#98c379">"users"</span>] &#125;);
-      <span style="color:#c678dd">const</span> prev = queryClient.<span style="color:#61afef">getQueryData</span>([<span style="color:#98c379">"users"</span>]);
-      queryClient.<span style="color:#61afef">setQueryData</span>([<span style="color:#98c379">"users"</span>], <span style="color:#e06c75">old</span> =&gt;
-        old?.filter(<span style="color:#e06c75">u</span> =&gt; u.id !== id));
-      <span style="color:#c678dd">return</span> &#123; prev &#125;;
+    // Optimistic update
+    onMutate: async () =&gt; &#123;
+      await queryClient.cancelQueries(&#123; queryKey: ["users"] &#125;);
+      const prev = queryClient.getQueryData(["users"]);
+      queryClient.setQueryData(["users"], old =&gt;
+        old?.filter(u =&gt; u.id !== id));
+      return &#123; prev &#125;;
     &#125;,
 
     onError: (_err, _vars, ctx) =&gt; &#123;
-      queryClient.<span style="color:#61afef">setQueryData</span>([<span style="color:#98c379">"users"</span>], ctx.prev);
+      queryClient.setQueryData(["users"], ctx.prev);
     &#125;,
 
     onSettled: () =&gt; &#123;
-      queryClient.<span style="color:#61afef">invalidateQueries</span>(&#123; queryKey: [<span style="color:#98c379">"users"</span>] &#125;);
+      queryClient.invalidateQueries(&#123; queryKey: ["users"] &#125;);
     &#125;,
   &#125;);
 
-  <span style="color:#c678dd">return</span> &lt;button onClick=&#123;() =&gt; mutation.mutate()&#125;
+  return &lt;button onClick=&#123;() =&gt; mutation.mutate()&#125;
     disabled=&#123;mutation.isPending&#125;&gt;
-    &#123;mutation.isPending ? <span style="color:#98c379">"Deleting..."</span> : <span style="color:#98c379">"Delete"</span>&#125;
+    &#123;mutation.isPending ? "Deleting..." : "Delete"&#125;
   &lt;/button&gt;;
 &#125;</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>useMutation</b> — для CUD-операцій
                 (Create, Update, Delete).</p>
@@ -443,39 +493,37 @@ const handleSubmit = async () =&gt; {
 <section class="slide">
     <h2>TanStack Query — pagination</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">function</span> <span style="color:#61afef">ProductList</span>() &#123;
-  <span style="color:#c678dd">const</span> [page, setPage] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">1</span>);
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function ProductList() &#123;
+  const [page, setPage] = useState(1);
 
-  <span style="color:#c678dd">const</span> &#123; data, isPending, isPlaceholderData &#125; =
-    <span style="color:#61afef">useQuery</span>(&#123;
-      queryKey: [<span style="color:#98c379">"products"</span>, &#123; page &#125;],
+  const &#123; data, isPending, isPlaceholderData &#125; =
+    useQuery(&#123;
+      queryKey: ["products", &#123; page &#125;],
       queryFn: () =&gt; productsApi.list(page),
-      keepPreviousData: <span style="color:#d19a66">true</span>,
-      placeholderData: <span style="color:#61afef">keepPreviousData</span>,
+      keepPreviousData: true,
+      placeholderData: keepPreviousData,
     &#125;);
 
-  <span style="color:#c678dd">return</span> (
+  return (
     &lt;&gt;
       &lt;ul&gt;
-        &#123;data?.items.map(<span style="color:#e06c75">p</span> =&gt; (
+        &#123;data?.items.map(p =&gt; (
           &lt;li key=&#123;p.id&#125;&gt;
             &#123;p.name&#125;
           &lt;/li&gt;
         ))&#125;
       &lt;/ul&gt;
       &lt;button
-        onClick=&#123;() =&gt; setPage(<span style="color:#e06c75">p</span> =&gt; p - <span style="color:#98c379">1</span>)&#125;
-        disabled=&#123;page === <span style="color:#98c379">1</span>&#125;
+        onClick=&#123;() =&gt; setPage(p =&gt; p - 1)&#125;
+        disabled=&#123;page === 1&#125;
       &gt;Prev&lt;/button&gt;
       &lt;button
-        onClick=&#123;() =&gt; setPage(<span style="color:#e06c75">p</span> =&gt; p + <span style="color:#98c379">1</span>)&#125;
+        onClick=&#123;() =&gt; setPage(p =&gt; p + 1)&#125;
         disabled=&#123;isPlaceholderData&#125;
       &gt;Next&lt;/button&gt;
     &lt;/&gt;
   );
 &#125;</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Pagination</b> — <code>page</code> в queryKey.</p>
             <p><b>keepPreviousData</b> — при зміні сторінки
@@ -498,32 +546,30 @@ const handleSubmit = async () =&gt; {
 <section class="slide">
     <h2>TanStack Query — setup</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// main.tsx — setup QueryClient</span>
-<span style="color:#c678dd">import</span> &#123;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// main.tsx — setup QueryClient
+import &#123;
   QueryClient, QueryClientProvider
-&#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"@tanstack/react-query"</span>;
-<span style="color:#c678dd">import</span> &#123; ReactQueryDevtools &#125; <span style="color:#c678dd">from</span>
-  <span style="color:#98c379">"@tanstack/react-query-devtools"</span>;
+&#125; from "@tanstack/react-query";
+import &#123; ReactQueryDevtools &#125; from
+  "@tanstack/react-query-devtools";
 
-<span style="color:#c678dd">const</span> queryClient = <span style="color:#c678dd">new</span> <span style="color:#61afef">QueryClient</span>(&#123;
+const queryClient = new QueryClient(&#123;
   defaultOptions: &#123;
     queries: &#123;
-      staleTime: <span style="color:#98c379">60</span> * <span style="color:#98c379">1000</span>,      <span style="color:#7f8488">// 1 min</span>
-      retry: <span style="color:#98c379">3</span>,
-      refetchOnWindowFocus: <span style="color:#d19a66">true</span>,
+      staleTime: 60 * 1000,      // 1 min
+      retry: 3,
+      refetchOnWindowFocus: true,
     &#125;,
   &#125;,
 &#125;);
 
-ReactDOM.<span style="color:#61afef">createRoot</span>(document.getElementById(<span style="color:#98c379">"root"</span>)!)
-  .<span style="color:#61afef">render</span>(
+ReactDOM.createRoot(document.getElementById("root")!)
+  .render(
     &lt;QueryClientProvider client=&#123;queryClient&#125;&gt;
       &lt;App /&gt;
-      &lt;ReactQueryDevtools /&gt;  <span style="color:#7f8488">// dev only</span>
+      &lt;ReactQueryDevtools /&gt;  // dev only
     &lt;/QueryClientProvider&gt;
   );</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>QueryClient</b> — глобальний кеш-менеджер.</p>
             <p><b>Default options:</b></p>
@@ -576,39 +622,73 @@ ReactDOM.<span style="color:#61afef">createRoot</span>(document.getElementById(<
 
 <section class="slide">
     <h2>React.memo, useMemo, useCallback</h2>
-    <img src="pictures/react/6/memo-usememo-usecallback.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// React.memo
+// Skip re-render if props
+// are shallow-equal
+const Item = memo(
+  ({ id, name }) =&gt; (
+    &lt;li&gt;{name}&lt;/li&gt;
+  )
+)
+// for components</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// useMemo
+// Cache computed value
+// recalc only if deps change
+const sorted = useMemo(
+  () =&gt; items
+    .sort(...),
+  [items]
+)
+// for expensive calc</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// useCallback
+// Stable function reference
+// (for memo children)
+const handleClick =
+  useCallback((id) =&gt; {
+    deleteItem(id)
+  }, [deleteItem])
+
+// for callbacks passed</pre>
+    </div>
+    <p style="font-size: 16px; margin-top: 15px;"><b>Як вони працюють разом:</b></p>
+    <ul style="font-size: 15px;">
+        <li>Parent renders &#8594; new function created &#8594; <code>memo(Item)</code> sees new prop &#8594; re-renders anyway</li>
+        <li>Fix: <code>useCallback(fn, deps)</code> &#8594; same ref &#8594; <code>memo(Item)</code> skips &#8594; no re-render</li>
+        <li>&#9888;&#65039; Don't wrap everything — memo/useMemo/useCallback have their own cost</li>
+        <li>Use only when profiling shows a real bottleneck (large lists, expensive renders)</li>
+        <li>React 19: React Compiler may auto-optimize many of these cases in the future</li>
+    </ul>
 </section>
 
 <section class="slide">
     <h2>React.memo — приклад</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Без memo &#8212; re-renders on every parent render</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">ListItem</span>(&#123; item, onDelete &#125;) &#123;
-  <span style="color:#c678dd">return</span> &lt;li&gt;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Без memo &#8212; re-renders on every parent render
+function ListItem(&#123; item, onDelete &#125;) &#123;
+  return &lt;li&gt;
     &#123;item.name&#125;
     &lt;button onClick=&#123;() =&gt; onDelete(item.id)&#125;&gt;X&lt;/button&gt;
   &lt;/li&gt;;
 &#125;
 
-<span style="color:#7f8488">// З memo &#8212; skip if props unchanged</span>
-<span style="color:#c678dd">import</span> &#123; memo &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+// З memo &#8212; skip if props unchanged
+import &#123; memo &#125; from "react";
 
-<span style="color:#c678dd">const</span> ListItem = <span style="color:#61afef">memo</span>(<span style="color:#c678dd">function</span> <span style="color:#61afef">ListItem</span>(&#123;
+const ListItem = memo(function ListItem(&#123;
   item, onDelete
-&#125;: &#123; item: <span style="color:#61afef">Item</span>; onDelete: (id: <span style="color:#c678dd">string</span>) =&gt; <span style="color:#c678dd">void</span> &#125;) &#123;
-  <span style="color:#c678dd">return</span> &lt;li&gt;
+&#125;: &#123; item: Item; onDelete: (id: string) =&gt; void &#125;) &#123;
+  return &lt;li&gt;
     &#123;item.name&#125;
     &lt;button onClick=&#123;() =&gt; onDelete(item.id)&#125;&gt;X&lt;/button&gt;
   &lt;/li&gt;;
 &#125;);
 
-<span style="color:#7f8488">// Custom comparison (if needed)</span>
-<span style="color:#c678dd">const</span> ListItem = <span style="color:#61afef">memo</span>(Component, (prev, next) =&gt; &#123;
-  <span style="color:#c678dd">return</span> prev.item.id === next.item.id
+// Custom comparison (if needed)
+const ListItem = memo(Component, (prev, next) =&gt; &#123;
+  return prev.item.id === next.item.id
     &amp;&amp; prev.item.name === next.item.name;
 &#125;);</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>React.memo</b> — HOC, що пропускає re-render,
                 якщо props <b>shallow-equal</b>.</p>
@@ -636,34 +716,32 @@ ReactDOM.<span style="color:#61afef">createRoot</span>(document.getElementById(<
 <section class="slide">
     <h2>useMemo та useCallback — коли потрібні</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// useMemo &#8212; cache expensive calc</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">ProductGrid</span>(&#123; products, query &#125;) &#123;
-  <span style="color:#c678dd">const</span> filtered = <span style="color:#61afef">useMemo</span>(
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// useMemo &#8212; cache expensive calc
+function ProductGrid(&#123; products, query &#125;) &#123;
+  const filtered = useMemo(
     () =&gt; products
-      .filter(<span style="color:#e06c75">p</span> =&gt; p.name.includes(query))
+      .filter(p =&gt; p.name.includes(query))
       .sort((a, b) =&gt; a.name.localeCompare(b.name)),
     [products, query]
   );
-  <span style="color:#c678dd">return</span> &lt;ul&gt;&#123;filtered.map(...)&#125;&lt;/ul&gt;;
+  return &lt;ul&gt;&#123;filtered.map(...)&#125;&lt;/ul&gt;;
 &#125;
 
-<span style="color:#7f8488">// useCallback &#8212; stable function for memo child</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">UserList</span>(&#123; users &#125;) &#123;
-  <span style="color:#c678dd">const</span> handleDelete = <span style="color:#61afef">useCallback</span>(
-    (id: <span style="color:#c678dd">string</span>) =&gt; usersApi.delete(id),
+// useCallback &#8212; stable function for memo child
+function UserList(&#123; users &#125;) &#123;
+  const handleDelete = useCallback(
+    (id: string) =&gt; usersApi.delete(id),
     []
   );
 
-  <span style="color:#c678dd">return</span> users.map(<span style="color:#e06c75">u</span> =&gt; (
-    <span style="color:#e06c75">&lt;ListItem</span>
-      <span style="color:#d19a66">key</span>={<span style="color:#e06c75">u</span>.id}
-      <span style="color:#d19a66">item</span>={<span style="color:#e06c75">u</span>}
-      <span style="color:#d19a66">onDelete</span>={<span style="color:#e06c75">handleDelete</span>}
+  return users.map(u =&gt; (
+    &lt;ListItem
+      key={u.id}
+      item={u}
+      onDelete={handleDelete}
     /&gt;
   ));
 &#125;</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>useMemo</b> — кешує <b>значення</b>.</p>
             <p><b>useCallback</b> — кешує <b>функцію</b>
@@ -696,34 +774,32 @@ ReactDOM.<span style="color:#61afef">createRoot</span>(document.getElementById(<
 <section class="slide">
     <h2>Virtualization — приклад (react-window)</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">import</span> &#123; FixedSizeList <span style="color:#c678dd">as</span> List &#125;
-  <span style="color:#c678dd">from</span> <span style="color:#98c379">"react-window"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import &#123; FixedSizeList as List &#125;
+  from "react-window";
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">BigList</span>(&#123; items &#125;: &#123;
-  items: <span style="color:#61afef">Item</span>[]
+function BigList(&#123; items &#125;: &#123;
+  items: Item[]
 &#125;) &#123;
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">Row</span> = (&#123; index, style &#125;) =&gt; (
+  const Row = (&#123; index, style &#125;) =&gt; (
     &lt;div style=&#123;style&#125;&gt;
       &#123;items[index].name&#125;
     &lt;/div&gt;
   );
 
-  <span style="color:#c678dd">return</span> (
+  return (
     &lt;List
-      height=&#123;<span style="color:#98c379">600</span>&#125;
-      width=&#123;<span style="color:#98c379">"100%"</span>&#125;
+      height=&#123;600&#125;
+      width=&#123;"100%"&#125;
       itemCount=&#123;items.length&#125;
-      itemSize=&#123;<span style="color:#98c379">50</span>&#125;
+      itemSize=&#123;50&#125;
     &gt;
       &#123;Row&#125;
     &lt;/List&gt;
   );
 &#125;
 
-<span style="color:#7f8488">// 10,000 items &#8594; only ~12 rows in DOM</span>
-<span style="color:#7f8488">// scroll is butter-smooth</span></pre>
-        </div>
+// 10,000 items &#8594; only ~12 rows in DOM
+// scroll is butter-smooth</pre>
         <div style="flex: 1; font-size: 17px;">
             <p><b>react-window</b> — бібліотека для
                 virtualization списків.</p>
@@ -748,39 +824,66 @@ ReactDOM.<span style="color:#61afef">createRoot</span>(document.getElementById(<
 
 <section class="slide">
     <h2>Code Splitting — зменшення bundle</h2>
-    <img src="pictures/react/6/code-splitting.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 1. Route splitting
+const Home = lazy(
+  () =&gt; import("./Home")
+)
+
+// Each route = separate chunk
+// loaded on navigation</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 2. Component splitting
+const Modal = lazy(
+  () =&gt; import("./Modal")
+)
+
+// Heavy components loaded
+// on demand (modal, chart)</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 3. Vendor splitting
+// vite.config.ts
+manualChunks: {
+  react: ["react",
+    "react-dom"]
+}
+
+// Libs cached separately</pre>
+    </div>
+    <p style="font-size: 16px; margin-top: 15px;"><b>Bundle analysis tools:</b></p>
+    <ul style="font-size: 15px;">
+        <li><code>vite-bundle-visualizer</code> / <code>webpack-bundle-analyzer</code> — see what's inside your bundle</li>
+        <li>Lighthouse — measure Performance score, LCP, TBT, CLS</li>
+        <li>Target: first load JS &lt; 200KB gzipped | LCP &lt; 2.5s | INP &lt; 200ms</li>
+    </ul>
 </section>
 
 <section class="slide">
     <h2>Transition та useDeferredValue</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// useTransition &#8212; mark update as non-urgent</span>
-<span style="color:#c678dd">import</span> &#123; useTransition &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// useTransition &#8212; mark update as non-urgent
+import &#123; useTransition &#125; from "react";
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Search</span>() &#123;
-  <span style="color:#c678dd">const</span> [query, setQuery] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">""</span>);
-  <span style="color:#c678dd">const</span> [isPending, startTransition] =
-    <span style="color:#61afef">useTransition</span>();
+function Search() &#123;
+  const [query, setQuery] = useState("");
+  const [isPending, startTransition] =
+    useTransition();
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">onChange</span> = (e) =&gt; &#123;
-    setQuery(e.target.value); <span style="color:#7f8488">// urgent (input)</span>
-    <span style="color:#61afef">startTransition</span>(() =&gt; &#123;
-      <span style="color:#61afef">setResults</span>(filter(e.target.value)); <span style="color:#7f8488">// non-urgent</span>
+  const onChange = (e) =&gt; &#123;
+    setQuery(e.target.value); // urgent (input)
+    startTransition(() =&gt; &#123;
+      setResults(filter(e.target.value)); // non-urgent
     &#125;);
   &#125;;
 
-  <span style="color:#c678dd">return</span> &lt;&gt;
+  return &lt;&gt;
     &lt;input value=&#123;query&#125; onChange=&#123;onChange&#125; /&gt;
     &#123;isPending &amp;&amp; &lt;Spinner /&gt;&#125;
     &lt;List items=&#123;results&#125; /&gt;
   &lt;/&gt;;
 &#125;
 
-<span style="color:#7f8488">// useDeferredValue &#8212; defer a value</span>
-<span style="color:#c678dd">const</span> deferredQuery = <span style="color:#61afef">useDeferredValue</span>(query);
-<span style="color:#7f8488">// results use deferredQuery, input uses query</span></pre>
-        </div>
+// useDeferredValue &#8212; defer a value
+const deferredQuery = useDeferredValue(query);
+// results use deferredQuery, input uses query</pre>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Concurrent React</b> (React 18+) —
                 пріоритезация оновлень.</p>
@@ -827,7 +930,7 @@ ReactDOM.<span style="color:#61afef">createRoot</span>(document.getElementById(<
 
 <section class="slide">
     <h2>Production checklist</h2>
-    <table style="font-size: 16px; width: 100%; border-collapse: collapse;">
+    <table style="font-size: 16px; width: 100%; border-collapse: collapse; margin-left: 0; ">
         <thead>
             <tr style="background: var(--brand-color-prinmary); color: #fff;">
                 <th style="padding: 8px; text-align: left;">Категорія</th>

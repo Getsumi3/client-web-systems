@@ -86,35 +86,33 @@
 <section class="slide">
     <h2>Перший запит: fetch()</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">import</span> { useState, useEffect } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import { useState, useEffect } from "react";
 
-<span style="color:#c678dd">type</span> <span style="color:#61afef">User</span> = { id: <span style="color:#c678dd">number</span>; name: <span style="color:#c678dd">string</span> };
+type User = { id: number; name: string };
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">UserList</span>() {
-  <span style="color:#c678dd">const</span> [users, setUsers] =
-    <span style="color:#61afef">useState</span>&lt;<span style="color:#61afef">User</span>[]&gt;([]);
+function UserList() {
+  const [users, setUsers] =
+    useState&lt;User[]&gt;([]);
 
-  <span style="color:#61afef">useEffect</span>(() =&gt; {
-    <span style="color:#61afef">fetch</span>(<span style="color:#98c379">"https://api.example.com/users"</span>)
-      .then(<span style="color:#e06c75">r</span> =&gt; {
-        <span style="color:#c678dd">if</span> (!<span style="color:#e06c75">r</span>.ok)
-          <span style="color:#c678dd">throw new</span> <span style="color:#61afef">Error</span>(<span style="color:#98c379">"Failed"</span>);
-        <span style="color:#c678dd">return</span> <span style="color:#e06c75">r</span>.json() <span style="color:#c678dd">as</span> Promise&lt;<span style="color:#61afef">User</span>[]&gt;;
+  useEffect(() =&gt; {
+    fetch("https://api.example.com/users")
+      .then(r =&gt; {
+        if (!r.ok)
+          throw new Error("Failed");
+        return r.json() as Promise&lt;User[]&gt;;
       })
-      .then(<span style="color:#61afef">setUsers</span>)
-      .catch(<span style="color:#e06c75">err</span> =&gt; <span style="color:#61afef">console</span>.error(err));
+      .then(setUsers)
+      .catch(err =&gt; console.error(err));
   }, []);
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;ul&gt;</span>
-      {users.map(<span style="color:#e06c75">u</span> =&gt; (
-        <span style="color:#e06c75">&lt;li</span> <span style="color:#d19a66">key</span>={<span style="color:#e06c75">u</span>.id}<span style="color:#e06c75">&gt;</span>{u.name}<span style="color:#e06c75">&lt;/li&gt;</span>
+  return (
+    &lt;ul&gt;
+      {users.map(u =&gt; (
+        &lt;li key={u.id}&gt;{u.name}&lt;/li&gt;
       ))}
-    <span style="color:#e06c75">&lt;/ul&gt;</span>
+    &lt;/ul&gt;
   );
 }</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>fetch()</b> — нативний браузерний API.</p>
             <p><b>Особливості fetch:</b></p>
@@ -163,95 +161,89 @@
 <section class="slide">
     <h2>Обробка станів — приклад з useReducer</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">type</span> <span style="color:#61afef">State</span>&lt;T&gt; = {
-  status: <span style="color:#98c379">"idle"</span> | <span style="color:#98c379">"loading"</span>
-        | <span style="color:#98c379">"success"</span> | <span style="color:#98c379">"error"</span>;
-  data: T | <span style="color:#c678dd">null</span>;
-  error: <span style="color:#c678dd">string</span> | <span style="color:#c678dd">null</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">type State&lt;T&gt; = {
+  status: "idle" | "loading"
+        | "success" | "error";
+  data: T | null;
+  error: string | null;
 };
 
-<span style="color:#c678dd">type</span> <span style="color:#61afef">Action</span>&lt;T&gt; =
-  | { type: <span style="color:#98c379">"start"</span> }
-  | { type: <span style="color:#98c379">"success"</span>; data: T }
-  | { type: <span style="color:#98c379">"error"</span>; error: <span style="color:#c678dd">string</span> };
+type Action&lt;T&gt; =
+  | { type: "start" }
+  | { type: "success"; data: T }
+  | { type: "error"; error: string };
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">reducer</span>&lt;T&gt;(
-  state: <span style="color:#61afef">State</span>&lt;T&gt;,
-  action: <span style="color:#61afef">Action</span>&lt;T&gt;
-): <span style="color:#61afef">State</span>&lt;T&gt; {
-  <span style="color:#c678dd">switch</span> (action.type) {
-    <span style="color:#c678dd">case</span> <span style="color:#98c379">"start"</span>:
-      <span style="color:#c678dd">return</span> { status: <span style="color:#98c379">"loading"</span>, data: <span style="color:#c678dd">null</span>, error: <span style="color:#c678dd">null</span> };
-    <span style="color:#c678dd">case</span> <span style="color:#98c379">"success"</span>:
-      <span style="color:#c678dd">return</span> { status: <span style="color:#98c379">"success"</span>, data: action.data, error: <span style="color:#c678dd">null</span> };
-    <span style="color:#c678dd">case</span> <span style="color:#98c379">"error"</span>:
-      <span style="color:#c678dd">return</span> { status: <span style="color:#98c379">"error"</span>, data: <span style="color:#c678dd">null</span>, error: action.error };
+function reducer&lt;T&gt;(
+  state: State&lt;T&gt;,
+  action: Action&lt;T&gt;
+): State&lt;T&gt; {
+  switch (action.type) {
+    case "start":
+      return { status: "loading", data: null, error: null };
+    case "success":
+      return { status: "success", data: action.data, error: null };
+    case "error":
+      return { status: "error", data: null, error: action.error };
   }
 }</pre>
-        </div>
-        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Custom Hook з useReducer</span>
-<span style="color:#c678dd">export function</span> <span style="color:#61afef">useAsync</span>&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;, deps: <span style="color:#c678dd">any</span>[] = []) {
-  <span style="color:#c678dd">const</span> [state, dispatch] =
-    <span style="color:#61afef">useReducer</span>(reducer&lt;T&gt;, {
-      status: <span style="color:#98c379">"idle"</span>, data: <span style="color:#c678dd">null</span>, error: <span style="color:#c678dd">null</span>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Custom Hook з useReducer
+export function useAsync&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;, deps: any[] = []) {
+  const [state, dispatch] =
+    useReducer(reducer&lt;T&gt;, {
+      status: "idle", data: null, error: null
     });
 
-  <span style="color:#61afef">useEffect</span>(() =&gt; {
-    <span style="color:#c678dd">let</span> cancelled = <span style="color:#d19a66">false</span>;
-    <span style="color:#61afef">dispatch</span>({ type: <span style="color:#98c379">"start"</span> });
+  useEffect(() =&gt; {
+    let cancelled = false;
+    dispatch({ type: "start" });
 
     fn()
-      .then(<span style="color:#e06c75">data</span> =&gt; {
-        <span style="color:#c678dd">if</span> (!cancelled)
-          <span style="color:#61afef">dispatch</span>({ type: <span style="color:#98c379">"success"</span>, data });
+      .then(data =&gt; {
+        if (!cancelled)
+          dispatch({ type: "success", data });
       })
-      .catch(<span style="color:#e06c75">err</span> =&gt; {
-        <span style="color:#c678dd">if</span> (!cancelled)
-          <span style="color:#61afef">dispatch</span>({ type: <span style="color:#98c379">"error"</span>, error: err.message });
+      .catch(err =&gt; {
+        if (!cancelled)
+          dispatch({ type: "error", error: err.message });
       });
 
-    <span style="color:#c678dd">return</span> () =&gt; { cancelled = <span style="color:#d19a66">true</span>; };
+    return () =&gt; { cancelled = true; };
   }, deps);
 
-  <span style="color:#c678dd">return</span> state;
+  return state;
 }</pre>
-        </div>
     </div>
 </section>
 
 <section class="slide">
     <h2>UI-патерни для асинхронних станів</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">function</span> <span style="color:#61afef">UserList</span>() {
-  <span style="color:#c678dd">const</span> { status, data, error } =
-    <span style="color:#61afef">useAsync</span>(() =&gt; api.getUsers(), []);
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function UserList() {
+  const { status, data, error } =
+    useAsync(() =&gt; api.getUsers(), []);
 
-  <span style="color:#c678dd">if</span> (status === <span style="color:#98c379">"loading"</span>)
-    <span style="color:#c678dd">return</span> <span style="color:#e06c75">&lt;Spinner /&gt;</span>;
+  if (status === "loading")
+    return &lt;Spinner /&gt;;
 
-  <span style="color:#c678dd">if</span> (status === <span style="color:#98c379">"error"</span>)
-    <span style="color:#c678dd">return</span> (
-      <span style="color:#e06c75">&lt;ErrorView</span>
-        <span style="color:#d19a66">message</span>={<span style="color:#e06c75">error</span>}
-        <span style="color:#d19a66">onRetry</span>={<span style="color:#61afef">refetch</span>}
+  if (status === "error")
+    return (
+      &lt;ErrorView
+        message={error}
+        onRetry={refetch}
       /&gt;
     );
 
-  <span style="color:#c678dd">if</span> (status === <span style="color:#98c379">"success"</span> &amp;&amp; data.length === <span style="color:#98c379">0</span>)
-    <span style="color:#c678dd">return</span> <span style="color:#e06c75">&lt;EmptyState /&gt;</span>;
+  if (status === "success" &amp;&amp; data.length === 0)
+    return &lt;EmptyState /&gt;;
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;ul&gt;</span>
-      {data.map(<span style="color:#e06c75">u</span> =&gt; (
-        <span style="color:#e06c75">&lt;li</span> <span style="color:#d19a66">key</span>={<span style="color:#e06c75">u</span>.id}<span style="color:#e06c75">&gt;</span>{u.name}<span style="color:#e06c75">&lt;/li&gt;</span>
+  return (
+    &lt;ul&gt;
+      {data.map(u =&gt; (
+        &lt;li key={u.id}&gt;{u.name}&lt;/li&gt;
       ))}
-    <span style="color:#e06c75">&lt;/ul&gt;</span>
+    &lt;/ul&gt;
   );
 }</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Шаблони UI для станів:</b></p>
             <ul>
@@ -272,33 +264,31 @@
 <section class="slide">
     <h2>Error Boundaries — глобальний catch</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">import</span> { Component, <span style="color:#c678dd">type</span> ReactNode } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import { Component, type ReactNode } from "react";
 
-<span style="color:#c678dd">class</span> <span style="color:#61afef">ErrorBoundary</span> <span style="color:#c678dd">extends</span> Component {
-  state = { hasError: <span style="color:#d19a66">false</span> };
+class ErrorBoundary extends Component {
+  state = { hasError: false };
 
-  <span style="color:#c678dd">static</span> <span style="color:#61afef">getDerivedStateFromError</span>() {
-    <span style="color:#c678dd">return</span> { hasError: <span style="color:#d19a66">true</span> };
+  static getDerivedStateFromError() {
+    return { hasError: true };
   }
 
-  <span style="color:#61afef">componentDidCatch</span>(error: Error) {
-    <span style="color:#61afef">console</span>.error(error);
-    <span style="color:#7f8488">// sentry, analytics...</span>
+  componentDidCatch(error: Error) {
+    console.error(error);
+    // sentry, analytics...
   }
 
-  <span style="color:#61afef">render</span>() {
-    <span style="color:#c678dd">if</span> (<span style="color:#c678dd">this</span>.state.hasError)
-      <span style="color:#c678dd">return</span> <span style="color:#c678dd">this</span>.props.fallback;
-    <span style="color:#c678dd">return</span> <span style="color:#c678dd">this</span>.props.children;
+  render() {
+    if (this.state.hasError)
+      return this.props.fallback;
+    return this.props.children;
   }
 }
 
-<span style="color:#7f8488">// Використання</span>
-<span style="color:#e06c75">&lt;ErrorBoundary</span> <span style="color:#d19a66">fallback</span>={&lt;ErrorView /&gt;}<span style="color:#e06c75">&gt;</span>
-  <span style="color:#e06c75">&lt;UserList /&gt;</span>
-<span style="color:#e06c75">&lt;/ErrorBoundary&gt;</span></pre>
-        </div>
+// Використання
+&lt;ErrorBoundary fallback={&lt;ErrorView /&gt;}&gt;
+  &lt;UserList /&gt;
+&lt;/ErrorBoundary&gt;</pre>
         <div style="flex: 1; font-size: 18px;">
             <p><b>Error Boundary</b> — React-компонент, що ловить
                 помилки рендерингу в дочірньому дереві.</p>
@@ -330,92 +320,86 @@
 <section class="slide">
     <h2>Read — список + детальна сторінка</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// hooks/useUsers.ts</span>
-<span style="color:#c678dd">export function</span> <span style="color:#61afef">useUsers</span>() {
-  <span style="color:#c678dd">const</span> [state, setState] = <span style="color:#61afef">useState</span>&lt;
-    { users: <span style="color:#61afef">User</span>[]; loading: <span style="color:#c678dd">boolean</span>; error: <span style="color:#c678dd">string</span> | <span style="color:#c678dd">null</span> }
-  &gt;({ users: [], loading: <span style="color:#d19a66">true</span>, error: <span style="color:#c678dd">null</span> });
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// hooks/useUsers.ts
+export function useUsers() {
+  const [state, setState] = useState&lt;
+    { users: User[]; loading: boolean; error: string | null }
+  &gt;({ users: [], loading: true, error: null });
 
-  <span style="color:#c678dd">const</span> refetch = <span style="color:#61afef">useCallback</span>(<span style="color:#c678dd">async</span> () =&gt; {
-    setState(<span style="color:#e06c75">s</span> =&gt; ({ ...s, loading: <span style="color:#d19a66">true</span>, error: <span style="color:#c678dd">null</span> }));
-    <span style="color:#c678dd">try</span> {
-      <span style="color:#c678dd">const</span> users = <span style="color:#c678dd">await</span> api.getUsers();
-      setState({ users, loading: <span style="color:#d19a66">false</span>, error: <span style="color:#c678dd">null</span> });
-    } <span style="color:#c678dd">catch</span> (e) {
-      setState({ users: [], loading: <span style="color:#d19a66">false</span>, error: (e <span style="color:#c678dd">as</span> Error).message });
+  const refetch = useCallback(async () =&gt; {
+    setState(s =&gt; ({ ...s, loading: true, error: null }));
+    try {
+      const users = await api.getUsers();
+      setState({ users, loading: false, error: null });
+    } catch (e) {
+      setState({ users: [], loading: false, error: (e as Error).message });
     }
   }, []);
 
-  <span style="color:#61afef">useEffect</span>(() =&gt; { refetch(); }, [refetch]);
+  useEffect(() =&gt; { refetch(); }, [refetch]);
 
-  <span style="color:#c678dd">return</span> { ...state, refetch };
+  return { ...state, refetch };
 }</pre>
-        </div>
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Використання</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">UserListPage</span>() {
-  <span style="color:#c678dd">const</span> { users, loading, error, refetch } =
-    <span style="color:#61afef">useUsers</span>();
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Використання
+function UserListPage() {
+  const { users, loading, error, refetch } =
+    useUsers();
 
-  <span style="color:#c678dd">if</span> (loading) <span style="color:#c678dd">return</span> <span style="color:#e06c75">&lt;Spinner /&gt;</span>;
-  <span style="color:#c678dd">if</span> (error) <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;ErrorView</span> <span style="color:#d19a66">msg</span>={<span style="color:#e06c75">error</span>}
-      <span style="color:#d19a66">onRetry</span>={<span style="color:#e06c75">refetch</span>} /&gt;
+  if (loading) return &lt;Spinner /&gt;;
+  if (error) return (
+    &lt;ErrorView msg={error}
+      onRetry={refetch} /&gt;
   );
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;ul&gt;</span>
-      {users.map(<span style="color:#e06c75">u</span> =&gt; (
-        <span style="color:#e06c75">&lt;li</span> <span style="color:#d19a66">key</span>={<span style="color:#e06c75">u</span>.id}<span style="color:#e06c75">&gt;</span>
+  return (
+    &lt;ul&gt;
+      {users.map(u =&gt; (
+        &lt;li key={u.id}&gt;
           {u.name}
-          <span style="color:#e06c75">&lt;Link</span> <span style="color:#d19a66">to</span>={<span style="color:#98c379">`/users/${u.id}``</span>}&gt;View&lt;/Link&gt;
-        <span style="color:#e06c75">&lt;/li&gt;</span>
+          &lt;Link to={`/users/${u.id}``}&gt;View&lt;/Link&gt;
+        &lt;/li&gt;
       ))}
-    <span style="color:#e06c75">&lt;/ul&gt;</span>
+    &lt;/ul&gt;
   );
 }</pre>
-        </div>
     </div>
 </section>
 
 <section class="slide">
     <h2>Create — додавання через форму</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">function</span> <span style="color:#61afef">CreateUserForm</span>() {
-  <span style="color:#c678dd">const</span> [name, setName] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">""</span>);
-  <span style="color:#c678dd">const</span> [email, setEmail] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">""</span>);
-  <span style="color:#c678dd">const</span> [saving, setSaving] = <span style="color:#61afef">useState</span>(<span style="color:#d19a66">false</span>);
-  <span style="color:#c678dd">const</span> [error, setError] = <span style="color:#61afef">useState</span>(<span style="color:#c678dd">null</span>);
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function CreateUserForm() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleSubmit</span> = <span style="color:#c678dd">async</span> (e: FormEvent) =&gt; {
+  const handleSubmit = async (e: FormEvent) =&gt; {
     e.preventDefault();
-    <span style="color:#61afef">setSaving</span>(<span style="color:#d19a66">true</span>);
-    <span style="color:#61afef">setError</span>(<span style="color:#c678dd">null</span>);
-    <span style="color:#c678dd">try</span> {
-      <span style="color:#c678dd">await</span> api.createUser({ name, email });
-      <span style="color:#7f8488">// redirect або refetch list</span>
-      <span style="color:#61afef">navigate</span>(<span style="color:#98c379">"/users"</span>);
-    } <span style="color:#c678dd">catch</span> (err) {
-      <span style="color:#61afef">setError</span>((err <span style="color:#c678dd">as</span> Error).message);
-    } <span style="color:#c678dd">finally</span> {
-      <span style="color:#61afef">setSaving</span>(<span style="color:#d19a66">false</span>);
+    setSaving(true);
+    setError(null);
+    try {
+      await api.createUser({ name, email });
+      // redirect або refetch list
+      navigate("/users");
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSaving(false);
     }
   };
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;form</span> <span style="color:#d19a66">onSubmit</span>={<span style="color:#e06c75">handleSubmit</span>}<span style="color:#e06c75">&gt;</span>
-      <span style="color:#e06c75">&lt;input</span> <span style="color:#d19a66">value</span>={<span style="color:#e06c75">name</span>} <span style="color:#d19a66">onChange</span>={...} /&gt;
-      <span style="color:#e06c75">&lt;input</span> <span style="color:#d19a66">value</span>={<span style="color:#e06c75">email</span>} <span style="color:#d19a66">onChange</span>={...} /&gt;
-      <span style="color:#e06c75">&lt;button</span> <span style="color:#d19a66">disabled</span>={<span style="color:#e06c75">saving</span>}<span style="color:#e06c75">&gt;</span>
-        {saving ? <span style="color:#98c379">"Saving..."</span> : <span style="color:#98c379">"Create"</span>}
-      <span style="color:#e06c75">&lt;/button&gt;</span>
-      {error &amp;&amp; <span style="color:#e06c75">&lt;p</span> <span style="color:#d19a66">className</span>=<span style="color:#98c379">"error"</span><span style="color:#e06c75">&gt;</span>{error}<span style="color:#e06c75">&lt;/p&gt;</span>}
-    <span style="color:#e06c75">&lt;/form&gt;</span>
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input value={name} onChange={...} /&gt;
+      &lt;input value={email} onChange={...} /&gt;
+      &lt;button disabled={saving}&gt;
+        {saving ? "Saving..." : "Create"}
+      &lt;/button&gt;
+      {error &amp;&amp; &lt;p className="error"&gt;{error}&lt;/p&gt;}
+    &lt;/form&gt;
   );
 }</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Стани форми Create:</b></p>
             <ul>
@@ -439,37 +423,35 @@
 <section class="slide">
     <h2>Update — редагування існуючого</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">function</span> <span style="color:#61afef">EditUserPage</span>(&#123; id &#125;: &#123; id: <span style="color:#c678dd">string</span> &#125;) {
-  <span style="color:#c678dd">const</span> { data: user, loading } =
-    <span style="color:#61afef">useAsync</span>(() =&gt; api.getUser(id), [id]);
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function EditUserPage(&#123; id &#125;: &#123; id: string &#125;) {
+  const { data: user, loading } =
+    useAsync(() =&gt; api.getUser(id), [id]);
 
-  <span style="color:#c678dd">const</span> [form, setForm] = <span style="color:#61afef">useState</span>(<span style="color:#c678dd">null</span>);
-  <span style="color:#c678dd">const</span> [saving, setSaving] = <span style="color:#61afef">useState</span>(<span style="color:#d19a66">false</span>);
+  const [form, setForm] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-  <span style="color:#7f8488">// Заповнити форму коли дані завантажено</span>
-  <span style="color:#61afef">useEffect</span>(() =&gt; {
-    <span style="color:#c678dd">if</span> (user) <span style="color:#61afef">setForm</span>(user);
+  // Заповнити форму коли дані завантажено
+  useEffect(() =&gt; {
+    if (user) setForm(user);
   }, [user]);
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleSave</span> = <span style="color:#c678dd">async</span> () =&gt; {
-    <span style="color:#61afef">setSaving</span>(<span style="color:#d19a66">true</span>);
-    <span style="color:#c678dd">try</span> {
-      <span style="color:#c678dd">await</span> api.updateUser(id, form);
-      <span style="color:#61afef">navigate</span>(<span style="color:#98c379">`/users/${id}`</span>);
-    } <span style="color:#c678dd">finally</span> {
-      <span style="color:#61afef">setSaving</span>(<span style="color:#d19a66">false</span>);
+  const handleSave = async () =&gt; {
+    setSaving(true);
+    try {
+      await api.updateUser(id, form);
+      navigate(`/users/${id}`);
+    } finally {
+      setSaving(false);
     }
   };
 
-  <span style="color:#c678dd">if</span> (loading) <span style="color:#c678dd">return</span> <span style="color:#e06c75">&lt;Spinner /&gt;</span>;
-  <span style="color:#c678dd">if</span> (!form) <span style="color:#c678dd">return</span> <span style="color:#c678dd">null</span>;
-  <span style="color:#c678dd">return</span> <span style="color:#e06c75">&lt;UserForm</span> <span style="color:#d19a66">value</span>={<span style="color:#e06c75">form</span>}
-    <span style="color:#d19a66">onChange</span>={<span style="color:#61afef">setForm</span>}
-    <span style="color:#d19a66">onSubmit</span>={<span style="color:#e06c75">handleSave</span>}
-    <span style="color:#d19a66">saving</span>={<span style="color:#e06c75">saving</span>} /&gt;;
+  if (loading) return &lt;Spinner /&gt;;
+  if (!form) return null;
+  return &lt;UserForm value={form}
+    onChange={setForm}
+    onSubmit={handleSave}
+    saving={saving} /&gt;;
 }</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Особливості Update:</b></p>
             <ul>
@@ -491,34 +473,32 @@
 <section class="slide">
     <h2>Delete — з підтвердженням</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">function</span> <span style="color:#61afef">DeleteButton</span>(&#123; id, onDeleted &#125;: &#123;
-  id: <span style="color:#c678dd">string</span>;
-  onDeleted: () =&gt; <span style="color:#c678dd">void</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function DeleteButton(&#123; id, onDeleted &#125;: &#123;
+  id: string;
+  onDeleted: () =&gt; void;
 &#125;) {
-  <span style="color:#c678dd">const</span> [deleting, setDeleting] = <span style="color:#61afef">useState</span>(<span style="color:#d19a66">false</span>);
+  const [deleting, setDeleting] = useState(false);
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleDelete</span> = <span style="color:#c678dd">async</span> () =&gt; {
-    <span style="color:#c678dd">if</span> (!<span style="color:#61afef">confirm</span>(<span style="color:#98c379">"Delete this user?"</span>)) <span style="color:#c678dd">return</span>;
-    <span style="color:#61afef">setDeleting</span>(<span style="color:#d19a66">true</span>);
-    <span style="color:#c678dd">try</span> {
-      <span style="color:#c678dd">await</span> api.deleteUser(id);
-      <span style="color:#61afef">onDeleted</span>(); <span style="color:#7f8488">// refetch або navigate</span>
-    } <span style="color:#c678dd">catch</span> (e) {
-      <span style="color:#61afef">alert</span>(<span style="color:#98c379">"Failed to delete"</span>);
-    } <span style="color:#c678dd">finally</span> {
-      <span style="color:#61afef">setDeleting</span>(<span style="color:#d19a66">false</span>);
+  const handleDelete = async () =&gt; {
+    if (!confirm("Delete this user?")) return;
+    setDeleting(true);
+    try {
+      await api.deleteUser(id);
+      onDeleted(); // refetch або navigate
+    } catch (e) {
+      alert("Failed to delete");
+    } finally {
+      setDeleting(false);
     }
   };
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;button</span> <span style="color:#d19a66">onClick</span>={<span style="color:#e06c75">handleDelete</span>}
-      <span style="color:#d19a66">disabled</span>={<span style="color:#e06c75">deleting</span>}<span style="color:#e06c75">&gt;</span>
-      {deleting ? <span style="color:#98c379">"Deleting..."</span> : <span style="color:#98c379">"Delete"</span>}
-    <span style="color:#e06c75">&lt;/button&gt;</span>
+  return (
+    &lt;button onClick={handleDelete}
+      disabled={deleting}&gt;
+      {deleting ? "Deleting..." : "Delete"}
+    &lt;/button&gt;
   );
 }</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Особливості Delete:</b></p>
             <ul>
@@ -542,17 +522,93 @@
 
 <section class="slide">
     <h2>CRUD-проблеми та рішення</h2>
-    <img src="pictures/react/3/crud-problems.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; 1. Stale list (список не оновлюється)
+// create item
+await axios.post("/api/users", data)
+// &#10007; list still shows old data!
+
+// &#9989; refetch after mutation:
+await create(); await refetchList()
+
+// &#10060; 3. Корзина помилок без UI
+axios.post(...) // без .catch
+// unhandled rejection
+
+// &#9989; try/catch + setError + UI toast</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; 2. Race condition (запит-перегонка)
+// user types "a" then "ab"
+fetch("a") // slow
+fetch("ab") // fast, returns first
+// "a" response overwrites!
+
+// &#9989; AbortController / cancel flag
+
+// &#10060; 4. Подвійний fetch (StrictMode)
+// useEffect runs twice in dev
+useEffect(() =&gt; fetch(), [])
+// 2 API calls in dev mode
+
+// &#9989; cleanup fn / React 18 automatic</pre>
+    </div>
 </section>
 
 <section class="slide">
     <h2>AbortController — скасування запитів</h2>
-    <img src="pictures/react/3/abort-controller.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; Без скасування (race condition)
+useEffect(() =&gt; {
+  fetch(`/api?q=${query}`)
+    .then(setData)
+}, [query])
+// старий запит може перезаписати новий</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#9989; З AbortController
+useEffect(() =&gt; {
+  const ctrl = new AbortController()
+  fetch(url, { signal: ctrl.signal })
+  return () =&gt; ctrl.abort()
+}, [query])</pre>
+    </div>
+    <p style="font-size: 16px;"><b>Axios варіант:</b></p>
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">useEffect(() =&gt; {
+  const ctrl = new AbortController()
+  axios.get("/api/users", { signal: ctrl.signal })
+    .then(res =&gt; setUsers(res.data))
+    .catch(err =&gt; { if (!axios.isCancel(err)) setError(err) })
+  return () =&gt; ctrl.abort()
+}, [])</pre>
 </section>
 
 <section class="slide">
     <h2>Оптимістичні оновлення (Optimistic UI)</h2>
-    <img src="pictures/react/3/optimistic-ui.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1;">
+            <p style="font-size: 16px;"><b>Песимістичний (звичайний)</b></p>
+            <ol style="font-size: 15px;">
+                <li>User clicks "Delete"</li>
+                <li>Show spinner</li>
+                <li>Wait for server response...</li>
+                <li>Remove item from list</li>
+            </ol>
+            <p style="font-size: 15px;">UI затримується на час запиту.</p>
+        </div>
+        <div style="flex: 1;">
+            <p style="font-size: 16px;"><b>Оптимістичний (швидкий UX)</b></p>
+            <ol style="font-size: 15px;">
+                <li>User clicks "Delete"</li>
+                <li>Remove item from list INSTANTLY</li>
+                <li>Send request in background</li>
+                <li>If error &#8594; rollback (restore item)</li>
+            </ol>
+            <p style="font-size: 15px;">UI миттєво реагує.</p>
+        </div>
+    </div>
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">const deleteOptimistic = async (id: string) =&gt; {
+  const prev = items;                    // 1. save snapshot
+  setItems(items.filter(i =&gt; i.id !== id)); // 2. update UI now
+  try { await api.deleteUser(id); }       // 3. send request
+  catch (e) { setItems(prev); showError(); } // 4. rollback on error
+}</pre>
 </section>
 
 <section class="slide">
@@ -595,32 +651,30 @@
 <section class="slide">
     <h2>Axios — налаштування instance</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// api/client.ts</span>
-<span style="color:#c678dd">import</span> axios <span style="color:#c678dd">from</span> <span style="color:#98c379">"axios"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// api/client.ts
+import axios from "axios";
 
-<span style="color:#c678dd">export const</span> apiClient = axios.<span style="color:#61afef">create</span>({
-  baseURL: <span style="color:#98c379">"https://api.example.com"</span>,
-  timeout: <span style="color:#98c379">10000</span>,
+export const apiClient = axios.create({
+  baseURL: "https://api.example.com",
+  timeout: 10000,
   headers: {
-    <span style="color:#98c379">"Content-Type"</span>: <span style="color:#98c379">"application/json"</span>,
-    <span style="color:#98c379">"Accept"</span>: <span style="color:#98c379">"application/json"</span>,
+    "Content-Type": "application/json",
+    "Accept": "application/json",
   },
 });
 
-<span style="color:#7f8488">// Використання</span>
-<span style="color:#c678dd">const</span> res = <span style="color:#c678dd">await</span> apiClient.get(<span style="color:#98c379">"/users"</span>);
-<span style="color:#7f8488">// res.data     &#8594; JSON-відповідь (авто-parsed)</span>
-<span style="color:#7f8488">// res.status   &#8594; 200</span>
-<span style="color:#7f8488">// res.headers  &#8594; response headers</span>
+// Використання
+const res = await apiClient.get("/users");
+// res.data     &#8594; JSON-відповідь (авто-parsed)
+// res.status   &#8594; 200
+// res.headers  &#8594; response headers
 
-<span style="color:#7f8488">// POST</span>
-<span style="color:#c678dd">await</span> apiClient.post(<span style="color:#98c379">"/users"</span>, body);
-<span style="color:#7f8488">// PUT</span>
-<span style="color:#c678dd">await</span> apiClient.put(<span style="color:#98c379">`/users/${id}`</span>, body);
-<span style="color:#7f8488">// DELETE</span>
-<span style="color:#c678dd">await</span> apiClient.delete(<span style="color:#98c379">`/users/${id}`</span>);</pre>
-        </div>
+// POST
+await apiClient.post("/users", body);
+// PUT
+await apiClient.put(`/users/${id}`, body);
+// DELETE
+await apiClient.delete(`/users/${id}`);</pre>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Переваги Axios instance:</b></p>
             <ul>
@@ -645,38 +699,36 @@
 
 <section class="slide">
     <h2>Axios Interceptors — приклад</h2>
-    <div style="font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// api/client.ts — interceptors</span>
-<span style="color:#c678dd">import</span> axios <span style="color:#c678dd">from</span> <span style="color:#98c379">"axios"</span>;
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">// api/client.ts — interceptors
+import axios from "axios";
 
-<span style="color:#c678dd">export const</span> apiClient = axios.<span style="color:#61afef">create</span>(&#123; baseURL: <span style="color:#98c379">"https://api.example.com"</span> &#125;);
+export const apiClient = axios.create(&#123; baseURL: "https://api.example.com" &#125;);
 
-<span style="color:#7f8488">// Request interceptor — додаємо auth token</span>
-apiClient.interceptors.request.<span style="color:#61afef">use</span>((config) =&gt; {
-  <span style="color:#c678dd">const</span> token = localStorage.<span style="color:#61afef">getItem</span>(<span style="color:#98c379">"token"</span>);
-  <span style="color:#c678dd">if</span> (token) &#123;
-    config.headers.Authorization = <span style="color:#98c379">`Bearer ${token}`</span>;
+// Request interceptor — додаємо auth token
+apiClient.interceptors.request.use((config) =&gt; {
+  const token = localStorage.getItem("token");
+  if (token) &#123;
+    config.headers.Authorization = `Bearer ${token}`;
   &#125;
-  <span style="color:#c678dd">return</span> config;
+  return config;
 &#125;);
 
-<span style="color:#7f8488">// Response interceptor — обробка помилок</span>
-apiClient.interceptors.response.<span style="color:#61afef">use</span>(
-  (response) =&gt; response, <span style="color:#7f8488">// success — пропускаємо</span>
+// Response interceptor — обробка помилок
+apiClient.interceptors.response.use(
+  (response) =&gt; response, // success — пропускаємо
   (error) =&gt; &#123;
-    <span style="color:#c678dd">if</span> (error.response?.status === <span style="color:#98c379">401</span>) &#123;
-      <span style="color:#7f8488">// token expired → redirect to login</span>
-      localStorage.<span style="color:#61afef">removeItem</span>(<span style="color:#98c379">"token"</span>);
-      window.location.href = <span style="color:#98c379">"/login"</span>;
+    if (error.response?.status === 401) &#123;
+      // token expired → redirect to login
+      localStorage.removeItem("token");
+      window.location.href = "/login";
     &#125;
-    <span style="color:#c678dd">if</span> (error.response?.status &gt;= <span style="color:#98c379">500</span>) &#123;
-      <span style="color:#7f8488">// server error → show toast</span>
-      <span style="color:#61afef">showToast</span>(<span style="color:#98c379">"Server error. Try later."</span>);
+    if (error.response?.status &gt;= 500) &#123;
+      // server error → show toast
+      showToast("Server error. Try later.");
     &#125;
-    <span style="color:#c678dd">return</span> Promise.<span style="color:#61afef">reject</span>(error);
+    return Promise.reject(error);
   &#125;
 );</pre>
-    </div>
     <p style="font-size: 17px; margin-top: 10px;">
         <b>Interceptors</b> — глобальні «фільтри» для всіх запитів/відповідей.
         Призначення: auth headers, error handling, logging, retry, metrics.
@@ -686,40 +738,38 @@ apiClient.interceptors.response.<span style="color:#61afef">use</span>(
 <section class="slide">
     <h2>API Layer — endpoint-функції</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// types/api.ts</span>
-<span style="color:#c678dd">export type</span> <span style="color:#61afef">User</span> = &#123;
-  id: <span style="color:#c678dd">string</span>;
-  name: <span style="color:#c678dd">string</span>;
-  email: <span style="color:#c678dd">string</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// types/api.ts
+export type User = &#123;
+  id: string;
+  name: string;
+  email: string;
 &#125;;
 
-<span style="color:#c678dd">export type</span> <span style="color:#61afef">CreateUserDTO</span> = &#123;
-  name: <span style="color:#c678dd">string</span>;
-  email: <span style="color:#c678dd">string</span>;
+export type CreateUserDTO = &#123;
+  name: string;
+  email: string;
 &#125;;
 
-<span style="color:#7f8488">// api/users.ts</span>
-<span style="color:#c678dd">import</span> &#123; apiClient &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"./client"</span>;
-<span style="color:#c678dd">import</span> <span style="color:#c678dd">type</span> &#123; User, CreateUserDTO &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"../types/api"</span>;
+// api/users.ts
+import &#123; apiClient &#125; from "./client";
+import type &#123; User, CreateUserDTO &#125; from "../types/api";
 
-<span style="color:#c678dd">export const</span> usersApi = &#123;
+export const usersApi = &#123;
   list: () =&gt;
-    apiClient.get&lt;<span style="color:#61afef">User</span>[]&gt;(<span style="color:#98c379">"/users"</span>).then(<span style="color:#e06c75">r</span> =&gt; <span style="color:#e06c75">r</span>.data),
+    apiClient.get&lt;User[]&gt;("/users").then(r =&gt; r.data),
 
-  getById: (id: <span style="color:#c678dd">string</span>) =&gt;
-    apiClient.get&lt;<span style="color:#61afef">User</span>&gt;(<span style="color:#98c379">`/users/${id}`</span>).then(<span style="color:#e06c75">r</span> =&gt; <span style="color:#e06c75">r</span>.data),
+  getById: (id: string) =&gt;
+    apiClient.get&lt;User&gt;(`/users/${id}`).then(r =&gt; r.data),
 
-  create: (data: <span style="color:#61afef">CreateUserDTO</span>) =&gt;
-    apiClient.post&lt;<span style="color:#61afef">User</span>&gt;(<span style="color:#98c379">"/users"</span>, data).then(<span style="color:#e06c75">r</span> =&gt; <span style="color:#e06c75">r</span>.data),
+  create: (data: CreateUserDTO) =&gt;
+    apiClient.post&lt;User&gt;("/users", data).then(r =&gt; r.data),
 
-  update: (id: <span style="color:#c678dd">string</span>, data: <span style="color:#61afef">Partial</span>&lt;<span style="color:#61afef">CreateUserDTO</span>&gt;) =&gt;
-    apiClient.put&lt;<span style="color:#61afef">User</span>&gt;(<span style="color:#98c379">`/users/${id}`</span>, data).then(<span style="color:#e06c75">r</span> =&gt; <span style="color:#e06c75">r</span>.data),
+  update: (id: string, data: Partial&lt;CreateUserDTO&gt;) =&gt;
+    apiClient.put&lt;User&gt;(`/users/${id}`, data).then(r =&gt; r.data),
 
-  delete: (id: <span style="color:#c678dd">string</span>) =&gt;
-    apiClient.delete(<span style="color:#98c379">`/users/${id}`</span>),
+  delete: (id: string) =&gt;
+    apiClient.delete(`/users/${id}`),
 &#125;;</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Переваги endpoint-функцій:</b></p>
             <ul>
@@ -740,43 +790,52 @@ apiClient.interceptors.response.<span style="color:#61afef">use</span>(
 
 <section class="slide">
     <h2>Структура API-папки проєкту</h2>
-    <img src="pictures/react/3/api-folder.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">src/
+├── api/
+│   ├── client.ts        // axios instance
+│   ├── users.ts         // CRUD endpoints
+│   ├── products.ts      // CRUD endpoints
+│   └── index.ts         // re-export
+├── hooks/
+│   ├── useUsers.ts      // data + state
+│   └── useProducts.ts   // data + state
+├── types/
+│   └── api.ts           // User, Product, DTOs
+└── components/</pre>
 </section>
 
 <section class="slide">
     <h2>Повний CRUD-флоу — зв'язки шарів</h2>
-    <div style="font-size: 14px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.6;">
-<pre style="margin:0;"><span style="color:#7f8488">// 1. types/api.ts — типи</span>
-<span style="color:#c678dd">export type</span> <span style="color:#61afef">User</span> = &#123; id: <span style="color:#c678dd">string</span>; name: <span style="color:#c678dd">string</span>; email: <span style="color:#c678dd">string</span> &#125;;
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">// 1. types/api.ts — типи
+export type User = &#123; id: string; name: string; email: string &#125;;
 
-<span style="color:#7f8488">// 2. api/client.ts — axios instance + interceptors</span>
-<span style="color:#c678dd">export const</span> apiClient = axios.create(&#123; baseURL: <span style="color:#98c379">"..."</span> &#125;);
+// 2. api/client.ts — axios instance + interceptors
+export const apiClient = axios.create(&#123; baseURL: "..." &#125;);
 
-<span style="color:#7f8488">// 3. api/users.ts — endpoint-функції</span>
-<span style="color:#c678dd">export const</span> usersApi = &#123;
-  list: () =&gt; apiClient.get&lt;User[]&gt;(<span style="color:#98c379">"/users"</span>).then(<span style="color:#e06c75">r</span> =&gt; <span style="color:#e06c75">r</span>.data),
-  create: (data: CreateUserDTO) =&gt; apiClient.post&lt;User&gt;(<span style="color:#98c379">"/users"</span>, data).then(<span style="color:#e06c75">r</span> =&gt; <span style="color:#e06c75">r</span>.data),
+// 3. api/users.ts — endpoint-функції
+export const usersApi = &#123;
+  list: () =&gt; apiClient.get&lt;User[]&gt;("/users").then(r =&gt; r.data),
+  create: (data: CreateUserDTO) =&gt; apiClient.post&lt;User&gt;("/users", data).then(r =&gt; r.data),
 &#125;;
 
-<span style="color:#7f8488">// 4. hooks/useUsers.ts — state + API calls</span>
-<span style="color:#c678dd">export function</span> <span style="color:#61afef">useUsers</span>() &#123;
-  <span style="color:#c678dd">const</span> [state, dispatch] = <span style="color:#61afef">useReducer</span>(reducer, initial);
-  <span style="color:#c678dd">const</span> refetch = <span style="color:#c678dd">async</span> () =&gt; &#123;
-    dispatch(&#123;type:<span style="color:#98c379">"start"</span>&#125;);
-    <span style="color:#c678dd">await</span> usersApi.list()
-      .then(d =&gt; dispatch(&#123;type:<span style="color:#98c379">"success"</span>, data:d&#125;));
+// 4. hooks/useUsers.ts — state + API calls
+export function useUsers() &#123;
+  const [state, dispatch] = useReducer(reducer, initial);
+  const refetch = async () =&gt; &#123;
+    dispatch(&#123;type:"start"&#125;);
+    await usersApi.list()
+      .then(d =&gt; dispatch(&#123;type:"success", data:d&#125;));
   &#125;;
-  <span style="color:#61afef">useEffect</span>(() =&gt; &#123; refetch() &#125;, []);
-  <span style="color:#c678dd">return</span> &#123; ...state, refetch &#125;;
+  useEffect(() =&gt; &#123; refetch() &#125;, []);
+  return &#123; ...state, refetch &#125;;
 &#125;
 
-<span style="color:#7f8488">// 5. components/UserListPage.tsx — лише UI</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">UserListPage</span>() &#123;
-  <span style="color:#c678dd">const</span> &#123; data, status, error &#125; = <span style="color:#61afef">useUsers</span>();
-  <span style="color:#c678dd">if</span> (status === <span style="color:#98c379">"loading"</span>) <span style="color:#c678dd">return</span> &lt;Spinner /&gt;;
-  <span style="color:#c678dd">return</span> &lt;ul&gt;&#123;data.map(u =&gt; &lt;li key=&#123;u.id&#125;&gt;&#123;u.name&#125;&lt;/li&gt;)&#125;&lt;/ul&gt;;
+// 5. components/UserListPage.tsx — лише UI
+function UserListPage() &#123;
+  const &#123; data, status, error &#125; = useUsers();
+  if (status === "loading") return &lt;Spinner /&gt;;
+  return &lt;ul&gt;&#123;data.map(u =&gt; &lt;li key=&#123;u.id&#125;&gt;&#123;u.name&#125;&lt;/li&gt;)&#125;&lt;/ul&gt;;
 &#125;</pre>
-    </div>
 </section>
 
 <section class="slide">

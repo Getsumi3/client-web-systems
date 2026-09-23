@@ -68,25 +68,23 @@
 <section class="slide">
     <h2>useState — коли використовувати</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 14px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">import</span> { useState } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import { useState } from "react";
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">TodoForm</span>() {
-  <span style="color:#c678dd">const</span> [text, setText] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">""</span>);
-  <span style="color:#c678dd">const</span> [isOpen, setIsOpen] = <span style="color:#61afef">useState</span>(<span style="color:#d19a66">false</span>);
+function TodoForm() {
+  const [text, setText] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;form</span> <span style="color:#d19a66">onSubmit</span>={(e) =&gt; {
+  return (
+    &lt;form onSubmit={(e) =&gt; {
       e.preventDefault();
-      <span style="color:#61afef">addTodo</span>(text);
-      <span style="color:#61afef">setText</span>(<span style="color:#98c379">""</span>);
-    }}<span style="color:#e06c75">&gt;</span>
-      <span style="color:#e06c75">&lt;input</span> <span style="color:#d19a66">value</span>={<span style="color:#e06c75">text</span>}
-        <span style="color:#d19a66">onChange</span>={(e) =&gt; <span style="color:#61afef">setText</span>(e.target.value)} /&gt;
-    <span style="color:#e06c75">&lt;/form&gt;</span>
+      addTodo(text);
+      setText("");
+    }}&gt;
+      &lt;input value={text}
+        onChange={(e) =&gt; setText(e.target.value)} /&gt;
+    &lt;/form&gt;
   );
 }</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>&#9989; useState коли:</b></p>
             <ul>
@@ -108,50 +106,82 @@
 
 <section class="slide">
     <h2>useReducer — складний state</h2>
-    <img src="pictures/react/2/use-reducer.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// useState — простий стан
+function Counter() {
+  const [count, setCount] = useState(0);
+  const reset = () =&gt; setCount(0);
+  const inc = () =&gt; setCount(c =&gt; c + 1);
+  const dec = () =&gt; setCount(c =&gt; c - 1);
+}</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// useReducer — складний стан
+function reducer(state, action) {
+  switch(action.type) {
+    case "inc": return {count: state.count+1};
+    case "dec": return {count: state.count-1};
+    case "reset": return {count: 0};
+  }}</pre>
+    </div>
+    <div class="columns two">
+        <div>
+            <p style="font-size: 16px;"><b>&#9989; useState коли:</b></p>
+            <ul style="font-size: 15px;">
+                <li>1-2 незалежних значень</li>
+                <li>прості типи (string, number, bool)</li>
+                <li>нескладна логіка оновлення</li>
+            </ul>
+            <p style="font-size: 14px;"><i>toggle, input value, counter</i></p>
+        </div>
+        <div>
+            <p style="font-size: 16px;"><b>&#9989; useReducer коли:</b></p>
+            <ul style="font-size: 15px;">
+                <li>кілька пов'язаних значень</li>
+                <li>наступний стан залежить від попереднього</li>
+                <li>складна логіка оновлення</li>
+                <li>потрібна тестованість логіки</li>
+            </ul>
+            <p style="font-size: 14px;"><i>forms, multi-step wizards, cart</i></p>
+        </div>
+    </div>
 </section>
 
 <section class="slide">
     <h2>useReducer — приклад</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// 1. Reducer function (pure)</span>
-<span style="color:#c678dd">type</span> <span style="color:#61afef">State</span> = { count: <span style="color:#c678dd">number</span>; step: <span style="color:#c678dd">number</span> };
-<span style="color:#c678dd">type</span> <span style="color:#61afef">Action</span> =
-  | { type: <span style="color:#98c379">"inc"</span> }
-  | { type: <span style="color:#98c379">"dec"</span> }
-  | { type: <span style="color:#98c379">"setStep"</span>; step: <span style="color:#c678dd">number</span> }
-  | { type: <span style="color:#98c379">"reset"</span> };
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 1. Reducer function (pure)
+type State = { count: number; step: number };
+type Action =
+  | { type: "inc" }
+  | { type: "dec" }
+  | { type: "setStep"; step: number }
+  | { type: "reset" };
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">reducer</span>(state: <span style="color:#61afef">State</span>, action: <span style="color:#61afef">Action</span>) {
-  <span style="color:#c678dd">switch</span> (action.type) {
-    <span style="color:#c678dd">case</span> <span style="color:#98c379">"inc"</span>: <span style="color:#c678dd">return</span> { ...state, count: state.count + state.step };
-    <span style="color:#c678dd">case</span> <span style="color:#98c379">"dec"</span>: <span style="color:#c678dd">return</span> { ...state, count: state.count - state.step };
-    <span style="color:#c678dd">case</span> <span style="color:#98c379">"setStep"</span>: <span style="color:#c678dd">return</span> { ...state, step: action.step };
-    <span style="color:#c678dd">case</span> <span style="color:#98c379">"reset"</span>: <span style="color:#c678dd">return</span> { count: <span style="color:#98c379">0</span>, step: <span style="color:#98c379">1</span> };
+function reducer(state: State, action: Action) {
+  switch (action.type) {
+    case "inc": return { ...state, count: state.count + state.step };
+    case "dec": return { ...state, count: state.count - state.step };
+    case "setStep": return { ...state, step: action.step };
+    case "reset": return { count: 0, step: 1 };
   }
 }</pre>
-        </div>
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// 2. Використання в компоненті</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Counter</span>() {
-  <span style="color:#c678dd">const</span> [state, dispatch] =
-    <span style="color:#61afef">useReducer</span>(reducer,
-      { count: <span style="color:#98c379">0</span>, step: <span style="color:#98c379">1</span> });
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 2. Використання в компоненті
+function Counter() {
+  const [state, dispatch] =
+    useReducer(reducer,
+      { count: 0, step: 1 });
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;div&gt;</span>
-      <span style="color:#e06c75">&lt;p&gt;</span>{state.count} (step: {state.step})<span style="color:#e06c75">&lt;/p&gt;</span>
-      <span style="color:#e06c75">&lt;button</span>
-        <span style="color:#d19a66">onClick</span>={() =&gt; <span style="color:#61afef">dispatch</span>({ type: <span style="color:#98c379">"inc"</span> })}<span style="color:#e06c75">&gt;</span>+<span style="color:#e06c75">&lt;/button&gt;</span>
-      <span style="color:#e06c75">&lt;button</span>
-        <span style="color:#d19a66">onClick</span>={() =&gt; <span style="color:#61afef">dispatch</span>({ type: <span style="color:#98c379">"dec"</span> })}<span style="color:#e06c75">&gt;</span>-<span style="color:#e06c75">&lt;/button&gt;</span>
-      <span style="color:#e06c75">&lt;button</span>
-        <span style="color:#d19a66">onClick</span>={() =&gt; <span style="color:#61afef">dispatch</span>({ type: <span style="color:#98c379">"reset"</span> })}<span style="color:#e06c75">&gt;</span>Reset<span style="color:#e06c75">&lt;/button&gt;</span>
-    <span style="color:#e06c75">&lt;/div&gt;</span>
+  return (
+    &lt;div&gt;
+      &lt;p&gt;{state.count} (step: {state.step})&lt;/p&gt;
+      &lt;button
+        onClick={() =&gt; dispatch({ type: "inc" })}&gt;+&lt;/button&gt;
+      &lt;button
+        onClick={() =&gt; dispatch({ type: "dec" })}&gt;-&lt;/button&gt;
+      &lt;button
+        onClick={() =&gt; dispatch({ type: "reset" })}&gt;Reset&lt;/button&gt;
+    &lt;/div&gt;
   );
 }</pre>
-        </div>
     </div>
     <p style="font-size: 17px; margin-top: 10px;">
         <b>Переваги:</b> логіка винесена з компонента, редюсер — чиста функція (легко тестувати),
@@ -179,32 +209,28 @@
 <section class="slide">
     <h2>Derived state — обчислюйте, не зберігайте</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// &#10060; Погано — дубльований state</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">ProductList</span>(<span style="color:#e06c75">props</span>) {
-  <span style="color:#c678dd">const</span> [items, setItems] = <span style="color:#61afef">useState</span>([]);
-  <span style="color:#c678dd">const</span> [visibleCount, setVisibleCount] =
-    <span style="color:#61afef">useState</span>(<span style="color:#98c379">0</span>); <span style="color:#7f8488">// &#10007;</span>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; Погано — дубльований state
+function ProductList(props) {
+  const [items, setItems] = useState([]);
+  const [visibleCount, setVisibleCount] =
+    useState(0); // &#10007;
 
-  <span style="color:#61afef">useEffect</span>(() =&gt; {
-    <span style="color:#61afef">setVisibleCount</span>(<span style="color:#e06c75">items</span>.filter(<span style="color:#e06c75">i</span> =&gt; <span style="color:#e06c75">i</span>.active).length);
-  }, [<span style="color:#e06c75">items</span>]);
+  useEffect(() =&gt; {
+    setVisibleCount(items.filter(i =&gt; i.active).length);
+  }, [items]);
 }</pre>
-        </div>
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// &#9989; Добре — обчислення під час рендеру</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">ProductList</span>(<span style="color:#e06c75">props</span>) {
-  <span style="color:#c678dd">const</span> [items, setItems] = <span style="color:#61afef">useState</span>([]);
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#9989; Добре — обчислення під час рендеру
+function ProductList(props) {
+  const [items, setItems] = useState([]);
 
-  <span style="color:#c678dd">const</span> visibleItems = <span style="color:#e06c75">items</span>.filter(
-    <span style="color:#e06c75">i</span> =&gt; <span style="color:#e06c75">i</span>.active
+  const visibleItems = items.filter(
+    i =&gt; i.active
   );
-  <span style="color:#7f8488">// або useMemo для дорогих обчислень</span>
-  <span style="color:#c678dd">const</span> sorted = <span style="color:#61afef">useMemo</span>(
+  // або useMemo для дорогих обчислень
+  const sorted = useMemo(
     () =&gt; [...items].sort(...), [items]
   );
 }</pre>
-        </div>
     </div>
     <p style="font-size: 17px; margin-top: 10px;">
         Якщо значення можна отримати з існуючого state/props — <b>обчислюй його</b>
@@ -268,30 +294,28 @@
 
 <section class="slide">
     <h2>Context API — приклад</h2>
-    <div style="font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// 1. Створити Context</span>
-<span style="color:#c678dd">import</span> { createContext, useContext, useState, <span style="color:#c678dd">type</span> ReactNode } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">// 1. Створити Context
+import { createContext, useContext, useState, type ReactNode } from "react";
 
-<span style="color:#c678dd">type</span> <span style="color:#61afef">User</span> = { name: <span style="color:#c678dd">string</span>; role: <span style="color:#c678dd">string</span> };
-<span style="color:#c678dd">const</span> UserContext = <span style="color:#61afef">createContext</span>&lt;<span style="color:#61afef">User</span> | <span style="color:#c678dd">null</span>&gt;(<span style="color:#c678dd">null</span>);
+type User = { name: string; role: string };
+const UserContext = createContext&lt;User | null&gt;(null);
 
-<span style="color:#7f8488">// 2. Provider — обгортає дерево і дає значення</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">App</span>() {
-  <span style="color:#c678dd">const</span> [user, setUser] = <span style="color:#61afef">useState</span>&lt;<span style="color:#61afef">User</span>&gt;({ name: <span style="color:#98c379">"Anna"</span>, role: <span style="color:#98c379">"admin"</span> });
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;UserContext.Provider</span> <span style="color:#d19a66">value</span>={<span style="color:#e06c75">user</span>}<span style="color:#e06c75">&gt;</span>
-      <span style="color:#e06c75">&lt;Layout /&gt;</span>
-    <span style="color:#e06c75">&lt;/UserContext.Provider&gt;</span>
+// 2. Provider — обгортає дерево і дає значення
+function App() {
+  const [user, setUser] = useState&lt;User&gt;({ name: "Anna", role: "admin" });
+  return (
+    &lt;UserContext.Provider value={user}&gt;
+      &lt;Layout /&gt;
+    &lt;/UserContext.Provider&gt;
   );
 }
 
-<span style="color:#7f8488">// 3. Consumer — читає значення в будь-якому місці всередині Provider</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">UserProfile</span>() {
-  <span style="color:#c678dd">const</span> user = <span style="color:#61afef">useContext</span>(UserContext);
-  <span style="color:#c678dd">if</span> (!user) <span style="color:#c678dd">return</span> <span style="color:#e06c75">&lt;p&gt;</span>Not logged in<span style="color:#e06c75">&lt;/p&gt;</span>;
-  <span style="color:#c678dd">return</span> <span style="color:#e06c75">&lt;p&gt;</span>Hello, {user.name} ({user.role})<span style="color:#e06c75">&lt;/p&gt;</span>;
+// 3. Consumer — читає значення в будь-якому місці всередині Provider
+function UserProfile() {
+  const user = useContext(UserContext);
+  if (!user) return &lt;p&gt;Not logged in&lt;/p&gt;;
+  return &lt;p&gt;Hello, {user.name} ({user.role})&lt;/p&gt;;
 }</pre>
-    </div>
     <p style="font-size: 17px; margin-top: 10px;">
         Аналог у Vue — <code>provide</code> / <code>inject</code>. Context ідеальний для
         <b>глобальних даних</b>, які рідко змінюються (theme, locale, auth).
@@ -318,29 +342,27 @@
 
 <section class="slide">
     <h2>Композиція компонентів — альтернатива</h2>
-    <div style="font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Замість props drilling — передаємо готовий елемент через children/props</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">App</span>() {
-  <span style="color:#c678dd">const</span> [user, setUser] = <span style="color:#61afef">useState</span>({ name: <span style="color:#98c379">"Anna"</span> });
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;Layout</span>
-      <span style="color:#d19a66">sidebar</span>={&lt;UserProfile user={user} /&gt;}  <span style="color:#7f8488">// відразу передаємо</span>
-      <span style="color:#d19a66">header</span>={&lt;Header user={user} /&gt;}
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">// Замість props drilling — передаємо готовий елемент через children/props
+function App() {
+  const [user, setUser] = useState({ name: "Anna" });
+  return (
+    &lt;Layout
+      sidebar={&lt;UserProfile user={user} /&gt;}  // відразу передаємо
+      header={&lt;Header user={user} /&gt;}
     /&gt;
   );
 }
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Layout</span>(<span style="color:#e06c75">props</span>: { sidebar: ReactNode; header: ReactNode }) {
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;div&gt;</span>
+function Layout(props: { sidebar: ReactNode; header: ReactNode }) {
+  return (
+    &lt;div&gt;
       {props.header}
-      <span style="color:#e06c75">&lt;main&gt;</span>{props.children}<span style="color:#e06c75">&lt;/main&gt;</span>
+      &lt;main&gt;{props.children}&lt;/main&gt;
       {props.sidebar}
-    <span style="color:#e06c75">&lt;/div&gt;</span>
+    &lt;/div&gt;
   );
-  <span style="color:#7f8488">// Layout не знає про user взагалі!</span>
+  // Layout не знає про user взагалі!
 }</pre>
-    </div>
     <p style="font-size: 17px; margin-top: 10px;">
         Патерн «<b>composition</b>» — передавати готові елементи, а не сирі дані.
         Layout залишається агностичним до user. Аналог у Vue — <code>&lt;slot&gt;</code>.
@@ -405,53 +427,99 @@
 <section class="slide">
     <h2>useEffect — приклади</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// 1. Fetch data on mount</span>
-<span style="color:#61afef">useEffect</span>(() =&gt; {
-  <span style="color:#c678dd">let</span> cancelled = <span style="color:#d19a66">false</span>;
-  <span style="color:#61afef">fetch</span>(<span style="color:#98c379">"/api/user"</span>)
-    .then(<span style="color:#e06c75">r</span> =&gt; <span style="color:#e06c75">r</span>.json())
-    .then(<span style="color:#e06c75">data</span> =&gt; {
-      <span style="color:#c678dd">if</span> (!cancelled) <span style="color:#61afef">setUser</span>(data);
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 1. Fetch data on mount
+useEffect(() =&gt; {
+  let cancelled = false;
+  fetch("/api/user")
+    .then(r =&gt; r.json())
+    .then(data =&gt; {
+      if (!cancelled) setUser(data);
     });
-  <span style="color:#c678dd">return</span> () =&gt; { cancelled = <span style="color:#d19a66">true</span>; };
-}, []);</pre>
-<pre style="margin:0;"><span style="color:#7f8488">// 2. Subscribe to event</span>
-<span style="color:#61afef">useEffect</span>(() =&gt; {
-  <span style="color:#c678dd">const</span> handler = () =&gt; <span style="color:#61afef">setWidth</span>(window.innerWidth);
-  window.<span style="color:#61afef">addEventListener</span>(<span style="color:#98c379">"resize"</span>, handler);
-  <span style="color:#c678dd">return</span> () =&gt; window.<span style="color:#61afef">removeEventListener</span>(<span style="color:#98c379">"resize"</span>, handler);
-}, []);</pre>
-        </div>
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// 3. React to prop/state change</span>
-<span style="color:#61afef">useEffect</span>(() =&gt; {
-  document.title = <span style="color:#98c379">`User: ${user.name}`</span>;
-}, [user.name]); <span style="color:#7f8488">// тільки при зміні name</span>
+  return () =&gt; { cancelled = true; };
+}, []);
 
-<span style="color:#7f8488">// 4. Timer with cleanup</span>
-<span style="color:#61afef">useEffect</span>(() =&gt; {
-  <span style="color:#c678dd">const</span> id = <span style="color:#61afef">setInterval</span>(() =&gt; {
-    <span style="color:#61afef">setTime</span>(<span style="color:#c678dd">new</span> <span style="color:#61afef">Date</span>());
-  }, <span style="color:#98c379">1000</span>);
-  <span style="color:#c678dd">return</span> () =&gt; <span style="color:#61afef">clearInterval</span>(id);
+// 2. Subscribe to event
+useEffect(() =&gt; {
+  const handler = () =&gt; setWidth(window.innerWidth);
+  window.addEventListener("resize", handler);
+  return () =&gt; window.removeEventListener("resize", handler);
 }, []);</pre>
-<pre style="margin:0;"><span style="color:#7f8488">// 5. Fetch when query changes</span>
-<span style="color:#61afef">useEffect</span>(() =&gt; {
-  <span style="color:#61afef">fetchResults</span>(query).then(<span style="color:#61afef">setResults</span>);
-}, [query]); <span style="color:#7f8488">// dep!</span></pre>
-        </div>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 3. React to prop/state change
+useEffect(() =&gt; {
+  document.title = `User: ${user.name}`;
+}, [user.name]); // тільки при зміні name
+
+// 4. Timer with cleanup
+useEffect(() =&gt; {
+  const id = setInterval(() =&gt; {
+    setTime(new Date());
+  }, 1000);
+  return () =&gt; clearInterval(id);
+}, []);
+
+// 5. Fetch when query changes
+useEffect(() =&gt; {
+  fetchResults(query).then(setResults);
+}, [query]); // dep!</pre>
     </div>
 </section>
 
 <section class="slide">
     <h2>useEffect — часті помилки</h2>
-    <img src="pictures/react/2/effect-mistakes.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; 1. Безкінечний цикл
+useEffect(() =&gt; {
+  setCount(count + 1);
+}); // без deps!
+// setCount &#8594; re-render &#8594; effect &#8594; setCount...
+
+// &#10060; 3. Немає cleanup
+useEffect(() =&gt; {
+  window.addEventListener("resize", handler);
+  // forgot removeEventListener
+}, []);
+// memory leak при unmount</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; 2. Пропущений dep
+useEffect(() =&gt; {
+  fetch(`/api?q=${query}`);
+}, []); // query &#10005;
+// stale closure — query залишиться старим
+
+// &#10060; 4. Effect для обчислень
+useEffect(() =&gt; {
+  setFiltered(items.filter(...));
+}, [items]);
+// &#9989; краще: const filtered = useMemo(...)</pre>
+    </div>
 </section>
 
 <section class="slide">
     <h2>Коли НЕ потрібен useEffect</h2>
-    <img src="pictures/react/2/no-use-effect.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; Обчислення з props/state
+useEffect(() =&gt; {
+  setFiltered(items.filter(i =&gt; i.active));
+}, [items]);
+// &#9989; const filtered = useMemo(() =&gt; ..., [items]);
+
+// &#10060; Синхронізація props &#8594; state
+useEffect(() =&gt; {
+  setValue(props.initialValue);
+}, [props.initialValue]);
+// &#9989; Render with key={initialValue} or use state during render</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// &#10060; Реакція на user event
+useEffect(() =&gt; {
+  if (submitted) submitForm(data);
+}, [submitted]);
+// &#9989; const handleSubmit = () =&gt; submitForm(data);</pre>
+    </div>
+    <p style="font-size: 16px; margin-top: 15px;"><b>&#9989; useEffect потрібен для:</b></p>
+    <ul style="font-size: 15px;">
+        <li>fetch data from server</li>
+        <li>subscriptions (WebSocket, events)</li>
+        <li>manually changing DOM (ref)</li>
+        <li>timers, analytics, logging</li>
+    </ul>
 </section>
 
 <section class="slide">
@@ -499,7 +567,28 @@
 
 <section class="slide">
     <h2>Custom Hooks — перевикористання логіки</h2>
-    <img src="pictures/react/2/custom-hook.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// БЕЗ Custom Hook (дублікація)
+function SearchA() {
+  const [q, setQ] = useState("");
+  useEffect(() =&gt; { setTimeout... });
+  // debounce logic duplicated...
+}
+// та ж логіка в SearchB, SearchC...</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// З Custom Hook (1 місце)
+function useDebounce(value, delay) {
+  const [d, setD] = useState(value);
+  useEffect(() =&gt; { ... }, [value]);
+  return d;
+}
+// використовується скрізь</pre>
+    </div>
+    <p style="font-size: 16px; margin-top: 15px;"><b>Використання:</b></p>
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">function SearchBar() {
+  const debouncedQuery = useDebounce(query, 300);
+  // debounce logic is reusable
+  return &lt;input value={query} onChange={...} /&gt;;
+}</pre>
 </section>
 
 <section class="slide">
@@ -522,99 +611,91 @@
 <section class="slide">
     <h2>Custom Hook — useToggle</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// hooks/useToggle.ts</span>
-<span style="color:#c678dd">import</span> { useState, useCallback } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// hooks/useToggle.ts
+import { useState, useCallback } from "react";
 
-<span style="color:#c678dd">export function</span> <span style="color:#61afef">useToggle</span>(initial: <span style="color:#c678dd">boolean</span> = <span style="color:#d19a66">false</span>) {
-  <span style="color:#c678dd">const</span> [value, setValue] = <span style="color:#61afef">useState</span>(initial);
+export function useToggle(initial: boolean = false) {
+  const [value, setValue] = useState(initial);
 
-  <span style="color:#c678dd">const</span> toggle = <span style="color:#61afef">useCallback</span>(() =&gt; {
-    <span style="color:#61afef">setValue</span>(<span style="color:#e06c75">prev</span> =&gt; !prev);
+  const toggle = useCallback(() =&gt; {
+    setValue(prev =&gt; !prev);
   }, []);
 
-  <span style="color:#c678dd">const</span> setTrue = <span style="color:#61afef">useCallback</span>(() =&gt; <span style="color:#61afef">setValue</span>(<span style="color:#d19a66">true</span>), []);
-  <span style="color:#c678dd">const</span> setFalse = <span style="color:#61afef">useCallback</span>(() =&gt; <span style="color:#61afef">setValue</span>(<span style="color:#d19a66">false</span>), []);
+  const setTrue = useCallback(() =&gt; setValue(true), []);
+  const setFalse = useCallback(() =&gt; setValue(false), []);
 
-  <span style="color:#c678dd">return</span> { value, toggle, setTrue, setFalse };
+  return { value, toggle, setTrue, setFalse };
 }</pre>
-        </div>
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Використання</span>
-<span style="color:#c678dd">import</span> { useToggle } <span style="color:#c678dd">from</span> <span style="color:#98c379">"./hooks/useToggle"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Використання
+import { useToggle } from "./hooks/useToggle";
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Modal</span>() {
-  <span style="color:#c678dd">const</span> { value: isOpen,
+function Modal() {
+  const { value: isOpen,
           toggle,
           setFalse: close } =
-    <span style="color:#61afef">useToggle</span>(<span style="color:#d19a66">false</span>);
+    useToggle(false);
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;&gt;</span>
-      <span style="color:#e06c75">&lt;button</span> <span style="color:#d19a66">onClick</span>={<span style="color:#e06c75">toggle</span>}<span style="color:#e06c75">&gt;</span>
+  return (
+    &lt;&gt;
+      &lt;button onClick={toggle}&gt;
         Open
-      <span style="color:#e06c75">&lt;/button&gt;</span>
-      {isOpen &amp;&amp; <span style="color:#e06c75">&lt;Dialog</span> <span style="color:#d19a66">onClose</span>={<span style="color:#e06c75">close</span>} /&gt;}
-    <span style="color:#e06c75">&lt;/&gt;</span>
+      &lt;/button&gt;
+      {isOpen &amp;&amp; &lt;Dialog onClose={close} /&gt;}
+    &lt;/&gt;
   );
 }</pre>
-        </div>
     </div>
 </section>
 
 <section class="slide">
     <h2>Custom Hook — useDebounce</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// hooks/useDebounce.ts</span>
-<span style="color:#c678dd">import</span> { useState, useEffect } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// hooks/useDebounce.ts
+import { useState, useEffect } from "react";
 
-<span style="color:#c678dd">export function</span> <span style="color:#61afef">useDebounce</span>&lt;T&gt;(
+export function useDebounce&lt;T&gt;(
   value: T,
-  delay: <span style="color:#c678dd">number</span>
+  delay: number
 ): T {
-  <span style="color:#c678dd">const</span> [debounced, setDebounced] =
-    <span style="color:#61afef">useState</span>&lt;T&gt;(value);
+  const [debounced, setDebounced] =
+    useState&lt;T&gt;(value);
 
-  <span style="color:#61afef">useEffect</span>(() =&gt; {
-    <span style="color:#c678dd">const</span> timer = <span style="color:#61afef">setTimeout</span>(() =&gt; {
-      <span style="color:#61afef">setDebounced</span>(value);
+  useEffect(() =&gt; {
+    const timer = setTimeout(() =&gt; {
+      setDebounced(value);
     }, delay);
 
-    <span style="color:#7f8488">// cleanup: скидає таймер</span>
-    <span style="color:#7f8488">// при кожній зміні value</span>
-    <span style="color:#c678dd">return</span> () =&gt; <span style="color:#61afef">clearTimeout</span>(timer);
+    // cleanup: скидає таймер
+    // при кожній зміні value
+    return () =&gt; clearTimeout(timer);
   }, [value, delay]);
 
-  <span style="color:#c678dd">return</span> debounced;
+  return debounced;
 }</pre>
-        </div>
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Використання: пошук з дебаунсом</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">SearchInput</span>() {
-  <span style="color:#c678dd">const</span> [query, setQuery] =
-    <span style="color:#61afef">useState</span>(<span style="color:#98c379">""</span>);
-  <span style="color:#c678dd">const</span> debouncedQuery =
-    <span style="color:#61afef">useDebounce</span>(query, <span style="color:#98c379">300</span>);
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Використання: пошук з дебаунсом
+function SearchInput() {
+  const [query, setQuery] =
+    useState("");
+  const debouncedQuery =
+    useDebounce(query, 300);
 
-  <span style="color:#61afef">useEffect</span>(() =&gt; {
-    <span style="color:#c678dd">if</span> (debouncedQuery) {
-      console.<span style="color:#61afef">log</span>(<span style="color:#98c379">"Search: "</span>, debouncedQuery);
-      <span style="color:#7f8488">// тут буде API-виклик</span>
-      <span style="color:#7f8488">// (детально — Лекція 3)</span>
+  useEffect(() =&gt; {
+    if (debouncedQuery) {
+      console.log("Search: ", debouncedQuery);
+      // тут буде API-виклик
+      // (детально — Лекція 3)
     }
   }, [debouncedQuery]);
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;input</span>
-      <span style="color:#d19a66">value</span>={<span style="color:#e06c75">query</span>}
-      <span style="color:#d19a66">onChange</span>={(e) =&gt;
-        <span style="color:#61afef">setQuery</span>(e.target.value)}
-      <span style="color:#d19a66">placeholder</span>=<span style="color:#98c379">"Search..."</span>
+  return (
+    &lt;input
+      value={query}
+      onChange={(e) =&gt;
+        setQuery(e.target.value)}
+      placeholder="Search..."
     /&gt;
   );
 }</pre>
-        </div>
     </div>
     <p style="font-size: 17px; margin-top: 10px;">
         <b>useDebounce</b> — класичний Custom Hook: state + effect + cleanup.
@@ -626,51 +707,47 @@
 <section class="slide">
     <h2>Custom Hook — useLocalStorage</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">import</span> { useState, useEffect } <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import { useState, useEffect } from "react";
 
-<span style="color:#c678dd">export function</span> <span style="color:#61afef">useLocalStorage</span>&lt;T&gt;(
-  key: <span style="color:#c678dd">string</span>,
+export function useLocalStorage&lt;T&gt;(
+  key: string,
   initial: T
 ) {
-  <span style="color:#c678dd">const</span> [value, setValue] = <span style="color:#61afef">useState</span>&lt;T&gt;(() =&gt; {
-    <span style="color:#c678dd">const</span> stored = localStorage.<span style="color:#61afef">getItem</span>(key);
-    <span style="color:#c678dd">return</span> stored ? JSON.<span style="color:#61afef">parse</span>(stored) : initial;
+  const [value, setValue] = useState&lt;T&gt;(() =&gt; {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : initial;
   });
 
-  <span style="color:#61afef">useEffect</span>(() =&gt; {
-    localStorage.<span style="color:#61afef">setItem</span>(key, JSON.stringify(value));
+  useEffect(() =&gt; {
+    localStorage.setItem(key, JSON.stringify(value));
   }, [key, value]);
 
-  <span style="color:#c678dd">return</span> [value, setValue] <span style="color:#c678dd">as const</span>;
+  return [value, setValue] as const;
 }</pre>
-        </div>
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Використання</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Settings</span>() {
-  <span style="color:#c678dd">const</span> [theme, setTheme] =
-    <span style="color:#61afef">useLocalStorage</span>(<span style="color:#98c379">"theme"</span>, <span style="color:#98c379">"light"</span>);
-  <span style="color:#c678dd">const</span> [lang, setLang] =
-    <span style="color:#61afef">useLocalStorage</span>(<span style="color:#98c379">"lang"</span>, <span style="color:#98c379">"uk"</span>);
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Використання
+function Settings() {
+  const [theme, setTheme] =
+    useLocalStorage("theme", "light");
+  const [lang, setLang] =
+    useLocalStorage("lang", "uk");
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;div&gt;</span>
-      <span style="color:#e06c75">&lt;select</span> <span style="color:#d19a66">value</span>={<span style="color:#e06c75">theme</span>}
-        <span style="color:#d19a66">onChange</span>={(e) =&gt;
-          <span style="color:#61afef">setTheme</span>(e.target.value)}<span style="color:#e06c75">&gt;</span>
-        <span style="color:#e06c75">&lt;option&gt;</span>light<span style="color:#e06c75">&lt;/option&gt;</span>
-        <span style="color:#e06c75">&lt;option&gt;</span>dark<span style="color:#e06c75">&lt;/option&gt;</span>
-      <span style="color:#e06c75">&lt;/select&gt;</span>
-    <span style="color:#e06c75">&lt;/div&gt;</span>
+  return (
+    &lt;div&gt;
+      &lt;select value={theme}
+        onChange={(e) =&gt;
+          setTheme(e.target.value)}&gt;
+        &lt;option&gt;light&lt;/option&gt;
+        &lt;option&gt;dark&lt;/option&gt;
+      &lt;/select&gt;
+    &lt;/div&gt;
   );
 }</pre>
-        </div>
     </div>
 </section>
 
 <section class="slide">
     <h2>Популярні Custom Hooks (огляд)</h2>
-    <table style="font-size: 17px; width: 100%; border-collapse: collapse;">
+    <table style="font-size: 17px; width: 100%; border-collapse: collapse; margin-left: 0; ">
         <thead>
             <tr style="background: var(--brand-color-prinmary); color: #fff;">
                 <th style="padding: 8px; text-align: left;">Hook</th>
@@ -722,13 +799,12 @@
 <section class="slide">
     <h2>Архітектура: структура проєкту</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.6;">
-<pre style="margin:0;">src/
-├── components/       <span style="color:#7f8488"># UI</span>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">src/
+├── components/       # UI
 │   ├── Button.tsx
 │   ├── Modal.tsx
 │   └── index.ts
-├── features/         <span style="color:#7f8488"># за доменами</span>
+├── features/         # за доменами
 │   ├── auth/
 │   │   ├── LoginForm.tsx
 │   │   ├── useAuth.ts
@@ -736,16 +812,15 @@
 │   └── products/
 │       ├── ProductList.tsx
 │       └── useProducts.ts
-├── hooks/            <span style="color:#7f8488"># спільні hooks</span>
+├── hooks/            # спільні hooks
 │   ├── useFetch.ts
 │   └── useToggle.ts
-├── context/          <span style="color:#7f8488"># Context providers</span>
+├── context/          # Context providers
 │   └── ThemeContext.tsx
 ├── utils/
 ├── types/
 ├── App.tsx
 └── main.tsx</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>За типовими принципами:</b></p>
             <ul>

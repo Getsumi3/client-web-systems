@@ -56,40 +56,58 @@
 
 <section class="slide">
     <h2>Controlled vs Uncontrolled</h2>
-    <img src="pictures/react/5/controlled-vs-uncontrolled.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Controlled (React керує)
+const [name, setName] = useState("")
+&lt;input
+  value={name}
+  onChange={e =&gt; setName(e.target.value)}
+/&gt;
+// state → input → state (loop)</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Uncontrolled (DOM керує)
+const inputRef = useRef()
+&lt;input
+  ref={inputRef}
+  defaultValue="hello"
+/&gt;
+// read: inputRef.current.value</pre>
+    </div>
+    <ul style="font-size: 15px;">
+        <li><b>Controlled:</b> + single source of truth, validation on type, easy reset; − re-render on every keystroke.</li>
+        <li><b>Uncontrolled:</b> + no re-render, simple for one-time read, integrate with non-React; − harder to validate, no live feedback.</li>
+    </ul>
+    <p style="font-size: 16px;"><b>Rule:</b> use Controlled by default. Uncontrolled only for simple cases (file input, integrate 3rd-party).</p>
 </section>
 
 <section class="slide">
     <h2>Controlled Component — приклад</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">function</span> <span style="color:#61afef">LoginForm</span>() &#123;
-  <span style="color:#c678dd">const</span> [email, setEmail] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">""</span>);
-  <span style="color:#c678dd">const</span> [password, setPassword] = <span style="color:#61afef">useState</span>(<span style="color:#98c379">""</span>);
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function LoginForm() &#123;
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleSubmit</span> = (e: FormEvent) =&gt; &#123;
+  const handleSubmit = (e: FormEvent) =&gt; &#123;
     e.preventDefault();
-    <span style="color:#61afef">console</span>.log(&#123; email, password &#125;);
-    <span style="color:#7f8488">// API call...</span>
+    console.log(&#123; email, password &#125;);
+    // API call...
   &#125;;
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;form</span> <span style="color:#d19a66">onSubmit</span>={<span style="color:#e06c75">handleSubmit</span>}<span style="color:#e06c75">&gt;</span>
-      <span style="color:#e06c75">&lt;input</span>
-        <span style="color:#d19a66">type</span>=<span style="color:#98c379">"email"</span>
-        <span style="color:#d19a66">value</span>={<span style="color:#e06c75">email</span>}
-        <span style="color:#d19a66">onChange</span>={(e) =&gt; <span style="color:#61afef">setEmail</span>(e.target.value)}
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input
+        type="email"
+        value={email}
+        onChange={(e) =&gt; setEmail(e.target.value)}
       /&gt;
-      <span style="color:#e06c75">&lt;input</span>
-        <span style="color:#d19a66">type</span>=<span style="color:#98c379">"password"</span>
-        <span style="color:#d19a66">value</span>={<span style="color:#e06c75">password</span>}
-        <span style="color:#d19a66">onChange</span>={(e) =&gt; <span style="color:#61afef">setPassword</span>(e.target.value)}
+      &lt;input
+        type="password"
+        value={password}
+        onChange={(e) =&gt; setPassword(e.target.value)}
       /&gt;
-      <span style="color:#e06c75">&lt;button</span> <span style="color:#d19a66">type</span>=<span style="color:#98c379">"submit"</span><span style="color:#e06c75">&gt;</span>Login<span style="color:#e06c75">&lt;/button&gt;</span>
-    <span style="color:#e06c75">&lt;/form&gt;</span>
+      &lt;button type="submit"&gt;Login&lt;/button&gt;
+    &lt;/form&gt;
   );
 &#125;</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Controlled pattern:</b></p>
             <ol>
@@ -114,32 +132,30 @@
 <section class="slide">
     <h2>Uncontrolled Component — приклад</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">import</span> &#123; useRef &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import &#123; useRef &#125; from "react";
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">QuickForm</span>() &#123;
-  <span style="color:#c678dd">const</span> emailRef = <span style="color:#61afef">useRef</span>&lt;HTMLInputElement&gt;(<span style="color:#c678dd">null</span>);
-  <span style="color:#c678dd">const</span> fileRef = <span style="color:#61afef">useRef</span>&lt;HTMLInputElement&gt;(<span style="color:#c678dd">null</span>);
+function QuickForm() &#123;
+  const emailRef = useRef&lt;HTMLInputElement&gt;(null);
+  const fileRef = useRef&lt;HTMLInputElement&gt;(null);
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleSubmit</span> = (e: FormEvent) =&gt; &#123;
+  const handleSubmit = (e: FormEvent) =&gt; &#123;
     e.preventDefault();
-    <span style="color:#c678dd">const</span> email = emailRef.current?.value;
-    <span style="color:#c678dd">const</span> file = fileRef.current?.files?.[<span style="color:#98c379">0</span>];
-    <span style="color:#61afef">console</span>.log(&#123; email, file &#125;);
+    const email = emailRef.current?.value;
+    const file = fileRef.current?.files?.[0];
+    console.log(&#123; email, file &#125;);
   &#125;;
 
-  <span style="color:#c678dd">return</span> (
-    <span style="color:#e06c75">&lt;form</span> <span style="color:#d19a66">onSubmit</span>={<span style="color:#e06c75">handleSubmit</span>}<span style="color:#e06c75">&gt;</span>
-      <span style="color:#e06c75">&lt;input</span> <span style="color:#d19a66">type</span>=<span style="color:#98c379">"email"</span>
-        <span style="color:#d19a66">ref</span>={<span style="color:#e06c75">emailRef</span>}
-        <span style="color:#d19a66">defaultValue</span>=<span style="color:#98c379">"old@example.com"</span> /&gt;
-      <span style="color:#e06c75">&lt;input</span> <span style="color:#d19a66">type</span>=<span style="color:#98c379">"file"</span>
-        <span style="color:#d19a66">ref</span>={<span style="color:#e06c75">fileRef</span>} /&gt;
-      <span style="color:#e06c75">&lt;button</span> <span style="color:#d19a66">type</span>=<span style="color:#98c379">"submit"</span><span style="color:#e06c75">&gt;</span>Submit<span style="color:#e06c75">&lt;/button&gt;</span>
-    <span style="color:#e06c75">&lt;/form&gt;</span>
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input type="email"
+        ref={emailRef}
+        defaultValue="old@example.com" /&gt;
+      &lt;input type="file"
+        ref={fileRef} /&gt;
+      &lt;button type="submit"&gt;Submit&lt;/button&gt;
+    &lt;/form&gt;
   );
 &#125;</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Uncontrolled pattern:</b></p>
             <ol>
@@ -169,46 +185,44 @@
 <section class="slide">
     <h2>Багатопольна форма з одним state-об'єктом</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">type</span> <span style="color:#61afef">FormData</span> = &#123;
-  name: <span style="color:#c678dd">string</span>;
-  email: <span style="color:#c678dd">string</span>;
-  age: <span style="color:#c678dd">number</span>;
-  role: <span style="color:#c678dd">string</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">type FormData = &#123;
+  name: string;
+  email: string;
+  age: number;
+  role: string;
 &#125;;
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">UserForm</span>() &#123;
-  <span style="color:#c678dd">const</span> [form, setForm] = <span style="color:#61afef">useState</span>&lt;<span style="color:#61afef">FormData</span>&gt;(&#123;
-    name: <span style="color:#98c379">""</span>, email: <span style="color:#98c379">""</span>, age: <span style="color:#98c379">0</span>, role: <span style="color:#98c379">"user"</span>
+function UserForm() &#123;
+  const [form, setForm] = useState&lt;FormData&gt;(&#123;
+    name: "", email: "", age: 0, role: "user"
   &#125;);
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleChange</span> = (e: ChangeEvent) =&gt; &#123;
-    <span style="color:#c678dd">const</span> &#123; name, value, type &#125; = e.target;
-    <span style="color:#61afef">setForm</span>(<span style="color:#e06c75">prev</span> =&gt; (&#123;
+  const handleChange = (e: ChangeEvent) =&gt; &#123;
+    const &#123; name, value, type &#125; = e.target;
+    setForm(prev =&gt; (&#123;
       ...prev,
-      [name]: type === <span style="color:#98c379">"number"</span>
-        ? <span style="color:#61afef">parseInt</span>(value)
+      [name]: type === "number"
+        ? parseInt(value)
         : value
     &#125;));
   &#125;;
 
-  <span style="color:#c678dd">return</span> (
+  return (
     &lt;form onSubmit=&#123;handleSubmit&#125;&gt;
-      &lt;input name=<span style="color:#98c379">"name"</span> value=&#123;form.name&#125;
+      &lt;input name="name" value=&#123;form.name&#125;
         onChange=&#123;handleChange&#125; /&gt;
-      &lt;input name=<span style="color:#98c379">"email"</span> value=&#123;form.email&#125;
+      &lt;input name="email" value=&#123;form.email&#125;
         onChange=&#123;handleChange&#125; /&gt;
-      &lt;input name=<span style="color:#98c379">"age"</span> <span style="color:#d19a66">type</span>=<span style="color:#98c379">"number"</span>
+      &lt;input name="age" type="number"
         value=&#123;form.age&#125; onChange=&#123;handleChange&#125; /&gt;
-      &lt;select name=<span style="color:#98c379">"role"</span> value=&#123;form.role&#125;
+      &lt;select name="role" value=&#123;form.role&#125;
         onChange=&#123;handleChange&#125;&gt;
-        &lt;option value=<span style="color:#98c379">"user"</span>&gt;User&lt;/option&gt;
-        &lt;option value=<span style="color:#98c379">"admin"</span>&gt;Admin&lt;/option&gt;
+        &lt;option value="user"&gt;User&lt;/option&gt;
+        &lt;option value="admin"&gt;Admin&lt;/option&gt;
       &lt;/select&gt;
     &lt;/form&gt;
   );
 &#125;</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Один state-об'єкт</b> для всіх полів форми.</p>
             <p><b>Переваги:</b></p>
@@ -239,79 +253,110 @@
 
 <section class="slide">
     <h2>Валідація — коли перевіряти</h2>
-    <img src="pictures/react/5/validation-timing.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1;">
+            <pre style="margin: 0; font-size: 12px; white-space: pre;">// 1. On Submit
+handleSubmit = (e) =&gt; {
+  e.preventDefault();
+  const errors = validate(form);
+  if (Object.keys(errors).length)
+    return setErrors(errors);
+  submit(form);
+}
+// всі помилки одразу</pre>
+            <p style="font-size: 16px;"><b>Recommended approach</b></p>
+            <ol style="font-size: 15px;">
+                <li><code>onBlur</code> → validate field when user leaves input (no annoying errors while typing);</li>
+                <li><code>onChange</code> → clear error when user starts fixing;</li>
+                <li><code>onSubmit</code> → validate all fields before submit.</li>
+            </ol>
+        </div>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 2. On Change (live)
+handleChange = (e) =&gt; {
+  const { name, value } = e.target;
+  setForm(f =&gt; ({...f, [name]: value}));
+  const err = validateField(name, value);
+  setErrors(e =&gt; ({...e, [name]: err}));
+}
+// помилки одразу при введенні
+
+// 3. On Blur (recommended)
+handleBlur = (e) =&gt; {
+  const { name, value } = e.target;
+  const err = validateField(name, value);
+  setErrors(e =&gt; ({...e, [name]: err}));
+}
+// помилки коли поле
+// втратило фокус</pre>
+    </div>
 </section>
 
 <section class="slide">
     <h2>Валідація — ручний підхід</h2>
-    <div style="font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">type</span> <span style="color:#61afef">FormErrors</span> = &#123; name?: <span style="color:#c678dd">string</span>; email?: <span style="color:#c678dd">string</span>; password?: <span style="color:#c678dd">string</span> &#125;;
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">type FormErrors = &#123; name?: string; email?: string; password?: string &#125;;
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">validate</span>(form: <span style="color:#61afef">FormData</span>): <span style="color:#61afef">FormErrors</span> &#123;
-  <span style="color:#c678dd">const</span> errors: <span style="color:#61afef">FormErrors</span> = &#123;&#125;;
-  <span style="color:#c678dd">if</span> (!form.name.<span style="color:#61afef">trim</span>()) errors.name = <span style="color:#98c379">"Name is required"</span>;
-  <span style="color:#c678dd">if</span> (form.name.length &lt; <span style="color:#98c379">2</span>) errors.name = <span style="color:#98c379">"Name too short"</span>;
-  <span style="color:#c678dd">if</span> (!<span style="color:#98c379">/^\S+@\S+\.\S+$/</span>.<span style="color:#61afef">test</span>(form.email)) errors.email = <span style="color:#98c379">"Invalid email"</span>;
-  <span style="color:#c678dd">if</span> (form.password.length &lt; <span style="color:#98c379">8</span>) errors.password = <span style="color:#98c379">"Min 8 characters"</span>;
-  <span style="color:#c678dd">if</span> (!<span style="color:#98c379">/\d/</span>.<span style="color:#61afef">test</span>(form.password)) errors.password = <span style="color:#98c379">"Must contain a digit"</span>;
-  <span style="color:#c678dd">return</span> errors;
+function validate(form: FormData): FormErrors &#123;
+  const errors: FormErrors = &#123;&#125;;
+  if (!form.name.trim()) errors.name = "Name is required";
+  if (form.name.length &lt; 2) errors.name = "Name too short";
+  if (!/^\S+@\S+\.\S+$/.test(form.email)) errors.email = "Invalid email";
+  if (form.password.length &lt; 8) errors.password = "Min 8 characters";
+  if (!/\d/.test(form.password)) errors.password = "Must contain a digit";
+  return errors;
 &#125;
 
-<span style="color:#7f8488">// Компонент</span>
-<span style="color:#c678dd">const</span> [errors, setErrors] = <span style="color:#61afef">useState</span>&lt;<span style="color:#61afef">FormErrors</span>&gt;(&#123;&#125;);
-<span style="color:#c678dd">const</span> [touched, setTouched] = <span style="color:#61afef">useState</span>&lt;<span style="color:#61afef">Record</span>&lt;<span style="color:#c678dd">string</span>, <span style="color:#c678dd">boolean</span>&gt;&gt;(&#123;&#125;);
+// Компонент
+const [errors, setErrors] = useState&lt;FormErrors&gt;(&#123;&#125;);
+const [touched, setTouched] = useState&lt;Record&lt;string, boolean&gt;&gt;(&#123;&#125;);
 
-<span style="color:#c678dd">const</span> <span style="color:#61afef">handleBlur</span> = (e) =&gt; &#123;
-  <span style="color:#61afef">setTouched</span>(<span style="color:#e06c75">t</span> =&gt; (&#123; ...t, [e.target.name]: <span style="color:#d19a66">true</span> &#125;));
-  <span style="color:#c678dd">const</span> fieldErrors = <span style="color:#61afef">validate</span>(form);
-  <span style="color:#61afef">setErrors</span>(<span style="color:#e06c75">prev</span> =&gt; (&#123; ...prev, [e.target.name]: fieldErrors[e.target.name] &#125;));
+const handleBlur = (e) =&gt; &#123;
+  setTouched(t =&gt; (&#123; ...t, [e.target.name]: true &#125;));
+  const fieldErrors = validate(form);
+  setErrors(prev =&gt; (&#123; ...prev, [e.target.name]: fieldErrors[e.target.name] &#125;));
 &#125;;
 
-<span style="color:#c678dd">const</span> <span style="color:#61afef">handleSubmit</span> = (e) =&gt; &#123;
+const handleSubmit = (e) =&gt; &#123;
   e.preventDefault();
-  <span style="color:#c678dd">const</span> allErrors = <span style="color:#61afef">validate</span>(form);
-  <span style="color:#c678dd">if</span> (<span style="color:#61afef">Object</span>.<span style="color:#61afef">keys</span>(allErrors).length &gt; <span style="color:#98c379">0</span>) &#123;
-    <span style="color:#61afef">setErrors</span>(allErrors);
-    <span style="color:#61afef">setTouched</span>(&#123; name: <span style="color:#d19a66">true</span>, email: <span style="color:#d19a66">true</span>, password: <span style="color:#d19a66">true</span> &#125;);
-    <span style="color:#c678dd">return</span>;
+  const allErrors = validate(form);
+  if (Object.keys(allErrors).length &gt; 0) &#123;
+    setErrors(allErrors);
+    setTouched(&#123; name: true, email: true, password: true &#125;);
+    return;
   &#125;
-  <span style="color:#7f8488">// submit</span>
+  // submit
 &#125;;</pre>
-    </div>
 </section>
 
 <section class="slide">
     <h2>Валідація — UI відображення помилок</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Поле з помилкою</span>
-&lt;div className=<span style="color:#98c379">"field"</span>&gt;
-  &lt;label htmlFor=<span style="color:#98c379">"email"</span>&gt;Email&lt;/label&gt;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Поле з помилкою
+&lt;div className="field"&gt;
+  &lt;label htmlFor="email"&gt;Email&lt;/label&gt;
   &lt;input
-    id=<span style="color:#98c379">"email"</span>
-    name=<span style="color:#98c379">"email"</span>
+    id="email"
+    name="email"
     value=&#123;form.email&#125;
     onChange=&#123;handleChange&#125;
     onBlur=&#123;handleBlur&#125;
     className=&#123;errors.email &amp;&amp; touched.email
-      ? <span style="color:#98c379">"input-error"</span>
-      : <span style="color:#98c379">""</span>&#125;
+      ? "input-error"
+      : ""&#125;
   /&gt;
   &#123;errors.email &amp;&amp; touched.email &amp;&amp; (
-    <span style="color:#e06c75">&lt;p</span> <span style="color:#d19a66">className</span>=<span style="color:#98c379">"error"</span><span style="color:#e06c75">&gt;</span>
+    &lt;p className="error"&gt;
       &#123;errors.email&#125;
-    <span style="color:#e06c75">&lt;/p&gt;</span>
+    &lt;/p&gt;
   )&#125;
 &lt;/div&gt;
 
-<span style="color:#7f8488">// CSS</span>
-<span style="color:#7f8488">.input-error &#123;</span>
-<span style="color:#7f8488">  border-color: red;</span>
-<span style="color:#7f8488">&#125;</span>
-<span style="color:#7f8488">.error &#123;</span>
-<span style="color:#7f8488">  color: red; font-size: 13px;</span>
-<span style="color:#7f8488">&#125;</span></pre>
-        </div>
+// CSS
+.input-error &#123;
+  border-color: red;
+&#125;
+.error &#123;
+  color: red; font-size: 12px;
+&#125;</pre>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Принципи UI помилок:</b></p>
             <ul>
@@ -339,50 +384,46 @@
 <section class="slide">
     <h2>React Hook Form + Zod — сучасний підхід</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// 1. Schema (Zod)</span>
-<span style="color:#c678dd">import</span> &#123; z &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"zod"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 1. Schema (Zod)
+import &#123; z &#125; from "zod";
 
-<span style="color:#c678dd">const</span> schema = z.<span style="color:#61afef">object</span>(&#123;
-  name: z.string().<span style="color:#61afef">min</span>(<span style="color:#98c379">2</span>, <span style="color:#98c379">"Min 2 chars"</span>),
-  email: z.string().<span style="color:#61afef">email</span>(<span style="color:#98c379">"Invalid email"</span>),
+const schema = z.object(&#123;
+  name: z.string().min(2, "Min 2 chars"),
+  email: z.string().email("Invalid email"),
   password: z.string()
-    .<span style="color:#61afef">min</span>(<span style="color:#98c379">8</span>, <span style="color:#98c379">"Min 8 chars"</span>)
-    .<span style="color:#61afef">regex</span>(<span style="color:#98c379">/\d/</span>, <span style="color:#98c379">"Must have digit"</span>),
+    .min(8, "Min 8 chars")
+    .regex(/\d/, "Must have digit"),
 &#125;);
 
-<span style="color:#c678dd">type</span> <span style="color:#61afef">FormData</span> = z.<span style="color:#61afef">infer</span>&lt;<span style="color:#c678dd">typeof</span> schema&gt;;
-<span style="color:#7f8488">// TS type auto-derived from schema!</span></pre>
-        </div>
-        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// 2. Component (RHF)</span>
-<span style="color:#c678dd">import</span> &#123; useForm &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"react-hook-form"</span>;
-<span style="color:#c678dd">import</span> &#123; zodResolver &#125; <span style="color:#c678dd">from</span>
-  <span style="color:#98c379">"@hookform/resolvers/zod"</span>;
+type FormData = z.infer&lt;typeof schema&gt;;
+// TS type auto-derived from schema!</pre>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// 2. Component (RHF)
+import &#123; useForm &#125; from "react-hook-form";
+import &#123; zodResolver &#125; from
+  "@hookform/resolvers/zod";
 
-<span style="color:#c678dd">function</span> <span style="color:#61afef">RegisterForm</span>() &#123;
-  <span style="color:#c678dd">const</span> &#123;
+function RegisterForm() &#123;
+  const &#123;
     register, handleSubmit,
     formState: &#123; errors, isSubmitting &#125;
-  &#125; = <span style="color:#61afef">useForm</span>&lt;<span style="color:#61afef">FormData</span>&gt;(&#123;
-    resolver: <span style="color:#61afef">zodResolver</span>(schema)
+  &#125; = useForm&lt;FormData&gt;(&#123;
+    resolver: zodResolver(schema)
   &#125;);
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">onSubmit</span> = <span style="color:#c678dd">async</span> (data: <span style="color:#61afef">FormData</span>) =&gt; &#123;
-    <span style="color:#c678dd">await</span> api.register(data);
+  const onSubmit = async (data: FormData) =&gt; &#123;
+    await api.register(data);
   &#125;;
 
-  <span style="color:#c678dd">return</span> (
+  return (
     &lt;form onSubmit=&#123;handleSubmit(onSubmit)&#125;&gt;
-      &lt;input &#123;...register(<span style="color:#98c379">"name"</span>)&#125; /&gt;
+      &lt;input &#123;...register("name")&#125; /&gt;
       &#123;errors.name &amp;&amp; &lt;p&gt;&#123;errors.name.message&#125;&lt;/p&gt;&#125;
-      &lt;input &#123;...register(<span style="color:#98c379">"email"</span>)&#125; /&gt;
+      &lt;input &#123;...register("email")&#125; /&gt;
       &#123;errors.email &amp;&amp; &lt;p&gt;&#123;errors.email.message&#125;&lt;/p&gt;&#125;
       &lt;button disabled=&#123;isSubmitting&#125;&gt;Register&lt;/button&gt;
     &lt;/form&gt;
   );
 &#125;</pre>
-        </div>
     </div>
     <p style="font-size: 17px; margin-top: 10px;">
         <b>Zod</b> визначає схему (validation + TS-тип одночасно).
@@ -424,48 +465,47 @@
 
 <section class="slide">
     <h2>AuthContext — реалізація</h2>
-    <div style="font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// context/AuthContext.tsx</span>
-<span style="color:#c678dd">import</span> &#123; createContext, useContext, useState, useEffect, <span style="color:#c678dd">type</span> ReactNode &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"react"</span>;
-<span style="color:#c678dd">import</span> &#123; authApi &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"../api/auth"</span>;
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">// context/AuthContext.tsx
+import &#123; createContext, useContext, useState, useEffect, type ReactNode &#125; from "react";
+import &#123; authApi &#125; from "../api/auth";
 
-<span style="color:#c678dd">type</span> <span style="color:#61afef">User</span> = &#123; id: <span style="color:#c678dd">string</span>; name: <span style="color:#c678dd">string</span>; role: <span style="color:#c678dd">string</span> &#125;;
-<span style="color:#c678dd">type</span> <span style="color:#61afef">AuthState</span> = &#123;
-  user: <span style="color:#61afef">User</span> | <span style="color:#c678dd">null</span>;
-  isAuthenticated: <span style="color:#c678dd">boolean</span>;
-  loading: <span style="color:#c678dd">boolean</span>;
-  login: (email: <span style="color:#c678dd">string</span>, password: <span style="color:#c678dd">string</span>) =&gt; Promise&lt;<span style="color:#c678dd">void</span>&gt;;
-  logout: () =&gt; <span style="color:#c678dd">void</span>;
+type User = &#123; id: string; name: string; role: string &#125;;
+type AuthState = &#123;
+  user: User | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  login: (email: string, password: string) =&gt; Promise&lt;void&gt;;
+  logout: () =&gt; void;
 &#125;;
 
-<span style="color:#c678dd">const</span> AuthContext = <span style="color:#61afef">createContext</span>&lt;<span style="color:#61afef">AuthState</span> | <span style="color:#c678dd">null</span>&gt;(<span style="color:#c678dd">null</span>);
+const AuthContext = createContext&lt;AuthState | null&gt;(null);
 
-<span style="color:#c678dd">export function</span> <span style="color:#61afef">AuthProvider</span>(&#123; children &#125;: &#123; children: ReactNode &#125;) &#123;
-  <span style="color:#c678dd">const</span> [user, setUser] = <span style="color:#61afef">useState</span>&lt;<span style="color:#61afef">User</span> | <span style="color:#c678dd">null</span>&gt;(<span style="color:#c678dd">null</span>);
-  <span style="color:#c678dd">const</span> [loading, setLoading] = <span style="color:#61afef">useState</span>(<span style="color:#d19a66">true</span>);
+export function AuthProvider(&#123; children &#125;: &#123; children: ReactNode &#125;) &#123;
+  const [user, setUser] = useState&lt;User | null&gt;(null);
+  const [loading, setLoading] = useState(true);
 
-  <span style="color:#7f8488">// Check token on mount</span>
-  <span style="color:#61afef">useEffect</span>(() =&gt; &#123;
-    <span style="color:#c678dd">const</span> token = localStorage.<span style="color:#61afef">getItem</span>(<span style="color:#98c379">"token"</span>);
-    <span style="color:#c678dd">if</span> (token) &#123;
-      authApi.<span style="color:#61afef">me</span>(token).then(<span style="color:#e06c75">u</span> =&gt; <span style="color:#61afef">setUser</span>(<span style="color:#e06c75">u</span>)).<span style="color:#61afef">finally</span>(() =&gt; <span style="color:#61afef">setLoading</span>(<span style="color:#d19a66">false</span>));
-    &#125; <span style="color:#c678dd">else</span> &#123;
-      <span style="color:#61afef">setLoading</span>(<span style="color:#d19a66">false</span>);
+  // Check token on mount
+  useEffect(() =&gt; &#123;
+    const token = localStorage.getItem("token");
+    if (token) &#123;
+      authApi.me(token).then(u =&gt; setUser(u)).finally(() =&gt; setLoading(false));
+    &#125; else &#123;
+      setLoading(false);
     &#125;
   &#125;, []);
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">login</span> = <span style="color:#c678dd">async</span> (email: <span style="color:#c678dd">string</span>, password: <span style="color:#c678dd">string</span>) =&gt; &#123;
-    <span style="color:#c678dd">const</span> &#123; token, user &#125; = <span style="color:#c678dd">await</span> authApi.<span style="color:#61afef">login</span>(email, password);
-    localStorage.<span style="color:#61afef">setItem</span>(<span style="color:#98c379">"token"</span>, token);
-    <span style="color:#61afef">setUser</span>(user);
+  const login = async (email: string, password: string) =&gt; &#123;
+    const &#123; token, user &#125; = await authApi.login(email, password);
+    localStorage.setItem("token", token);
+    setUser(user);
   &#125;;
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">logout</span> = () =&gt; &#123;
-    localStorage.<span style="color:#61afef">removeItem</span>(<span style="color:#98c379">"token"</span>);
-    <span style="color:#61afef">setUser</span>(<span style="color:#c678dd">null</span>);
+  const logout = () =&gt; &#123;
+    localStorage.removeItem("token");
+    setUser(null);
   &#125;;
 
-  <span style="color:#c678dd">return</span> (
+  return (
     &lt;AuthContext.Provider value=&#123;&#123;
       user, isAuthenticated: !!user, loading, login, logout
     &#125;&#125;&gt;
@@ -474,58 +514,54 @@
   );
 &#125;
 
-<span style="color:#c678dd">export const</span> <span style="color:#61afef">useAuth</span> = () =&gt; &#123;
-  <span style="color:#c678dd">const</span> ctx = <span style="color:#61afef">useContext</span>(AuthContext);
-  <span style="color:#c678dd">if</span> (!ctx) <span style="color:#c678dd">throw new</span> <span style="color:#61afef">Error</span>(<span style="color:#98c379">"useAuth must be inside AuthProvider"</span>);
-  <span style="color:#c678dd">return</span> ctx;
+export const useAuth = () =&gt; &#123;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be inside AuthProvider");
+  return ctx;
 &#125;;</pre>
-    </div>
 </section>
 
 <section class="slide">
     <h2>useAuth hook — використання</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// LoginPage.tsx</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">LoginPage</span>() &#123;
-  <span style="color:#c678dd">const</span> &#123; login &#125; = <span style="color:#61afef">useAuth</span>();
-  <span style="color:#c678dd">const</span> navigate = <span style="color:#61afef">useNavigate</span>();
-  <span style="color:#c678dd">const</span> location = <span style="color:#61afef">useLocation</span>();
-  <span style="color:#c678dd">const</span> [error, setError] = <span style="color:#61afef">useState</span>(<span style="color:#c678dd">null</span>);
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// LoginPage.tsx
+function LoginPage() &#123;
+  const &#123; login &#125; = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [error, setError] = useState(null);
 
-  <span style="color:#c678dd">const</span> from = location.state?.from?.pathname
-    || <span style="color:#98c379">"/dashboard"</span>;
+  const from = location.state?.from?.pathname
+    || "/dashboard";
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleSubmit</span> = <span style="color:#c678dd">async</span> (data) =&gt; &#123;
-    <span style="color:#c678dd">try</span> &#123;
-      <span style="color:#c678dd">await</span> <span style="color:#61afef">login</span>(data.email, data.password);
-      <span style="color:#61afef">navigate</span>(from, &#123; replace: <span style="color:#d19a66">true</span> &#125;);
-    &#125; <span style="color:#c678dd">catch</span> (e) &#123;
-      <span style="color:#61afef">setError</span>(<span style="color:#98c379">"Invalid credentials"</span>);
+  const handleSubmit = async (data) =&gt; &#123;
+    try &#123;
+      await login(data.email, data.password);
+      navigate(from, &#123; replace: true &#125;);
+    &#125; catch (e) &#123;
+      setError("Invalid credentials");
     &#125;
   &#125;;
 
-  <span style="color:#c678dd">return</span> (
+  return (
     &lt;LoginForm
       onSubmit=&#123;handleSubmit&#125;
       error=&#123;error&#125;
     /&gt;
   );
 &#125;</pre>
-        </div>
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// Navbar.tsx — показ залежно від auth</span>
-<span style="color:#c678dd">function</span> <span style="color:#61afef">Navbar</span>() &#123;
-  <span style="color:#c678dd">const</span> &#123; user, isAuthenticated, logout &#125; =
-    <span style="color:#61afef">useAuth</span>();
-  <span style="color:#c678dd">const</span> navigate = <span style="color:#61afef">useNavigate</span>();
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Navbar.tsx — показ залежно від auth
+function Navbar() &#123;
+  const &#123; user, isAuthenticated, logout &#125; =
+    useAuth();
+  const navigate = useNavigate();
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleLogout</span> = () =&gt; &#123;
-    <span style="color:#61afef">logout</span>();
-    <span style="color:#61afef">navigate</span>(<span style="color:#98c379">"/login"</span>);
+  const handleLogout = () =&gt; &#123;
+    logout();
+    navigate("/login");
   &#125;;
 
-  <span style="color:#c678dd">return</span> (
+  return (
     &lt;nav&gt;
       &#123;isAuthenticated ? (
         &lt;&gt;
@@ -535,12 +571,11 @@
           &lt;/button&gt;
         &lt;/&gt;
       ) : (
-        &lt;Link to=<span style="color:#98c379">"/login"</span>&gt;Login&lt;/Link&gt;
+        &lt;Link to="/login"&gt;Login&lt;/Link&gt;
       )&#125;
     &lt;/nav&gt;
   );
 &#125;</pre>
-        </div>
     </div>
 </section>
 
@@ -584,35 +619,33 @@
 
 <section class="slide">
     <h2>Axios interceptor — додаємо token</h2>
-    <div style="font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// api/client.ts</span>
-<span style="color:#c678dd">import</span> axios <span style="color:#c678dd">from</span> <span style="color:#98c379">"axios"</span>;
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">// api/client.ts
+import axios from "axios";
 
-<span style="color:#c678dd">export const</span> apiClient = axios.<span style="color:#61afef">create</span>(&#123;
-  baseURL: <span style="color:#98c379">"https://api.example.com"</span>,
+export const apiClient = axios.create(&#123;
+  baseURL: "https://api.example.com",
 &#125;);
 
-<span style="color:#7f8488">// Request interceptor — додаємо Authorization header</span>
-apiClient.interceptors.request.<span style="color:#61afef">use</span>((config) =&gt; &#123;
-  <span style="color:#c678dd">const</span> token = localStorage.<span style="color:#61afef">getItem</span>(<span style="color:#98c379">"token"</span>);
-  <span style="color:#c678dd">if</span> (token) &#123;
-    config.headers.Authorization = <span style="color:#98c379">`Bearer ${token}`</span>;
+// Request interceptor — додаємо Authorization header
+apiClient.interceptors.request.use((config) =&gt; &#123;
+  const token = localStorage.getItem("token");
+  if (token) &#123;
+    config.headers.Authorization = `Bearer ${token}`;
   &#125;
-  <span style="color:#c678dd">return</span> config;
+  return config;
 &#125;);
 
-<span style="color:#7f8488">// Response interceptor — 401 &#8594; logout + redirect</span>
-apiClient.interceptors.response.<span style="color:#61afef">use</span>(
+// Response interceptor — 401 &#8594; logout + redirect
+apiClient.interceptors.response.use(
   (response) =&gt; response,
   (error) =&gt; &#123;
-    <span style="color:#c678dd">if</span> (error.response?.status === <span style="color:#98c379">401</span>) &#123;
-      localStorage.<span style="color:#61afef">removeItem</span>(<span style="color:#98c379">"token"</span>);
-      window.location.href = <span style="color:#98c379">"/login"</span>;
+    if (error.response?.status === 401) &#123;
+      localStorage.removeItem("token");
+      window.location.href = "/login";
     &#125;
-    <span style="color:#c678dd">return</span> Promise.<span style="color:#61afef">reject</span>(error);
+    return Promise.reject(error);
   &#125;
 );</pre>
-    </div>
     <p style="font-size: 17px; margin-top: 10px;">
         Усі API-запити автоматично отримують <code>Authorization: Bearer &lt;token&gt;</code>.
         При 401 (token expired/invalid) — автоматичний logout + redirect на /login.
@@ -627,66 +660,62 @@ apiClient.interceptors.response.<span style="color:#61afef">use</span>(
 <section class="slide">
     <h2>ProtectedRoute — з AuthContext</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// components/ProtectedRoute.tsx</span>
-<span style="color:#c678dd">import</span> &#123; Navigate, useLocation &#125;
-  <span style="color:#c678dd">from</span> <span style="color:#98c379">"react-router-dom"</span>;
-<span style="color:#c678dd">import</span> &#123; useAuth &#125; <span style="color:#c678dd">from</span> <span style="color:#98c379">"../context/AuthContext"</span>;
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// components/ProtectedRoute.tsx
+import &#123; Navigate, useLocation &#125;
+  from "react-router-dom";
+import &#123; useAuth &#125; from "../context/AuthContext";
 
-<span style="color:#c678dd">export function</span> <span style="color:#61afef">ProtectedRoute</span>(&#123;
+export function ProtectedRoute(&#123;
   children, roles = []
 &#125;: &#123;
   children: ReactNode;
-  roles?: <span style="color:#c678dd">string</span>[];
+  roles?: string[];
 &#125;) &#123;
-  <span style="color:#c678dd">const</span> &#123; user, isAuthenticated, loading &#125; =
-    <span style="color:#61afef">useAuth</span>();
-  <span style="color:#c678dd">const</span> location = <span style="color:#61afef">useLocation</span>();
+  const &#123; user, isAuthenticated, loading &#125; =
+    useAuth();
+  const location = useLocation();
 
-  <span style="color:#7f8488">// Auth check in progress</span>
-  <span style="color:#c678dd">if</span> (loading) <span style="color:#c678dd">return</span> &lt;FullScreenLoader /&gt;;
+  // Auth check in progress
+  if (loading) return &lt;FullScreenLoader /&gt;;
 
-  <span style="color:#c678dd">if</span> (!isAuthenticated)
-    <span style="color:#c678dd">return</span> &lt;Navigate to=<span style="color:#98c379">"/login"</span>
+  if (!isAuthenticated)
+    return &lt;Navigate to="/login"
       state=&#123; from: location &#125; replace /&gt;;
 
-  <span style="color:#7f8488">// Role check</span>
-  <span style="color:#c678dd">if</span> (roles.length &gt; <span style="color:#98c379">0</span> &amp;&amp;
+  // Role check
+  if (roles.length &gt; 0 &amp;&amp;
       !roles.includes(user!.role))
-    <span style="color:#c678dd">return</span> &lt;Navigate to=<span style="color:#98c379">"/forbidden"</span> replace /&gt;;
+    return &lt;Navigate to="/forbidden" replace /&gt;;
 
-  <span style="color:#c678dd">return</span> &lt;&gt;&#123;children&#125;&lt;/&gt;;
+  return &lt;&gt;&#123;children&#125;&lt;/&gt;;
 &#125;</pre>
-        </div>
-        <div style="flex: 1; font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// App.tsx — структура з AuthProvider</span>
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// App.tsx — структура з AuthProvider
 &lt;AuthProvider&gt;
   &lt;BrowserRouter&gt;
     &lt;Routes&gt;
-      &lt;Route path=<span style="color:#98c379">"/login"</span>
+      &lt;Route path="/login"
         element=&#123;&lt;LoginPage /&gt;&#125; /&gt;
 
-      &lt;Route path=<span style="color:#98c379">"/dashboard"</span> element=&#123;
-        <span style="color:#d19a66">&lt;ProtectedRoute&gt;</span>
+      &lt;Route path="/dashboard" element=&#123;
+        &lt;ProtectedRoute&gt;
           &lt;DashboardLayout /&gt;
-        <span style="color:#d19a66">&lt;/ProtectedRoute&gt;</span>
+        &lt;/ProtectedRoute&gt;
       &#125;&gt;
         &lt;Route index
           element=&#123;&lt;DashboardHome /&gt;&#125; /&gt;
-        &lt;Route path=<span style="color:#98c379">"users"</span>
+        &lt;Route path="users"
           element=&#123;&lt;UserList /&gt;&#125; /&gt;
       &lt;/Route&gt;
 
-      &lt;Route path=<span style="color:#98c379">"/admin"</span> element=&#123;
-        <span style="color:#d19a66">&lt;ProtectedRoute</span>
-          <span style="color:#d19a66">roles</span>=&#123;[<span style="color:#98c379">"admin"</span>]&#125;<span style="color:#d19a66">&gt;</span>
+      &lt;Route path="/admin" element=&#123;
+        &lt;ProtectedRoute
+          roles=&#123;["admin"]&#125;&gt;
           &lt;AdminPanel /&gt;
-        <span style="color:#d19a66">&lt;/ProtectedRoute&gt;</span>
+        &lt;/ProtectedRoute&gt;
       &#125; /&gt;
     &lt;/Routes&gt;
   &lt;/BrowserRouter&gt;
 &lt;/AuthProvider&gt;</pre>
-        </div>
     </div>
     <p style="font-size: 17px; margin-top: 10px;">
         <b>loading</b> стан — поки AuthContext перевіряє token при завантаженні сторінки.
@@ -701,48 +730,46 @@ apiClient.interceptors.response.<span style="color:#61afef">use</span>(
 
 <section class="slide">
     <h2>Token Refresh — реалізація interceptor</h2>
-    <div style="font-size: 12px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#7f8488">// api/client.ts — refresh logic</span>
-<span style="color:#c678dd">let</span> isRefreshing = <span style="color:#d19a66">false</span>;
-<span style="color:#c678dd">let</span> failedQueue: (() =&gt; <span style="color:#c678dd">void</span>)[] = [];
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">// api/client.ts — refresh logic
+let isRefreshing = false;
+let failedQueue: (() =&gt; void)[] = [];
 
-apiClient.interceptors.response.<span style="color:#61afef">use</span>(
+apiClient.interceptors.response.use(
   (response) =&gt; response,
-  <span style="color:#c678dd">async</span> (error) =&gt; &#123;
-    <span style="color:#c678dd">const</span> originalRequest = error.config;
+  async (error) =&gt; &#123;
+    const originalRequest = error.config;
 
-    <span style="color:#7f8488">// 401 &#8594; try refresh once</span>
-    <span style="color:#c678dd">if</span> (error.response?.status === <span style="color:#98c379">401</span> &amp;&amp; !originalRequest._retry) &#123;
-      <span style="color:#c678dd">if</span> (isRefreshing) &#123;
-        <span style="color:#7f8488">// Queue until refresh done</span>
-        <span style="color:#c678dd">return new</span> <span style="color:#61afef">Promise</span>(<span style="color:#e06c75">resolve</span> =&gt; &#123;
-          failedQueue.<span style="color:#61afef">push</span>(() =&gt; <span style="color:#61afef">resolve</span>(apiClient(originalRequest)));
+    // 401 &#8594; try refresh once
+    if (error.response?.status === 401 &amp;&amp; !originalRequest._retry) &#123;
+      if (isRefreshing) &#123;
+        // Queue until refresh done
+        return new Promise(resolve =&gt; &#123;
+          failedQueue.push(() =&gt; resolve(apiClient(originalRequest)));
         &#125;);
       &#125;
 
-      originalRequest._retry = <span style="color:#d19a66">true</span>;
-      isRefreshing = <span style="color:#d19a66">true</span>;
+      originalRequest._retry = true;
+      isRefreshing = true;
 
-      <span style="color:#c678dd">try</span> &#123;
-        <span style="color:#c678dd">const</span> &#123; token &#125; = <span style="color:#c678dd">await</span> authApi.<span style="color:#61afef">refresh</span>();
-        localStorage.<span style="color:#61afef">setItem</span>(<span style="color:#98c379">"token"</span>, token);
-        failedQueue.<span style="color:#61afef">forEach</span>(<span style="color:#e06c75">cb</span> =&gt; <span style="color:#e06c75">cb</span>());
+      try &#123;
+        const &#123; token &#125; = await authApi.refresh();
+        localStorage.setItem("token", token);
+        failedQueue.forEach(cb =&gt; cb());
         failedQueue = [];
-        <span style="color:#c678dd">return</span> apiClient(originalRequest);
-      &#125; <span style="color:#c678dd">catch</span> &#123;
-        <span style="color:#7f8488">// refresh failed &#8594; logout</span>
-        localStorage.<span style="color:#61afef">removeItem</span>(<span style="color:#98c379">"token"</span>);
-        window.location.href = <span style="color:#98c379">"/login"</span>;
-        <span style="color:#c678dd">return</span> Promise.<span style="color:#61afef">reject</span>(error);
-      &#125; <span style="color:#c678dd">finally</span> &#123;
-        isRefreshing = <span style="color:#d19a66">false</span>;
+        return apiClient(originalRequest);
+      &#125; catch &#123;
+        // refresh failed &#8594; logout
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+        return Promise.reject(error);
+      &#125; finally &#123;
+        isRefreshing = false;
       &#125;
     &#125;
 
-    <span style="color:#c678dd">return</span> Promise.<span style="color:#61afef">reject</span>(error);
+    return Promise.reject(error);
   &#125;
 );</pre>
-    </div>
 </section>
 
 <section class="slide">
@@ -766,34 +793,32 @@ apiClient.interceptors.response.<span style="color:#61afef">use</span>(
 <section class="slide">
     <h2>Registration flow — реєстрація</h2>
     <div style="display: flex; gap: 20px;">
-        <div style="flex: 1; font-size: 13px; background: #1e1e2e; color: #ccc; padding: 15px; border-radius: 8px; font-family: monospace; line-height: 1.5;">
-<pre style="margin:0;"><span style="color:#c678dd">function</span> <span style="color:#61afef">RegisterPage</span>() &#123;
-  <span style="color:#c678dd">const</span> &#123; login &#125; = <span style="color:#61afef">useAuth</span>();
-  <span style="color:#c678dd">const</span> navigate = <span style="color:#61afef">useNavigate</span>();
-  <span style="color:#c678dd">const</span> [serverError, setServerError] =
-    <span style="color:#61afef">useState</span>(<span style="color:#c678dd">null</span>);
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function RegisterPage() &#123;
+  const &#123; login &#125; = useAuth();
+  const navigate = useNavigate();
+  const [serverError, setServerError] =
+    useState(null);
 
-  <span style="color:#c678dd">const</span> <span style="color:#61afef">handleSubmit</span> = <span style="color:#c678dd">async</span> (data) =&gt; &#123;
-    <span style="color:#c678dd">try</span> &#123;
-      <span style="color:#7f8488">// 1. Register</span>
-      <span style="color:#c678dd">const</span> &#123; token, user &#125; =
-        <span style="color:#c678dd">await</span> authApi.<span style="color:#61afef">register</span>(data);
-      <span style="color:#7f8488">// 2. Auto-login</span>
-      localStorage.<span style="color:#61afef">setItem</span>(<span style="color:#98c379">"token"</span>, token);
-      <span style="color:#61afef">login</span>(data.email, data.password);
-      <span style="color:#7f8488">// 3. Redirect</span>
-      <span style="color:#61afef">navigate</span>(<span style="color:#98c379">"/dashboard"</span>);
-    &#125; <span style="color:#c678dd">catch</span> (e) &#123;
-      <span style="color:#61afef">setServerError</span>(e.response?.data?.message
-        || <span style="color:#98c379">"Registration failed"</span>);
+  const handleSubmit = async (data) =&gt; &#123;
+    try &#123;
+      // 1. Register
+      const &#123; token, user &#125; =
+        await authApi.register(data);
+      // 2. Auto-login
+      localStorage.setItem("token", token);
+      login(data.email, data.password);
+      // 3. Redirect
+      navigate("/dashboard");
+    &#125; catch (e) &#123;
+      setServerError(e.response?.data?.message
+        || "Registration failed");
     &#125;
   &#125;;
 
-  <span style="color:#c678dd">return</span> &lt;RegisterForm
+  return &lt;RegisterForm
     onSubmit=&#123;handleSubmit&#125;
     serverError=&#123;serverError&#125; /&gt;;
 &#125;</pre>
-        </div>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Registration кроки:</b></p>
             <ol>

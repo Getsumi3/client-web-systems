@@ -209,7 +209,7 @@
 
 <section class="slide">
     <h2>JSX &#8651; React.createElement</h2>
-<pre style="margin: 0; font-size: 13px; white-space: pre;">// JSX (описуємо UI)
+<pre style="margin: 0; font-size: 12px; white-space: pre;">// JSX (описуємо UI)
 const el = (
   &lt;div className="card"&gt;
     &lt;h1&gt;Hello&lt;/h1&gt;
@@ -232,7 +232,7 @@ const el = React.createElement(
 <section class="slide">
     <h2>JSX — приклад компонента</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">function Welcome(props) {
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">function Welcome(props) {
   return (
     &lt;div className="greeting"&gt;
       &lt;h1&gt;Hello, {props.name}!&lt;/h1&gt;
@@ -240,7 +240,7 @@ const el = React.createElement(
     &lt;/div&gt;
   );
 }</pre>
-        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">// TSX з типами
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// TSX з типами
 function Welcome(props: {
   name: string;
 }) {
@@ -263,7 +263,7 @@ function Welcome(props: {
 <section class="slide">
     <h2>JSX — умовний рендеринг та списки</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">// Умовний рендеринг
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Умовний рендеринг
 function Greeting(props) {
   return (
     &lt;div&gt;
@@ -273,7 +273,7 @@ function Greeting(props) {
     &lt;/div&gt;
   );
 }</pre>
-        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">// Рендеринг списків
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Рендеринг списків
 function ItemList(props) {
   return (
     &lt;ul&gt;
@@ -326,7 +326,7 @@ function ItemList(props) {
 
 <section class="slide">
     <h2>Props — приклад</h2>
-    <pre style="margin: 0; font-size: 13px; white-space: pre;">// Батьківський компонент
+    <pre style="margin: 0; font-size: 12px; white-space: pre;">// Батьківський компонент
 function App() {
   const [name, setName] = useState("Anna");
 
@@ -372,7 +372,7 @@ function Profile(props: { name: string; age: number }) {
 <section class="slide">
     <h2>useState — приклад</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">import { useState } from "react";
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import { useState } from "react";
 
 function Counter() {
   const [count, setCount] =
@@ -547,7 +547,7 @@ function Counter() {
 <section class="slide">
     <h2>Батчинг оновлень (Batching)</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">// Без батчингу — 2 re-render
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// Без батчингу — 2 re-render
 function Bad() {
   const [a, setA] = useState(0);
   const [b, setB] = useState(0);
@@ -557,7 +557,7 @@ function Bad() {
     setB(1); // re-render 2
   };
 }</pre>
-        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">// З батчингом — 1 re-render
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">// З батчингом — 1 re-render
 function Good() {
   const [a, setA] = useState(0);
   const [b, setB] = useState(0);
@@ -622,7 +622,7 @@ function Good() {
 <section class="slide">
     <h2>Структура React-застосунку (Vite)</h2>
     <div style="display: flex; gap: 30px;">
-        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">
 my-app/
 ├── src/
 │   ├── components/
@@ -654,7 +654,7 @@ my-app/
 <section class="slide">
     <h2>Життєвий цикл компонента (Hooks)</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 13px; white-space: pre;">import { useState, useEffect } from "react";
+        <pre style="flex: 1; margin: 0; font-size: 12px; white-space: pre;">import { useState, useEffect } from "react";
 
 function DataFetcher() {
   const [data, setData] =
