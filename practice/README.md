@@ -7,6 +7,10 @@
 - [**Лабораторна робота №3.** Vue.js: Основи роботи з компонентами. Шаблони. Директиви](lab-03)
 - [**Лабораторна робота №4.** Vue.js: Обчислювані властивості, обробка подій, прив'язування елементів форми, props, watchers](lab-04)
 - [**Лабораторна робота №8.** React Fundamentals: компоненти, JSX, props, стан, події та списки](lab-08)
+- [**Лабораторна робота №9.** React State та Effects: Context API, useReducer, useEffect і Custom Hooks](lab-09)
+- [**Лабораторна робота №10.** React та REST API: асинхронні операції, loading/error/empty states та CRUD](lab-10)
+- [**Лабораторна робота №11.** React Router, форми, валідація та автентифікація](lab-11)
+- [**Лабораторна робота №12.** Підсумковий mini-project: server state та client state](lab-12)
 
 
 
