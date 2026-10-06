@@ -2,8 +2,10 @@
 
 ## Список лекцій
 
-- [**Лекція 1.** Строга типізація у вебі: екосистема мови TypeScript.](lecture-01.html)
+- [**Лекція 1.** Строга типізація у вебі, екосистема мови TypeScript](lecture-01.html)
 - [**Лекція 2.** Знайомство з фреймворком Vue.js](lecture-02.html)
+- [**Лекція 3.** Vue.js: Основи роботи з компонентами. Шаблони. Директиви](lecture-03.html)
+- [**Лекція 4.** Vue.js: Options API vs Composition API. Основи реактивності](lecture-04.html)
 - 
 - 
 - [**Лекція 8.** React Fundamentals та ментальна модель React](lecture-08.html)
