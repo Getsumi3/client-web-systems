@@ -19,6 +19,8 @@
 . Використати `useEffect` для роботи з побічним ефектом.
 . Реалізувати збереження даних у `localStorage`.
 . Винести повторно використовувану логіку в Custom Hook.
+. Для стилізації використати один із підходів: SCSS із дотриманням BEM, Bootstrap або Tailwind CSS.
+. Якщо обрано SCSS, дотримуватися BEM-патерну для класів.
 . Дотримуватися ESLint та єдиного стилю коду.
 . Код повинен бути розміщений в особистому GitHub репозиторії студента.
 . Дотримуватися Conventional Commits.
@@ -33,6 +35,18 @@
 . https://react.dev/learn/scaling-up-with-reducer-and-context[Scaling Up with Reducer and Context].
 . https://react.dev/learn/synchronizing-with-effects[Synchronizing with Effects].
 . https://react.dev/learn/reusing-logic-with-custom-hooks[Reusing Logic with Custom Hooks].
+
+== Стилізація та BEM
+
+Для стилізації обрати один із трьох підходів:
+
+. **SCSS + BEM** — власні стилі з класами за схемою Block__Element--Modifier;
+. **Bootstrap** — готові utility та component класи;
+. **Tailwind CSS** — utility-first класи.
+
+Не потрібно поєднувати всі три підходи одночасно.
+
+Якщо обрано **SCSS + BEM**, стилі повинні бути організовані послідовно, а класи — відповідати BEM.
 
 == Практична частина
 
