@@ -127,6 +127,8 @@ src/
     └── taskRepository.ts
 ----
 
+Repository використовується тут як навчальний приклад separation of concerns. Не потрібно будувати універсальну generic repository architecture для всього застосунку.
+
 Repository повинен надавати методи приблизно такого вигляду:
 
 [source,typescript]
