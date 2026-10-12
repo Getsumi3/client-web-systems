@@ -159,22 +159,46 @@ feat(lab-11): add routing and protected auth
 Створити `AuthContext`, який зберігатиме щонайменше:
 
 * поточного користувача;
-* token або ознаку активної сесії;
+* `accessToken` або ознаку активної сесії;
 * `isAuthenticated`;
 * `login`;
 * `logout`.
 
-Для навчальної роботи дозволено використати навчальний API з login endpoint.
-Якщо обраний API не надає реальної авторизації, дозволено змоделювати token та успішний login локально.
+Для рекомендованого DummyJSON використовувати реальний authentication flow:
 
-Не потрібно реалізовувати повноцінний refresh-token механізм у базовій частині.
+[source,http]
+----
+POST https://dummyjson.com/auth/login
+----
 
-Базова частина лабораторної перевіряє login/logout, Auth Context, protected route та concept token. Повноцінний production authentication flow із refresh token, rotation, registration та складною permission model належить до додаткових завдань.
+Тіло запиту:
 
+[source,json]
+----
+{
+  "username": "emilys",
+  "password": "emilyspass"
+}
+----
+
+DummyJSON повертає `accessToken` і `refreshToken`.
+
+Для отримання поточного користувача:
+
+[source,http]
+----
+GET https://dummyjson.com/auth/me
+Authorization: Bearer <accessToken>
+----
+
+Для базової частини достатньо login, logout, Auth Context та protected route.
+Refresh token flow належить до додаткових завдань.
+
+Для альтернативного API студент адаптує API client/repository до його контракту.
 
 ==== API, що використовується в роботі
 
-Рекомендований DummyJSON надає готовий authentication flow:
+Рекомендований DummyJSON надає:
 
 [cols="1,2,3",options="header"]
 |===
@@ -186,7 +210,6 @@ feat(lab-11): add routing and protected auth
 |===
 
 Тестові облікові дані для базової роботи: `emilys` / `emilyspass`.
-
 Не потрібно зберігати реальні персональні дані або секрети в репозиторії.
 === 7. Protected Route
 
