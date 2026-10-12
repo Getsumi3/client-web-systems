@@ -167,6 +167,8 @@ feat(lab-11): add routing and protected auth
 
 Не потрібно реалізовувати повноцінний refresh-token механізм у базовій частині.
 
+Базова частина лабораторної перевіряє login/logout, Auth Context, protected route та concept token. Повноцінний production authentication flow із refresh token, rotation, registration та складною permission model належить до додаткових завдань.
+
 === 7. Protected Route
 
 Маршрут `/profile` зробити доступним лише авторизованому користувачу.
