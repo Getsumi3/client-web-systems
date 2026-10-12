@@ -34,6 +34,7 @@
 . https://axios-http.com/docs/intro[Axios].
 . Матеріали лекції щодо React + REST API, asynchronous state та CRUD.
 . Поняття Repository Pattern та separation of concerns.
+. https://dummyjson.com/docs/todos[DummyJSON Todos].
 
 == Практична частина
 
