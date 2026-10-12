@@ -18,7 +18,7 @@
 . Реалізувати схему валідації за допомогою Zod.
 . Реалізувати Auth Context.
 . Реалізувати login, logout та protected route.
-. Під час авторизованих API-запитів передавати token через `Authorization: Bearer <token>`, коли це підтримує обраний API.
+. Під час авторизованих API-запитів передавати token через `Authorization: Bearer <token>`. Для рекомендованого DummyJSON це обов'язково для `/auth/me`.
 . Не використовувати `alert`.
 . Для стилізації використати один із підходів: SCSS із дотриманням BEM, Bootstrap або Tailwind CSS.
 . Якщо обрано SCSS, дотримуватися BEM-патерну для класів.
@@ -136,16 +136,16 @@ feat(lab-11): add routing and protected auth
 
 Створити сторінку `Login`.
 
-Поля:
+Для рекомендованого DummyJSON використовувати поля:
 
-* email;
+* username;
 * password.
 
 Використати React Hook Form та Zod.
 
 Мінімальна схема:
 
-* email — обов'язковий та коректного формату;
+* username — обов'язковий;
 * password — обов'язковий, мінімум 6 символів.
 
 Помилки повинні показуватися біля відповідних полів.
@@ -169,6 +169,23 @@ feat(lab-11): add routing and protected auth
 
 Базова частина лабораторної перевіряє login/logout, Auth Context, protected route та concept token. Повноцінний production authentication flow із refresh token, rotation, registration та складною permission model належить до додаткових завдань.
 
+
+==== API, що використовується в роботі
+
+Рекомендований DummyJSON надає готовий authentication flow:
+
+[cols="1,2,3",options="header"]
+|===
+|Метод |Endpoint |Призначення
+
+|POST |`/auth/login` |логін та отримання `accessToken` і `refreshToken`;
+|GET |`/auth/me` |отримання поточного авторизованого користувача;
+|POST |`/auth/refresh` |оновлення токенів.
+|===
+
+Тестові облікові дані для базової роботи: `emilys` / `emilyspass`.
+
+Не потрібно зберігати реальні персональні дані або секрети в репозиторії.
 === 7. Protected Route
 
 Маршрут `/profile` зробити доступним лише авторизованому користувачу.
@@ -192,7 +209,7 @@ Authorization: Bearer <token>
 
 На `/profile` показати:
 
-* email або ідентифікатор користувача;
+* username або email користувача;
 * статус авторизації;
 * кнопку Logout.
 
