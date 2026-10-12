@@ -25,6 +25,8 @@
 . Дотримуватися ESLint, TypeScript та Conventional Commits.
 
 == Теоретична частина
+. https://dummyjson.com/docs/auth[DummyJSON Auth].
+. https://dummyjson.com/docs/users[DummyJSON Users].
 
 Опрацювати:
 
