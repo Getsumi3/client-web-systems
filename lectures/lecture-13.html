@@ -298,36 +298,41 @@ function ProductList() &#123;
 </section>
 
 <section class="slide">
-    <h2>Nested Routes — приклад коду</h2>
-    <pre style="margin: 0; font-size: 10px; white-space: pre;">// Layout-компонент з Outlet — місце для дочірніх маршрутів
-function Layout() &#123;
-  return (
-    &lt;div&gt;
-      &lt;Header /&gt;          // спільний для всіх дочірніх сторінок
-      &lt;Nav /&gt;             // спільна навігація
-      &lt;main&gt;
-        &lt;Outlet /&gt;        // тут рендериться активний дочірній маршрут
-      &lt;/main&gt;
-      &lt;Footer /&gt;          // спільний футер
-    &lt;/div&gt;
-  );
-&#125;
-
-// Конфігурація з вкладеними маршрутами
-&lt;Routes&gt;
-  &lt;Route path="/" element=&#123;&lt;Layout /&gt;&#125;&gt;
-    &lt;Route index element=&#123;&lt;Home /&gt;&#125; /&gt;          // index — дефолтна сторінка ("/")
-    &lt;Route path="users" element=&#123;&lt;UserList /&gt;&#125; /&gt;
-    &lt;Route path="users/:id" element=&#123;&lt;UserDetail /&gt;&#125; /&gt;
-    &lt;Route path="settings" element=&#123;&lt;Settings /&gt;&#125; /&gt;
+    <h2>Nested Routes — Declarative та Data mode</h2>
+    <div style="display: flex; gap: 16px;">
+        <div style="flex: 1;">
+            <p style="font-size: 15px;"><b>Declarative mode</b> — дерево маршрутів описуємо через JSX.</p>
+            <pre style="margin: 0; font-size: 8px; white-space: pre;">&lt;Routes&gt;
+  &lt;Route path="/dashboard" element=&#123;&lt;Dashboard /&gt;&#125;&gt;
+    &lt;Route index element=&#123;&lt;DashboardHome /&gt;&#125; /&gt;
+    &lt;Route path="settings"
+      element=&#123;&lt;Settings /&gt;&#125; /&gt;
+    &lt;Route path="profile"
+      element=&#123;&lt;Profile /&gt;&#125; /&gt;
   &lt;/Route&gt;
-  &lt;Route path="/login" element=&#123;&lt;Login /&gt;&#125; /&gt;  // без Layout
-  &lt;Route path="*" element=&#123;&lt;NotFound /&gt;&#125; /&gt;
 &lt;/Routes&gt;</pre>
-    <p style="font-size: 17px; margin-top: 10px;">
-        <b>Outlet</b> — «слот» куди вставляється активний дочірній маршрут.
-        <b>index</b> — сторінка за замовчуванням для батьківського шляху.
-        Layout залишається частиною route hierarchy, поки його маршрут активний.
+        </div>
+        <div style="flex: 1;">
+            <p style="font-size: 15px;"><b>Data mode</b> — те саме дерево задаємо як route objects.</p>
+            <pre style="margin: 0; font-size: 8px; white-space: pre;">const router = createBrowserRouter([
+  &#123;
+    path: "/dashboard",
+    Component: Dashboard,
+    children: [
+      &#123; index: true, Component: DashboardHome &#125;,
+      &#123; path: "settings", Component: Settings &#125;,
+      &#123; path: "profile", Component: Profile &#125;
+    ]
+  &#125;
+]);
+
+&lt;RouterProvider router=&#123;router&#125; /&gt;</pre>
+        </div>
+    </div>
+    <p style="font-size: 16px; margin-top: 10px;">
+        В обох підходах дочірній маршрут рендериться через <code>&lt;Outlet /&gt;</code> у батьківському компоненті.
+        У <b>Data mode</b> до маршруту можна додати <code>loader</code>, <code>action</code>,
+        стани навігації та інші Data APIs.
     </p>
 </section>
 
