@@ -1168,7 +1168,9 @@ export default withAuth(DashboardPage);</pre>
         <li><b>Route params</b> (<code>:id</code>) + <b>query params</b> (<code>?page=2</code>) — URL як джерело правди.</li>
         <li><b>Nested routes</b> + <code>&lt;Outlet&gt;</code> — спільні layouts, ієрархія UI.</li>
         <li><b>Protected routes</b> — Declarative: <code>&lt;ProtectedRoute&gt;</code>; Data: route <code>loader</code> + <code>redirect</code>.</li>
-        <li><b>Lazy loading</b> — <code>React.lazy</code> + <code>Suspense</code> для code splitting per route.</li>
+        <li><b>Lazy loading</b> — Declarative: <code>React.lazy</code> + <code>Suspense</code>; Data: <code>route.lazy</code>.</li>
+        <li><b>Role-based routes</b> — перевірка ролі на рівні route loader.</li>
+        <li><b>404</b> — catch-all route <code>path="*"</code>; HTTP 404 окремо налаштовується на сервері/CDN.</li>
         <li><b>Архітектура</b>: App &#8594; Layouts &#8594; Pages &#8594; Features &#8594; Components. Feature-first структура.</li>
         <li><b>Composition патерни</b>: children, slot props, compound components, render props. HOC — legacy.</li>
         <li><b>Custom Hooks</b> замість Container-компонентів — сучасний підхід до розділення логіки та UI.</li>
@@ -1179,7 +1181,7 @@ export default withAuth(DashboardPage);</pre>
     <h2>Корисні ресурси</h2>
     <ul style="font-size: 18px;">
         <li><a href="https://reactrouter.com/" target="_blank">React Router — офіційна документація</a></li>
-        <li><a href="https://reactrouter.com/start/data" target="_blank">React Router: Data API (v6.4+)</a></li>
+        <li><a href="https://reactrouter.com/start/modes" target="_blank">React Router: Picking a Mode (Declarative / Data / Framework)</a></li>
         <li><a href="https://reactrouter.com/api/hooks" target="_blank">React Router Hooks API</a></li>
         <li><a href="https://react.dev/reference/react/lazy" target="_blank">React.lazy + Suspense</a></li>
         <li><a href="https://react.dev/reference/react/Suspense" target="_blank">React Suspense</a></li>
