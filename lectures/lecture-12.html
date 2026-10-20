@@ -146,15 +146,15 @@ function UserList() {
 <section class="slide">
     <h2>Чому потрібен status-стан?</h2>
     <div style="font-size: 19px;">
-        <p>Асинхронний запит має <b>три можливі стани</b>:</p>
+        <p><b>Для простого запиту зручно розрізняти чотири стани:</b></p>
         <ul>
+            <li><b>idle</b> — запит ще не запускався;</li>
             <li><b>loading</b> — запит триває, показуємо spinner / skeleton;</li>
-            <li><b>success</b> — дані отримано, показуємо контент;</li>
+            <li><b>success</b> — дані отримано, показуємо контент або Empty State;</li>
             <li><b>error</b> — запит не вдався, показуємо повідомлення + retry.</li>
         </ul>
-        <p><b>Помилка:</b> використовувати лише <code>isLoading</code> boolean.
-            Неможливо розрізнити «даних немає, бо запит не вдався»
-            від «даних немає, бо список порожній».</p>
+        <p><b>Проблема лише з <code>isLoading</code>:</b> boolean не описує, чому даних немає.
+            «Ще не завантажували», «список порожній» і «запит завершився помилкою» — різні ситуації.</p>
         <p><b>Правильно:</b> окремо <code>status</code> + <code>data</code> + <code>error</code>,
             або об'єднати в один стан через <code>useReducer</code>.</p>
         <p>Pattern: <code>"idle" | "loading" | "success" | "error"</code> —
@@ -268,18 +268,21 @@ export function useAsync&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;, deps: Dependenc
 <section class="slide">
     <h2>Error Boundaries — межа ізоляції помилок UI</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import { Component, type ReactNode } from "react";
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import { Component, type ErrorInfo, type ReactNode } from "react";
 
-class ErrorBoundary extends Component {
-  state = { hasError: false };
+type Props = { fallback: ReactNode; children: ReactNode };
+type State = { hasError: boolean };
 
-  static getDerivedStateFromError() {
+class ErrorBoundary extends Component<Props, State> {
+  state: State = { hasError: false };
+
+  static getDerivedStateFromError(): State {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error) {
-    console.error(error);
-    // sentry, analytics...
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error(error, info);
+    // logging / monitoring...
   }
 
   render() {
@@ -294,14 +297,16 @@ class ErrorBoundary extends Component {
   &lt;UserList /&gt;
 &lt;/ErrorBoundary&gt;</pre>
         <div style="flex: 1; font-size: 18px;">
-            <p><b>Error Boundary</b> — React-компонент для ізоляції помилок у дочірньому UI-дереві.</p>
+            <p><b>Error Boundary</b> — компонент, який показує fallback, якщо під час render
+                виникла помилка в дочірньому React-дереві.</p>
             <p><b>Ловить:</b> помилки під час render у дочірньому React-дереві.</p>
             <p><b>НЕ ловить:</b> помилки в event handlers, асинхронних callback,
                 <code>setTimeout</code> та коді поза React — там потрібні власні <code>try/catch</code>.</p>
+            <p><b>Важливо:</b> Error Boundary не є аналогом <code>try/catch</code> для звичайного JavaScript-коду.</p>
             <p>У React Error Boundary реалізують через class-компонент;
                 для зручнішого API можна використати <code>react-error-boundary</code>.</p>
-            <p>Обгортають <b>секції</b> застосунку: якщо впаде
-                один блок — інші продовжать працювати.</p>
+            <p>Їх ставлять навколо <b>частини UI</b>: якщо дочірній компонент впаде,
+                boundary покаже fallback, а інші незалежні частини інтерфейсу можуть продовжити працювати.</p>
         </div>
     </div>
 </section>
@@ -569,10 +574,15 @@ useEffect(() =&gt; {
 // старий запит може перезаписати новий</pre>
         <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// &#9989; З AbortController
 useEffect(() =&gt; {
-  const ctrl = new AbortController()
+  const ctrl = new AbortController();
   fetch(url, { signal: ctrl.signal })
-  return () =&gt; ctrl.abort()
-}, [query])</pre>
+    .then(r =&gt; r.json())
+    .then(setData)
+    .catch(err =&gt; {
+      if (err.name !== "AbortError") setError(err);
+    });
+  return () =&gt; ctrl.abort();
+}, [query]);</pre>
     </div>
     <p style="font-size: 16px;"><b>Axios варіант:</b></p>
     <pre style="margin: 0; font-size: 10px; white-space: pre;">useEffect(() =&gt; {
@@ -622,7 +632,7 @@ useEffect(() =&gt; {
         <div style="font-size: 18px;">
             <p><b>Підходить:</b></p>
             <ul>
-                <li>Delete — видалення з списку (миттєво зникає);</li>
+                <li>Delete — видалення зі списку (миттєво зникає);</li>
                 <li>Toggle (like / favorite) — швидка взаємодія;</li>
                 <li>Drag-and-drop reorder — порядок змінюється одразу;</li>
                 <li>Checkbox в таблиці — позначити виконано.</li>
@@ -638,8 +648,8 @@ useEffect(() =&gt; {
                 <li>Form submit зі складною валідацією;</li>
                 <li>Операції, де rollback складний або небезпечний.</li>
             </ul>
-            <p>Тут — <b>песимістичний</b> підхід: чекаємо
-                підтвердження сервера.</p>
+            <p>Тут зазвичай обирають <b>песимістичний</b> підхід або обережний optimistic flow
+                з надійним rollback.</p>
         </div>
     </div>
 </section>
@@ -711,7 +721,7 @@ export const apiClient = axios.create(&#123; baseURL: "https://api.example.com" 
 
 // Request interceptor — додаємо auth token
 apiClient.interceptors.request.use((config) =&gt; {
-  const token = localStorage.getItem("token");
+  const token = getAccessToken();
   if (token) &#123;
     config.headers.Authorization = `Bearer ${token}`;
   &#125;
@@ -886,8 +896,8 @@ function UserListPage() &#123;
     <ul style="font-size: 18px;">
         <li><b>API-виклики в компонентах</b> — замість API Layer. Ознака:
             компонент імпортує <code>axios</code> напряму &#8594; винести в <code>api/</code>;</li>
-        <li><b>Без cleanup в useEffect</b> — race condition при швидкій зміні deps.
-            Рішення: <code>AbortController</code> або <code>cancelled</code> flag;</li>
+        <li><b>Без cleanup в useEffect</b> — старий запит може завершитися після нового.
+            Рішення: <code>AbortController</code> і/або перевірка актуальності результату;</li>
         <li><b>Без обробки error</b> — <code>fetch().then()</code> без <code>.catch</code>.
             Користувач не бачить, що щось зламалось;</li>
         <li><b>Дублювання baseURL</b> — в кожному виклику <code>"https://api..."</code>.
@@ -948,7 +958,8 @@ function UserListPage() &#123;
         <li><b>Axios</b> — зручний HTTP-клієнт із instance, interceptors, timeout та автообробкою JSON.
             Це альтернатива <code>fetch</code>, а не обов'язково «кращий» варіант.</li>
         <li><b>Interceptors</b> — глобальна обробка: auth token, 401 redirect, error toast.</li>
-        <li><b>AbortController</b> — скасування запитів для уникнення race conditions.</li>
+        <li><b>AbortController</b> — дозволяє скасувати fetch під час cleanup;
+            для stale response важливий також контроль актуальності результату.</li>
         <li><b>Оптимістичні оновлення</b> — миттєвий UI для швидких операцій (delete, toggle).</li>
     </ul>
 </section>
