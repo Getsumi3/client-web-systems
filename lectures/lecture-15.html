@@ -716,9 +716,9 @@ const ListItem = memo(Component, (prev, next) =&gt; &#123;
     &amp;&amp; prev.item.name === next.item.name;
 &#125;);</pre>
         <div style="flex: 1; font-size: 17px;">
-            <p><b>React.memo</b> — HOC, що пропускає re-render,
+            <p style="margin-bottom: 8px; line-height: 1.4; "><b>React.memo</b> — HOC, що пропускає re-render,
                 якщо props <b>shallow-equal</b>.</p>
-            <p><b>Коли використовувати:</b></p>
+            <p style="margin-bottom: 8px; line-height: 1.4; "><b>Коли використовувати:</b></p>
             <ul>
                 <li>Списки з багатьох елементів
                     (Item в .map);</li>
@@ -726,14 +726,14 @@ const ListItem = memo(Component, (prev, next) =&gt; &#123;
                 <li>Компоненти, що часто отримують
                     однакові props.</li>
             </ul>
-            <p><b>Коли НЕ використовувати:</b></p>
+            <p style="margin-bottom: 8px; line-height: 1.4; "><b>Коли НЕ використовувати:</b></p>
             <ul>
                 <li>Прості компоненти (memo сам має cost);</li>
                 <li>Якщо props завжди нові
                     (об'єкти, функції без useCallback);</li>
                 <li>Дерево й так легке.</li>
             </ul>
-            <p><b>Custom compare</b> — для глибокого
+            <p style="margin-bottom: 8px; line-height: 1.4; "><b>Custom compare</b> — для глибокого
                 порівняння (повільніше, але точніше).</p>
         </div>
     </div>
@@ -828,22 +828,22 @@ function BigList(&#123; items &#125;: &#123;
 // 10,000 items &#8594; only ~12 rows in DOM
 // scroll is butter-smooth</pre>
         <div style="flex: 1; font-size: 17px;">
-            <p><b>react-window</b> — бібліотека для
+            <p style="margin-bottom: 8px; line-height: 1.4; "><b>react-window</b> — бібліотека для
                 virtualization списків.</p>
-            <p><b>Принцип:</b> рендерить лише
+            <p style="margin-bottom: 8px; line-height: 1.4; "><b>Принцип:</b> рендерить лише
                 <b>видимі</b> елементи + невеликий буфер.
                 Решта — порожній простір з scroll.</p>
-            <p><b>Переваги:</b></p>
+            <p style="margin-bottom: 8px; line-height: 1.4; "><b>Переваги:</b></p>
             <ul>
                 <li>DOM: 12 nodes замість 10,000;</li>
                 <li>Швидкий scroll;</li>
                 <li>Мала пам'ять;</li>
                 <li>Працює з 100k+ елементів.</li>
             </ul>
-            <p><b>Альтернативи:</b>
+            <p style="margin-bottom: 8px; line-height: 1.4; "><b>Альтернативи:</b>
                 <code>@tanstack/react-virtual</code>,
                 <code>react-virtuoso</code>.</p>
-            <p><b>Коли:</b> списки &gt; 100 елементів,
+            <p style="margin-bottom: 8px; line-height: 1.4; "><b>Коли:</b> списки &gt; 100 елементів,
                 таблиці, feed.</p>
         </div>
     </div>
