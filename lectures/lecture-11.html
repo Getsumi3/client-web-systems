@@ -290,7 +290,19 @@ function ProductList(props) {
 
 <section class="slide">
     <h2>Context API — передавання даних через дерево</h2>
-    <img src="pictures/react/11/context-solution.svg" alt="" style="display: block; margin: 0 auto; width: 70%;">
+    <div style="font-size: 18px;">
+        <pre style="margin: 12px 0; font-size: 11px; white-space: pre;">const TaskContext =
+  createContext&lt;TaskContextValue | null&gt;(null);
+
+&lt;TaskContext.Provider value=&#123;&#123;
+  tasks, dispatch
+&#125;&#125;&gt;
+  &#123;children&#125;
+&lt;/TaskContext.Provider&gt;</pre>
+        <p><b>Context</b> дає спільні дані піддереву; компонент читає їх через <code>useContext()</code>.</p>
+        <p><b>Повний приклад:</b>
+            <a href="examples/react/11/state-context-effects.tsx" target="_blank">examples/react/11/state-context-effects.tsx</a></p>
+    </div>
 </section>
 
 <section class="slide">
@@ -345,31 +357,21 @@ function UserProfile() {
 
 <section class="slide">
     <h2>Композиція компонентів — альтернатива</h2>
-    <pre style="margin: 0; font-size: 10px; white-space: pre;">// Замість props drilling — передаємо готовий елемент через children/props
-function App() {
-  const [user, setUser] = useState({ name: "Anna" });
+    <div style="font-size: 18px;">
+        <pre style="margin: 12px 0; font-size: 12px; white-space: pre;">function Layout(&#123; sidebar, children &#125;) &#123;
   return (
-    &lt;Layout
-      sidebar={&lt;UserProfile user={user} /&gt;}  // відразу передаємо
-      header={&lt;Header user={user} /&gt;}
-    /&gt;
+    &lt;&gt;
+      &lt;aside&gt;&#123;sidebar&#125;&lt;/aside&gt;
+      &lt;main&gt;&#123;children&#125;&lt;/main&gt;
+    &lt;/&gt;
   );
-}
+&#125;
 
-function Layout(props: { sidebar: ReactNode; header: ReactNode; children?: ReactNode }) {
-  return (
-    &lt;div&gt;
-      {props.header}
-      &lt;main&gt;{props.children}&lt;/main&gt;
-      {props.sidebar}
-    &lt;/div&gt;
-  );
-  // Layout не знає про user взагалі!
-}</pre>
-    <p style="font-size: 16px; margin-top: 10px;">
-        Патерн «<b>composition</b>» — передавати готові елементи, а не сирі дані.
-        Layout залишається агностичним до user. Аналог у Vue — <code>&lt;slot&gt;</code>.
-    </p>
+// Layout не знає, які дані всередині.</pre>
+        <p>Композиція дозволяє передавати готовий UI замість зайвого props drilling.</p>
+        <p><b>Повний приклад:</b>
+            <a href="examples/react/11/custom-hooks.ts" target="_blank">examples/react/11/custom-hooks.ts</a></p>
+    </div>
 </section>
 
 <section class="slide">
