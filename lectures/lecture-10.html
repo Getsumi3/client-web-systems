@@ -209,26 +209,22 @@
 </section>
 
 <section class="slide">
-    <h2>JSX &#8651; React.createElement</h2>
-<pre style="margin: 0; font-size: 10px; white-space: pre;">// JSX (описуємо UI)
-const el = (
+    <h2>JSX ⇔ React.createElement</h2>
+    <div style="font-size: 18px;">
+        <pre style="margin: 12px 0; font-size: 11px; white-space: pre;">const el = (
   &lt;div className="card"&gt;
     &lt;h1&gt;Hello&lt;/h1&gt;
-    &lt;p&gt;{name}&lt;/p&gt;
+    &lt;p&gt;&#123;name&#125;&lt;/p&gt;
   &lt;/div&gt;
 );
 
-// React.createElement
-const el = React.createElement(
-  "div",
-  { className: "card" },
-  React.createElement("h1", null, "Hello"),
-  React.createElement("p", null, name)
-);</pre>
-    <p style="font-size: 17px; margin-top: 15px;">
-        <code>createElement</code> корисний для розуміння того, як React створює elements,
-        але у сучасному коді перевага надається JSX.
-    </p>
+// Концептуально це створення element:
+React.createElement("div", &#123; className: "card" &#125;, ...);</pre>
+        <p>JSX — сучасний спосіб описувати React UI. <code>createElement</code> допомагає зрозуміти,
+            як JSX пов'язаний з React elements, але в прикладному коді зазвичай пишемо JSX.</p>
+        <p><b>Повний приклад:</b>
+            <a href="examples/react/10/jsx-and-components.tsx" target="_blank">examples/react/10/jsx-and-components.tsx</a></p>
+    </div>
 </section>
 
 <section class="slide">
@@ -414,21 +410,18 @@ function Counter() {
 
 <section class="slide">
     <h2>React 19 — <code>ref</code> як prop</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 11px; white-space: pre;">
-function TextInput({ ref }: { ref?: React.Ref<HTMLInputElement> }) {
-  return &lt;input ref={ref} /&gt;;
-}
+    <div style="font-size: 18px;">
+        <pre style="margin: 12px 0; font-size: 12px; white-space: pre;">function TextInput(&#123; ref &#125;: &#123;
+  ref?: Ref&lt;HTMLInputElement&gt;
+&#125;) &#123;
+  return &lt;input ref=&#123;ref&#125; /&gt;;
+&#125;
 
-function Form() {
-  const inputRef = useRef&lt;HTMLInputElement&gt;(null);
-  return &lt;TextInput ref={inputRef} /&gt;;
-}</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p>У React 19 function component може отримувати <code>ref</code> як звичайний prop.</p>
-            <p>Для нового коду не потрібно використовувати <code>forwardRef</code> лише для передачі ref.</p>
-            <p><code>forwardRef</code> залишається валідним для сумісності, але позначений як deprecated для майбутнього релізу.</p>
-        </div>
+const inputRef = useRef&lt;HTMLInputElement&gt;(null);
+&lt;TextInput ref=&#123;inputRef&#125; /&gt;;</pre>
+        <p>У React 19 <code>ref</code> можна передавати як звичайний prop.</p>
+        <p><b>Повний приклад:</b>
+            <a href="examples/react/10/refs-and-modern-react.tsx" target="_blank">examples/react/10/refs-and-modern-react.tsx</a></p>
     </div>
 </section>
 <section class="slide">
