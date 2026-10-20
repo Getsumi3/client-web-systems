@@ -453,7 +453,7 @@ async function submitName(
 &#125;
 
 function Form() &#123;
-  const [error, action, pending] =
+  const [error, action] =
     useActionState(submitName, "");
 
   return (
@@ -462,6 +462,16 @@ function Form() &#123;
       &lt;SubmitButton /&gt;
       &#123;error &amp;&amp; &lt;p&gt;&#123;error&#125;&lt;/p&gt;&#125;
     &lt;/form&gt;
+  );
+&#125;
+
+function SubmitButton() &#123;
+  const &#123; pending &#125; = useFormStatus();
+
+  return (
+    &lt;button type="submit" disabled=&#123;pending&#125;&gt;
+      &#123;pending ? "Saving..." : "Save"&#125;
+    &lt;/button&gt;
   );
 &#125;</pre>
         <div style="flex: 1; font-size: 16px;">
@@ -537,11 +547,16 @@ export function AuthProvider(&#123; children &#125;: &#123; children: ReactNode 
   // Check token on mount
   useEffect(() =&gt; &#123;
     const token = localStorage.getItem("token");
-    if (token) &#123;
-      authApi.me(token).then(u =&gt; setUser(u)).finally(() =&gt; setLoading(false));
-    &#125; else &#123;
+
+    if (!token) &#123;
       setLoading(false);
+      return;
     &#125;
+
+    authApi.me(token)
+      .then(setUser)
+      .catch(() =&gt; localStorage.removeItem("token"))
+      .finally(() =&gt; setLoading(false));
   &#125;, []);
 
   const login = async (email: string, password: string) =&gt; &#123;
@@ -854,11 +869,14 @@ apiClient.interceptors.response.use(
 <section class="slide">
     <h2>Auth — типові помилки</h2>
     <ul style="font-size: 18px;">
-        <li><b>Token в localStorage без XSS-захисту</b> — <code>dangerouslySetInnerHTML</code> без санітизації. Рішення: DOMPurify, CSP headers;</li>
+        <li><b>Зберігати bearer token у localStorage без урахування XSS</b> — шкідливий JavaScript може прочитати token.
+            Рішення: не використовувати небезпечний HTML без санітизації; CSP — додатковий захист;</li>
         <li><b>Без loading-стану при перевірці token</b> — при reload користувача одразу редиректить на /login. Рішення: <code>loading</code> в AuthContext;</li>
         <li><b>Token не видаляється при logout</b> — залишається в localStorage. Рішення: <code>localStorage.removeItem</code> + очистка state;</li>
-        <li><b>Без 401 interceptor</b> — token expired, але API-запити просто падають. Рішення: response interceptor + redirect на /login;</li>
-        <li><b>Protected route перевіряє лише <code>isAuthenticated</code></b> — без role check. Рішення: <code>roles</code> prop в ProtectedRoute;</li>
+        <li><b>Неправильно обробляти 401</b> — застосунок не синхронізує auth state з API.
+            Варіант рішення: response interceptor, refresh або logout — залежно від auth-схеми;</li>
+        <li><b>Немає перевірки permissions для route, який її потребує</b> — одного <code>isAuthenticated</code> недостатньо.
+            Додайте role/permission check;</li>
         <li><b>Пароль у state без <code>type="password"</code></b> — видно на екрані. Рішення: завжди <code>type="password"</code>;</li>
         <li><b>Frontend валідація як єдина</b> — обхід через curl. Рішення: <b>backend обов'язково валідує</b>.</li>
     </ul>
