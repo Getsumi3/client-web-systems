@@ -1147,8 +1147,9 @@ export default withAuth(DashboardPage);</pre>
         <li><b>API-виклики в UI-компонентах</b> — Button викликає axios. Рішення: Button лише emit подію, батько викликає API;</li>
         <li><b>Props drilling через 5 рівнів</b> — рішення: Context, composition, або lifting state;</li>
         <li><b>Універсальний компонент «на всі випадки»</b> — 50 props з умовами. Рішення: розділити на几个 спеціалізованих;</li>
-        <li><b>State в useState замість URL</b> — pagination у state втрачається при reload. Рішення: useSearchParams;</li>
-        <li><b>Без lazy loading</b> — 1MB бандл. Рішення: React.lazy + Suspense для сторінок;</li>
+        <li><b>Навігаційний state в useState</b> — якщо pagination/filter мають бути
+            shareable/bookmarkable, збережи їх у URL через <code>useSearchParams</code>;</li>
+        <li><b>Занадто великий initial bundle</b> — code splitting може зменшити початкове завантаження;</li>
         <li><b>Без Error Boundary</b> — одна помилка ламає весь застосунок. Рішення: ErrorBoundary per route/section.</li>
     </ul>
 </section>
