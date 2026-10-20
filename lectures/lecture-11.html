@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <title>Лекція 11. Routing та архітектура React-застосунку</title>
+    <title>Лекція 11. State, Effects та архітектура компонентів</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="node_modules/@shower/ribbon/styles/index.css">
@@ -10,7 +10,7 @@
 <body class="shower list">
 
 <header class="caption">
-    <h1>Лекція 11. Routing та архітектура React-застосунку</h1>
+    <h1>Лекція 11. State, Effects та архітектура компонентів</h1>
     <p>
         <a href="index.html">Назад до змісту лекцій</a>
     </p>
@@ -18,1158 +18,853 @@
 
 <section class="slide">
     <h2 class="shout">
-        Лекція 11. Routing та архітектура React-застосунку
+        Лекція 11. State, Effects та архітектура компонентів
     </h2>
 </section>
 
 <section class="slide">
     <h2>План лекції:</h2>
     <ol>
-        <li>Навіщо SPA потрібна маршрутизація та як працює React Router?</li>
-        <li>Як реалізувати складну навігацію: route parameters, nested routes, layouts та protected routes?</li>
-        <li>Як організувати структуру React-застосунку та розподілити відповідальність між компонентами?</li>
-        <li>Як використовувати component composition для побудови масштабованого UI?</li>
+        <li>Як організувати state у React та правильно визначити, де він повинен зберігатися?</li>
+        <li>Як компоненти обмінюються даними та як вирішувати проблеми shared state і props drilling?</li>
+        <li>Що таке side effects у React і як працює useEffect?</li>
+        <li>Як винести повторно використовувану stateful-логіку за допомогою Custom Hooks?</li>
     </ol>
 </section>
 
 <section class="slide">
-    <h2 class="shout">SPA та маршрутизація</h2>
+    <h2 class="shout">Організація State</h2>
 </section>
 
 <section class="slide">
-    <h2>SPA vs MPA — навігація</h2>
-    <img src="pictures/react/4/spa-vs-mpa.svg" alt="" style="display: block; margin: 0 auto; width: 80%;">
+    <h2>Де зберігати state? — три рівні</h2>
+    <img src="pictures/react/2/state-location.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
+    <p style="text-align: center; font-size: 16px; margin-top: 10px;">
+        Правило: <b>стан має жити як можна нижче</b> в дереві компонентів.
+        Піднімаймо його вгору лише тоді, коли цього потребують кілька компонентів.
+    </p>
 </section>
 
 <section class="slide">
-    <h2>Що таке SPA-маршрутизація?</h2>
-    <div style="font-size: 18px;">
-        <p><b>SPA (Single-Page Application)</b> — застосунок завантажується
-            один раз, далі навігація відбувається <b>без перезавантаження сторінки</b>.</p>
-        <p><b>Маршрутизація (routing)</b> — механізм, що зіставляє URL-адресу
-            з відповідним компонентом для відображення.</p>
-        <p><b>Як це працює:</b></p>
-        <ul>
-            <li>Клік по посиланню перехоплюється JavaScript;</li>
-            <li>URL оновлюється через <b>History API</b> (<code>pushState</code>);</li>
-            <li>React визначає, який компонент відповідає URL;</li>
-            <li>Рендерить його — <b>без перезавантаження</b> сторінки.</li>
-        </ul>
-        <p>React не має вбудованого роутера — використовується
-            <b>React Router</b> (de-facto стандарт) або Next.js File-based routing.</p>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Навіщо роутинг у SPA?</h2>
-    <ul style="font-size: 18px;">
-        <li><b>Bookmarkable URLs</b> — користувач може зберегти посилання на конкретну сторінку;</li>
-        <li><b>Shareable</b> — відправити посилання колезі, він побачить те саме;</li>
-        <li><b>Back/Forward</b> — кнопки браузера працюють природньо;</li>
-        <li><b>SEO</b> — кожна сторінка має свій URL (для SSR/SSG);</li>
-        <li><b>Організація коду</b> — розділення застосунку на логічні сторінки;</li>
-        <li><b>Code splitting</b> — завантаження коду сторінки on-demand (lazy loading);</li>
-        <li><b>Аналітика</b> — відстеження переглядів сторінок (pageviews).</li>
+    <h2>Правила визначення місця для state</h2>
+    <ul style="font-size: 19px;">
+        <li><b>Локальний стан</b> — якщо дані використовуються лише одним компонентом
+            (form input, toggle, modal open/close) &#8594; <code>useState</code> у цьому компоненті.</li>
+        <li><b>Спільний стан (shared)</b> — якщо дані потрібні кільком компонентам &#8594;
+            підняти до <b>найближчого спільного предка</b> (Lifting State Up).</li>
+        <li><b>Глобальний стан</b> — якщо дані потрібні в багатьох місцях дерева
+            (auth, theme, locale) &#8594; <code>useContext</code> або зовнішній стейт-менеджер
+            (Zustand, Redux).</li>
+        <li><b>Серверний стан</b> — дані з API &#8594; TanStack Query, SWR, RTK Query
+            (не зберігай у звичайному state).</li>
     </ul>
 </section>
 
 <section class="slide">
-    <h2>URL як джерело правди (state)</h2>
+    <h2>Інструменти управління станом</h2>
+    <img src="pictures/react/2/data-flow-tools.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
+</section>
+
+<section class="slide">
+    <h2>useState — коли використовувати</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// &#10060; State в компоненті
-const [page, setPage] = useState(1);
-const [filter, setFilter] = useState("all");
-const [tab, setTab] = useState("details");
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import { useState } from "react";
 
-// втрачається при reload, не ділиться</pre>
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// &#9989; State в URL (router)
-/products?page=2&amp;filter=active
-/users/42?tab=details
+function TodoForm() {
+  const [text, setText] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
-// shareable, bookmarkable, survives reload</pre>
-    </div>
-    <p style="font-size: 16px; margin-top: 15px;"><b>Переваги URL-state:</b></p>
-    <ul style="font-size: 15px;">
-        <li><b>Bookmarkable</b> — можна зберегти посилання з точним станом;</li>
-        <li><b>Shareable</b> — відправити колезі, він побачить те ж;</li>
-        <li><b>Back/Forward</b> кнопки браузера працюють природньо;</li>
-        <li><b>Survives reload</b> — стан не втрачається.</li>
-    </ul>
-</section>
-
-<section class="slide">
-    <h2>React Router — компонентна модель</h2>
-    <img src="pictures/react/4/router-components.svg" alt="" style="display: block; margin: 0 auto; width: 70%;">
-</section>
-
-<section class="slide">
-    <h2>React Router — базові компоненти</h2>
-    <div style="font-size: 18px;">
-        <p><b>React Router</b> — декларативна маршрутизація через компоненти.</p>
-        <ul>
-            <li><code>&lt;BrowserRouter&gt;</code> — обгортає застосунок, використовує HTML5 History API;</li>
-            <li><code>&lt;Routes&gt;</code> — контейнер для списку маршрутів;</li>
-            <li><code>&lt;Route&gt;</code> — зіставляє URL-шлях з компонентом;</li>
-            <li><code>&lt;Link&gt;</code> — посилання без перезавантаження (renders <code>&lt;a&gt;</code>);</li>
-            <li><code>&lt;Outlet&gt;</code> — місце, де рендеряться дочірні маршрути (nested);</li>
-            <li><code>&lt;Navigate&gt;</code> — програмний редирект.</li>
-        </ul>
-        <p><b>Встановлення:</b> <code>npm install react-router-dom</code></p>
-        <p><b>Версія:</b> React Router v6 (data API в v6.4+, loader/action в v7).</p>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>React Router — базова конфігурація</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// JSX-стиль (декларативний)
-import &#123; BrowserRouter, Routes, Route, Link &#125;
-  from "react-router-dom";
-
-function App() &#123;
   return (
-    &lt;BrowserRouter&gt;
-      &lt;nav&gt;
-        &lt;Link to="/"&gt;Home&lt;/Link&gt;
-        &lt;Link to="/users"&gt;Users&lt;/Link&gt;
-      &lt;/nav&gt;
-      &lt;Routes&gt;
-        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
-        &lt;Route path="/users" element={&lt;UserList /&gt;} /&gt;
-        &lt;Route path="*" element={&lt;NotFound /&gt;} /&gt;
-      &lt;/Routes&gt;
-    &lt;/BrowserRouter&gt;
+    &lt;form onSubmit={(e) =&gt; {
+      e.preventDefault();
+      addTodo(text);
+      setText("");
+    }}&gt;
+      &lt;input value={text}
+        onChange={(e) =&gt; setText(e.target.value)} /&gt;
+    &lt;/form&gt;
   );
-&#125;</pre>
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Data API стиль (v6.4+, рекомендований)
-import &#123; createBrowserRouter, RouterProvider &#125;
-  from "react-router-dom";
-
-const router = createBrowserRouter([
-  &#123; path: "/", element: &lt;Home /&gt; &#125;,
-  &#123; path: "/users", element: &lt;UserList /&gt;,
-    loader: usersLoader // data fetching
-  &#125;,
-  &#123; path: "*", element: &lt;NotFound /&gt; &#125;,
-]);
-
-function App() &#123;
-  return &lt;RouterProvider router=&#123;router&#125; /&gt;;
-&#125;
-
-// Переваги data API:
-// - loader/action для data fetching
-// - error boundaries per route
-// - prefetching на наведенні</pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Router hooks — навігація в коді</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// useParams — params з URL
-function UserDetail() {
-  const { id } = useParams();
-  // URL: /users/42  &#8594; id="42"
-  const { data } = useUser(id);
-}
-
-// useSearchParams — query params
-function ProductList() {
-  const [params, setParams]
-    = useSearchParams();
-  const page = params.get("page") ?? "1";
-  // URL: /products?page=3
 }</pre>
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// useNavigate — програмна навігація
-function LoginForm() {
-  const navigate = useNavigate();
-  const handleSubmit = async () => {
-    await login(...);
-    navigate("/dashboard");
-  };
-}
-
-// &lt;Link&gt; — декларативна навігація
-&lt;Link to="/users"&gt;Users&lt;/Link&gt;
-&lt;Link to={`/users/${id}`}&gt;
-  View profile
-&lt;/Link&gt;
-// renders &lt;a href&gt; without reload</pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2 class="shout">Складна навігація</h2>
-</section>
-
-<section class="slide">
-    <h2>Route Parameters — динамічні шляхи</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Конфігурація маршруту з параметром
-&lt;Route path="/users/:id"
-  element=&#123;&lt;UserDetail /&gt;&#125; /&gt;
-
-// Отримання параметра в компоненті
-import &#123; useParams &#125; from "react-router-dom";
-
-function UserDetail() &#123;
-  const &#123; id &#125; = useParams();
-  // URL: /users/42  &#8594;  id = "42"
-
-  const &#123; data, loading &#125; =
-    useUser(id);
-
-  if (loading) return &lt;Spinner /&gt;;
-  return &lt;div&gt;&#123;data.name&#125;&lt;/div&gt;;
-&#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>Route params</b> — динамічні сегменти URL,
-                що стають доступні через <code>useParams()</code>.</p>
-            <p><b>Синтаксис:</b> <code>:paramName</code> в шляху.</p>
+        <div style="flex: 1; font-size: 16px;">
+            <p><b>useState коли:</b></p>
+            <ul>
+                <li>1-2 незалежні значення</li>
+                <li>прості типи (string, number, boolean)</li>
+                <li>нескладна логіка оновлення</li>
+                <li>стан локальний (один компонент)</li>
+            </ul>
             <p><b>Приклади:</b></p>
             <ul>
-                <li><code>/users/:id</code> &#8594; /users/42</li>
-                <li><code>/posts/:slug</code> &#8594; /posts/hello-world</li>
-                <li><code>/products/:category/:id</code> &#8594; /products/electronics/5</li>
+                <li>toggle (open/closed)</li>
+                <li>text input value</li>
+                <li>counter</li>
+                <li>selected item id</li>
             </ul>
-            <p><b>Optional params</b> — через
-                <code>?</code> (React Router v6.4+):</p>
-            <p><code>/posts/:id?</code> &#8594; /posts, /posts/42</p>
         </div>
     </div>
 </section>
 
 <section class="slide">
-    <h2>Query Parameters — useSearchParams</h2>
+    <h2>useReducer — складний state</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import &#123; useSearchParams &#125; from "react-router-dom";
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// useState — простий стан
+function Counter() {
+  const [count, setCount] = useState(0);
+  const reset = () =&gt; setCount(0);
+  const inc = () =&gt; setCount(c =&gt; c + 1);
+  const dec = () =&gt; setCount(c =&gt; c - 1);
+}</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// useReducer — складний стан
+function reducer(state, action) {
+  switch(action.type) {
+    case "inc": return {count: state.count+1};
+    case "dec": return {count: state.count-1};
+    case "reset": return {count: 0};
+  }}</pre>
+    </div>
+    <div class="columns two">
+        <div>
+            <p style="font-size: 16px;"><b>useState коли:</b></p>
+            <ul style="font-size: 15px;">
+                <li>1-2 незалежних значень</li>
+                <li>прості типи (string, number, bool)</li>
+                <li>нескладна логіка оновлення</li>
+            </ul>
+            <p style="font-size: 14px;"><i>toggle, input value, counter</i></p>
+        </div>
+        <div>
+            <p style="font-size: 16px;"><b>useReducer коли:</b></p>
+            <ul style="font-size: 15px;">
+                <li>кілька пов'язаних значень</li>
+                <li>наступний стан залежить від попереднього</li>
+                <li>складна логіка оновлення</li>
+                <li>потрібна тестованість логіки</li>
+            </ul>
+            <p style="font-size: 14px;"><i>forms, multi-step wizards, cart</i></p>
+        </div>
+    </div>
+</section>
 
-function ProductList() &#123;
-  const [params, setParams] =
-    useSearchParams();
+<section class="slide">
+    <h2>useReducer — приклад</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 1. Reducer function (pure)
+type State = { count: number; step: number };
+type Action =
+  | { type: "inc" }
+  | { type: "dec" }
+  | { type: "setStep"; step: number }
+  | { type: "reset" };
 
-  const page = parseInt(params.get("page") ?? "1");
-  const filter = params.get("filter") ?? "all";
+function reducer(state: State, action: Action) {
+  switch (action.type) {
+    case "inc": return { ...state, count: state.count + state.step };
+    case "dec": return { ...state, count: state.count - state.step };
+    case "setStep": return { ...state, step: action.step };
+    case "reset": return { count: 0, step: 1 };
+  }
+}</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 2. Використання в компоненті
+function Counter() {
+  const [state, dispatch] =
+    useReducer(reducer,
+      { count: 0, step: 1 });
 
-  const goToPage = (p: number) =&gt; &#123;
-    setParams(&#123; page: String(p), filter &#125;);
-  &#125;;
+  return (
+    &lt;div&gt;
+      &lt;p&gt;{state.count} (step: {state.step})&lt;/p&gt;
+      &lt;button
+        onClick={() =&gt; dispatch({ type: "inc" })}&gt;+&lt;/button&gt;
+      &lt;button
+        onClick={() =&gt; dispatch({ type: "dec" })}&gt;-&lt;/button&gt;
+      &lt;button
+        onClick={() =&gt; dispatch({ type: "reset" })}&gt;Reset&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+    </div>
+    <p style="font-size: 16px; margin-top: 10px;">
+        <b>Переваги:</b> логіка винесена з компонента, редюсер — чиста функція (легко тестувати),
+        actions типізовані.
+    </p>
+</section>
 
-  // URL: /products?page=3&amp;filter=active
+<section class="slide">
+    <h2>Ключові принципи state</h2>
+    <ul style="font-size: 19px;">
+        <li><b>State — immutable.</b> Ніколи не змінюй стан напряму:
+            <code>state.x = 5</code> &#10007;.
+            Завжди створюй новий об'єкт: <code>setState(&#123;...state, x: 5&#125;)</code> &#10003;.</li>
+        <li><b>State updates are async + batched.</b> Не покладайся на те, що state
+            оновиться відразу після <code>setState</code>. Для логіки, що залежить від
+            попереднього значення, використовуй функціональну форму:
+            <code>setCount(prev =&gt; prev + 1)</code>.</li>
+        <li><b>Не дублюй state.</b> Якщо дані можна обчислити з props або іншого state —
+            не зберігай їх окремо (derived state).</li>
+        <li><b>Стан живе в найближчому спільному предку.</b> Чим вищий стан — тим більше
+            компонентів перерендеряться.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Derived state — обчислюйте, не зберігайте</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Погано — дубльований state
+function ProductList(props) {
+  const [items, setItems] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(0);
+
+  useEffect(() =&gt; {
+    setVisibleCount(items.filter(i =&gt; i.active).length);
+  }, [items]);
+}</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Добре — обчислення під час рендеру
+function ProductList(props) {
+  const [items, setItems] = useState([]);
+
+  const visibleItems = items.filter(
+    i =&gt; i.active
+  );
+  // або useMemo для дорогих обчислень
+  const sorted = useMemo(
+    () =&gt; [...items].sort(...), [items]
+  );
+}</pre>
+    </div>
+    <p style="font-size: 16px; margin-top: 10px;">
+        Якщо значення можна отримати з існуючого state/props — <b>обчислюй його</b>
+        під час рендеру. <code>useMemo</code> — лише для дорогих обчислень.
+    </p>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Обмін даними та Props Drilling</h2>
+</section>
+
+<section class="slide">
+    <h2>Lifting State Up — підняття стану</h2>
+    <img src="pictures/react/2/lifting-state.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
+</section>
+
+<section class="slide">
+    <h2>Lifting State Up — як це працює</h2>
+    <div style="font-size: 19px;">
+        <p>Якщо два дочірніх компоненти потребують одні й ті ж дані &#8594;
+            <b>стан піднімається до їх спільного батька</b>.</p>
+        <p><b>Алгоритм:</b></p>
+        <ol>
+            <li>Визначити, які компоненти використовують спільні дані.</li>
+            <li>Знайти їх <b>найближчого спільного предка</b> в дереві.</li>
+            <li>Перемістити туди <code>useState</code>.</li>
+            <li>Передати дані вниз через <b>props</b>, а callbacks — для оновлення.</li>
+        </ol>
+        <p>Це основний механізм React для спільного стану.
+            Аналог у Vue — <code>provide/inject</code> або спільний reactive-об'єкт.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Props Drilling — проблема</h2>
+    <img src="pictures/react/2/props-drilling.svg" alt="" style="display: block; margin: 0 auto; width: 60%;">
+    <p style="font-size: 16px;">
+        <b>Props drilling</b> — коли дані передаються через кілька рівнів компонентів,
+        які їх не використовують, лише щоб доставити їх глибше.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Props Drilling — чому це погано</h2>
+    <ul style="font-size: 19px;">
+        <li><b>Порушення інкапсуляції</b> — проміжні компоненти знають про дані, які їм не потрібні.</li>
+        <li><b>Складність рефакторингу</b> — зміна форми даних торкається всіх компонентів на шляху.</li>
+        <li><b>Зайві рендери</b> — зміна prop призводить до re-render всіх компонентів на шляху.</li>
+        <li><b>Важко читати</b> — незрозуміло, звідки дані приходить і куди йдуть.</li>
+    </ul>
+    <p style="font-size: 19px; margin-top: 10px;">
+        <b>Рішення:</b> Context API, композиція компонентів, стейт-менеджери
+        (Zustand, Redux), або винесення логіки в Custom Hooks.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Context API — рішення props drilling</h2>
+    <img src="pictures/react/2/context-solution.svg" alt="" style="display: block; margin: 0 auto; width: 70%;">
+</section>
+
+<section class="slide">
+    <h2>Context API — приклад</h2>
+    <pre style="margin: 0; font-size: 10px; white-space: pre;">// 1. Створити Context
+import { createContext, useContext, useState, type ReactNode } from "react";
+
+type User = { name: string; role: string };
+const UserContext = createContext&lt;User | null&gt;(null);
+
+// 2. Provider — обгортає дерево і дає значення
+function App() {
+  const [user, setUser] = useState&lt;User&gt;({ name: "Anna", role: "admin" });
+  return (
+    &lt;UserContext.Provider value={user}&gt;
+      &lt;Layout /&gt;
+    &lt;/UserContext.Provider&gt;
+  );
+}
+
+// 3. Consumer — читає значення в будь-якому місці всередині Provider
+function UserProfile() {
+  const user = useContext(UserContext);
+  if (!user) return &lt;p&gt;Not logged in&lt;/p&gt;;
+  return &lt;p&gt;Hello, {user.name} ({user.role})&lt;/p&gt;;
+}</pre>
+    <p style="font-size: 16px; margin-top: 10px;">
+        Аналог у Vue — <code>provide</code> / <code>inject</code>. Context ідеальний для
+        <b>глобальних даних</b>, які рідко змінюються (theme, locale, auth).
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Context — обережно з продуктивністю</h2>
+    <div style="font-size: 19px;">
+        <p><b>Проблема:</b> коли значення Context змінюється — <b>всі</b> компоненти,
+            що викликають <code>useContext</code>, перерендеряться, навіть якщо їм
+            потрібна лише частина значення.</p>
+        <p><b>Рішення:</b></p>
+        <ul>
+            <li>Розділяти контексти (UserContext, ThemeContext окремо);</li>
+            <li>Мемоізувати value: <code>value=&#123;useMemo(...)&#125;</code>;</li>
+            <li>Для часто змінного стану — <b>Zustand</b> (підписка на конкретне поле);</li>
+            <li>Не зберігати в Context дані, що змінюються кожен рендер.</li>
+        </ul>
+        <p>Context — не заміна для всього стану. Використовуй для <b>статичних/рідкісних</b>
+            даних (auth, theme, config).</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Композиція компонентів — альтернатива</h2>
+    <pre style="margin: 0; font-size: 10px; white-space: pre;">// Замість props drilling — передаємо готовий елемент через children/props
+function App() {
+  const [user, setUser] = useState({ name: "Anna" });
+  return (
+    &lt;Layout
+      sidebar={&lt;UserProfile user={user} /&gt;}  // відразу передаємо
+      header={&lt;Header user={user} /&gt;}
+    /&gt;
+  );
+}
+
+function Layout(props: { sidebar: ReactNode; header: ReactNode }) {
+  return (
+    &lt;div&gt;
+      {props.header}
+      &lt;main&gt;{props.children}&lt;/main&gt;
+      {props.sidebar}
+    &lt;/div&gt;
+  );
+  // Layout не знає про user взагалі!
+}</pre>
+    <p style="font-size: 16px; margin-top: 10px;">
+        Патерн «<b>composition</b>» — передавати готові елементи, а не сирі дані.
+        Layout залишається агностичним до user. Аналог у Vue — <code>&lt;slot&gt;</code>.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Коли Context недостатньо</h2>
+    <div style="font-size: 16px;">
+        <p><b>Context + useReducer</b> — вбудований інструмент React для спільного стану.
+            Підходить для низькочастотних даних (theme, auth, locale).</p>
+        <p>Коли Context стає вузьким місцем (часті оновлення, складні залежності,
+            серверний стан) — використовують зовнішні стейт-менеджери:</p>
+        <ul>
+            <li><b>Client state:</b> Zustand, Jotai, Redux Toolkit</li>
+            <li><b>Server state:</b> TanStack Query, SWR, RTK Query</li>
+        </ul>
+        <p style="background: var(--brand-color-prinmary); color: #fff; padding: 4px 8px; font-size: 12px; border-radius: 6px; margin-top: 15px;">
+            Детально ці інструменти розглянемо в <b>Лекції 15: State Management та Production React</b>.
+        </p>
+        <p><b>Правило:</b> починай з <code>useState</code> + Lifting State Up.
+            Додавай Context коли props drilling стає проблемою.
+            Стейт-менеджери — лише коли Context вже не справляється.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Side Effects та useEffect</h2>
+</section>
+
+<section class="slide">
+    <h2>Що таке side effects?</h2>
+    <div style="font-size: 16px;">
+        <p><b>Чиста функція</b> — функція, яка для однакових вхідних даних
+            завжди повертає однаковий результат, без побічних ефектів.</p>
+        <p>Компоненти React мають бути <b>чистими функціями</b> від props та state:
+            <code>UI = f(props, state)</code>.</p>
+        <p><b>Side effect (побічний ефект)</b> — будь-що, що виходить за межі
+            чистої функції:</p>
+        <ul>
+            <li>HTTP-запити (fetch, axios);</li>
+            <li>Підписки (WebSocket, EventSource, addEventListener);</li>
+            <li>Таймери (setTimeout, setInterval);</li>
+            <li>Пряма маніпуляція DOM;</li>
+            <li>Запис у localStorage / sessionStorage;</li>
+            <li>Логування, аналітика.</li>
+        </ul>
+        <p>React дає <code>useEffect</code> для ізоляції side effects від фази рендеру.</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>useEffect — життєвий цикл</h2>
+    <img src="pictures/react/2/use-effect.svg" alt="" style="display: block; margin: 0 auto; width: 60%;">
+</section>
+
+<section class="slide">
+    <h2>useEffect — як це працює</h2>
+    <img src="pictures/react/2/effect-deps.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
+</section>
+
+<section class="slide">
+    <h2>useEffect — приклади</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 1. Fetch data on mount
+useEffect(() =&gt; {
+  let cancelled = false;
+  fetch("/api/user")
+    .then(r =&gt; r.json())
+    .then(data =&gt; {
+      if (!cancelled) setUser(data);
+    });
+  return () =&gt; { cancelled = true; };
+}, []);
+
+// 2. Subscribe to event
+useEffect(() =&gt; {
+  const handler = () =&gt; setWidth(window.innerWidth);
+  window.addEventListener("resize", handler);
+  return () =&gt; window.removeEventListener("resize", handler);
+}, []);</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 3. React to prop/state change
+useEffect(() =&gt; {
+  document.title = `User: ${user.name}`;
+}, [user.name]); // тільки при зміні name
+
+// 4. Timer with cleanup
+useEffect(() =&gt; {
+  const id = setInterval(() =&gt; {
+    setTime(new Date());
+  }, 1000);
+  return () =&gt; clearInterval(id);
+}, []);
+
+// 5. Fetch when query changes
+useEffect(() =&gt; {
+  fetchResults(query).then(setResults);
+}, [query]); // dep!</pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>useEffect — часті помилки</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 1. Безкінечний цикл
+useEffect(() =&gt; {
+  setCount(count + 1);
+}); // без deps!
+// setCount &#8594; re-render &#8594; effect &#8594; setCount...
+
+// 3. Немає cleanup
+useEffect(() =&gt; {
+  window.addEventListener("resize", handler);
+  // forgot removeEventListener
+}, []);
+// memory leak при unmount</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 2. Пропущений dep
+useEffect(() =&gt; {
+  fetch(`/api?q=${query}`);
+}, []); // query &#10005;
+// stale closure — query залишиться старим
+
+// 4. Effect для обчислень
+useEffect(() =&gt; {
+  setFiltered(items.filter(...));
+}, [items]);
+// краще: const filtered = useMemo(...)</pre>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Коли НЕ потрібен useEffect</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Обчислення з props/state
+useEffect(() =&gt; {
+  setFiltered(items.filter(i =&gt; i.active));
+}, [items]);
+// const filtered = useMemo(() =&gt; ..., [items]);
+
+// Синхронізація props &#8594; state
+useEffect(() =&gt; {
+  setValue(props.initialValue);
+}, [props.initialValue]);
+// Render with key={initialValue} or use state during render</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Реакція на user event
+useEffect(() =&gt; {
+  if (submitted) submitForm(data);
+}, [submitted]);
+// const handleSubmit = () =&gt; submitForm(data);</pre>
+    </div>
+    <p style="font-size: 16px; margin-top: 15px;"><b>useEffect потрібен для:</b></p>
+    <ul style="font-size: 15px;">
+        <li>fetch data from server</li>
+        <li>subscriptions (WebSocket, events)</li>
+        <li>manually changing DOM (ref)</li>
+        <li>timers, analytics, logging</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>useEffect vs useLayoutEffect</h2>
+    <div class="columns two">
+        <div style="font-size: 18px;">
+            <p><b>useEffect</b></p>
+            <ul>
+                <li>Виконується <b>після</b> paint (асинхронно);</li>
+                <li>Не блокує браузер;</li>
+                <li>Більшість side effects;</li>
+                <li>fetch, subscriptions, timers.</li>
+            </ul>
+        </div>
+        <div style="font-size: 18px;">
+            <p><b>useLayoutEffect</b></p>
+            <ul>
+                <li>Виконується <b>після</b> DOM-мутацій, але <b>до</b> paint (синхронно);</li>
+                <li>Блокує браузер;</li>
+                <li>Для вимірювання DOM (getBoundingClientRect);</li>
+                <li>Для попередження мигання (flicker).</li>
+            </ul>
+        </div>
+    </div>
+    <p style="font-size: 16px; margin-top: 15px;">
+        <b>Правило:</b> завжди починай з <code>useEffect</code>. Переходь на
+        <code>useLayoutEffect</code> лише якщо бачиш візуальне мигання
+        (flicker) при оновленні DOM.
+    </p>
+</section>
+
+<section class="slide">
+    <h2>Правила Hook-ів</h2>
+    <ul style="font-size: 19px;">
+        <li><b>Викликай Hooks лише на top-level</b> — не всередині циклів, умов, вкладених функцій.</li>
+        <li><b>Викликай Hooks лише з React-функцій</b> — компонентів або інших Custom Hooks.</li>
+        <li><b>Порядок має значення</b> — React покладається на порядок виклику для ототожнення стану.</li>
+        <li><b>eslint-plugin-react-hooks</b> — встановлюй для автоматичної перевірки правил та deps.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Custom Hooks</h2>
+</section>
+
+<section class="slide">
+    <h2>Custom Hooks — перевикористання логіки</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// БЕЗ Custom Hook (дублікація)
+function SearchA() {
+  const [q, setQ] = useState("");
+  useEffect(() =&gt; { setTimeout... });
+  // debounce logic duplicated...
+}
+// та ж логіка в SearchB, SearchC...</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// З Custom Hook (1 місце)
+function useDebounce(value, delay) {
+  const [d, setD] = useState(value);
+  useEffect(() =&gt; { ... }, [value]);
+  return d;
+}
+// використовується скрізь</pre>
+    </div>
+    <p style="font-size: 16px; margin-top: 15px;"><b>Використання:</b></p>
+    <pre style="margin: 0; font-size: 10px; white-space: pre;">function SearchBar() {
+  const debouncedQuery = useDebounce(query, 300);
+  // debounce logic is reusable
+  return &lt;input value={query} onChange={...} /&gt;;
+}</pre>
+</section>
+
+<section class="slide">
+    <h2>Custom Hook — правила</h2>
+    <div style="font-size: 19px;">
+        <p><b>Custom Hook</b> — це JavaScript-функція, ім'я якої починається з <code>use</code>,
+            і яка може викликати інші Hook-и.</p>
+        <p><b>Конвенції:</b></p>
+        <ul>
+            <li>Ім'я <b>обов'язково</b> починається з <code>use</code> (useFetch, useToggle, useLocalStorage);</li>
+            <li>Повертає значення або масив (як useState, useReducer) або об'єкт;</li>
+            <li>Може приймати аргументи (URL, ключ, початкове значення);</li>
+            <li>Всередині може викликати <code>useState</code>, <code>useEffect</code>, інші hooks;</li>
+            <li>Не компонент — не повертає JSX.</li>
+        </ul>
+        <p>Аналог у Vue — <b>Composables</b> (<code>useMousePosition</code>, <code>useFetch</code>).</p>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Custom Hook — useToggle</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// hooks/useToggle.ts
+import { useState, useCallback } from "react";
+
+export function useToggle(initial: boolean = false) {
+  const [value, setValue] = useState(initial);
+
+  const toggle = useCallback(() =&gt; {
+    setValue(prev =&gt; !prev);
+  }, []);
+
+  const setTrue = useCallback(() =&gt; setValue(true), []);
+  const setFalse = useCallback(() =&gt; setValue(false), []);
+
+  return { value, toggle, setTrue, setFalse };
+}</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Використання
+import { useToggle } from "./hooks/useToggle";
+
+function Modal() {
+  const { value: isOpen,
+          toggle,
+          setFalse: close } =
+    useToggle(false);
+
   return (
     &lt;&gt;
-      &lt;Filter value=&#123;filter&#125; /&gt;
-      &lt;List page=&#123;page&#125; /&gt;
-      &lt;Pagination current=&#123;page&#125; onPageChange=&#123;goToPage&#125; /&gt;
+      &lt;button onClick={toggle}&gt;
+        Open
+      &lt;/button&gt;
+      {isOpen &amp;&amp; &lt;Dialog onClose={close} /&gt;}
     &lt;/&gt;
   );
-&#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>Query params</b> — параметри після <code>?</code> в URL.</p>
-            <p><b>Призначення:</b></p>
-            <ul>
-                <li>pagination (<code>?page=3</code>);</li>
-                <li>filtering (<code>?category=books</code>);</li>
-                <li>sorting (<code>?sort=price</code>);</li>
-                <li>search (<code>?q=react</code>);</li>
-                <li>utm-мітки для аналітики.</li>
-            </ul>
-            <p><b>useSearchParams</b> повертає
-                <code>URLSearchParams</code>-об'єкт + setter.</p>
-            <p>Зміна query &#8594; URL оновлюється,
-                компонент перерендериться.</p>
-            <p><b>Перевага:</b> стан фільтра в URL —
-                bookmarkable + shareable.</p>
-        </div>
+}</pre>
     </div>
 </section>
 
 <section class="slide">
-    <h2>Nested Routes та Layouts</h2>
-    <img src="pictures/react/4/nested-routes.svg" alt="" style="display: block; margin: 0 auto; width: 90%;">
-</section>
+    <h2>Custom Hook — useDebounce</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// hooks/useDebounce.ts
+import { useState, useEffect } from "react";
 
-<section class="slide">
-    <h2>Nested Routes — приклад коду</h2>
-    <pre style="margin: 0; font-size: 10px; white-space: pre;">// Layout-компонент з Outlet — місце для дочірніх маршрутів
-function Layout() &#123;
+export function useDebounce&lt;T&gt;(
+  value: T,
+  delay: number
+): T {
+  const [debounced, setDebounced] =
+    useState&lt;T&gt;(value);
+
+  useEffect(() =&gt; {
+    const timer = setTimeout(() =&gt; {
+      setDebounced(value);
+    }, delay);
+
+    // cleanup: скидає таймер
+    // при кожній зміні value
+    return () =&gt; clearTimeout(timer);
+  }, [value, delay]);
+
+  return debounced;
+}</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Використання: пошук з дебаунсом
+function SearchInput() {
+  const [query, setQuery] =
+    useState("");
+  const debouncedQuery =
+    useDebounce(query, 300);
+
+  useEffect(() =&gt; {
+    if (debouncedQuery) {
+      console.log("Search: ", debouncedQuery);
+      // тут буде API-виклик
+      // (детально — Лекція 12)
+    }
+  }, [debouncedQuery]);
+
   return (
-    &lt;div&gt;
-      &lt;Header /&gt;          // спільний для всіх дочірніх сторінок
-      &lt;Nav /&gt;             // спільна навігація
-      &lt;main&gt;
-        &lt;Outlet /&gt;        // тут рендериться активний дочірній маршрут
-      &lt;/main&gt;
-      &lt;Footer /&gt;          // спільний футер
-    &lt;/div&gt;
+    &lt;input
+      value={query}
+      onChange={(e) =&gt;
+        setQuery(e.target.value)}
+      placeholder="Search..."
+    /&gt;
   );
-&#125;
-
-// Конфігурація з вкладеними маршрутами
-&lt;Routes&gt;
-  &lt;Route path="/" element=&#123;&lt;Layout /&gt;&#125;&gt;
-    &lt;Route index element=&#123;&lt;Home /&gt;&#125; /&gt;          // index — дефолтна сторінка ("/")
-    &lt;Route path="users" element=&#123;&lt;UserList /&gt;&#125; /&gt;
-    &lt;Route path="users/:id" element=&#123;&lt;UserDetail /&gt;&#125; /&gt;
-    &lt;Route path="settings" element=&#123;&lt;Settings /&gt;&#125; /&gt;
-  &lt;/Route&gt;
-  &lt;Route path="/login" element=&#123;&lt;Login /&gt;&#125; /&gt;  // без Layout
-  &lt;Route path="*" element=&#123;&lt;NotFound /&gt;&#125; /&gt;
-&lt;/Routes&gt;</pre>
-    <p style="font-size: 17px; margin-top: 10px;">
-        <b>Outlet</b> — «слот» куди вставляється активний дочірній маршрут.
-        <b>index</b> — сторінка за замовчуванням для батьківського шляху.
-        Layout не перерендериться при зміні дочірнього маршруту.
+}</pre>
+    </div>
+    <p style="font-size: 16px;">
+        <b>useDebounce</b> — класичний Custom Hook: state + effect + cleanup.
+        Значення оновлюється лише після <code>delay</code> мс тиші.
+        Cleanup скидає таймер при кожній зміні <code>value</code>.
     </p>
 </section>
 
 <section class="slide">
-    <h2>Nested Routes — глибше вкладення</h2>
+    <h2>Custom Hook — useLocalStorage</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Кілька рівнів вкладеності
-&lt;Route path="/dashboard" element=&#123;&lt;DashboardLayout /&gt;&#125;&gt;
-  &lt;Route index element=&#123;&lt;DashboardHome /&gt;&#125; /&gt;
-  &lt;Route path="users" element=&#123;&lt;UsersLayout /&gt;&#125;&gt;
-    &lt;Route index element=&#123;&lt;UserList /&gt;&#125; /&gt;
-    &lt;Route path=":id" element=&#123;&lt;UserDetail /&gt;&#125; /&gt;
-    &lt;Route path=":id/edit" element=&#123;&lt;EditUser /&gt;&#125; /&gt;
-  &lt;/Route&gt;
-  &lt;Route path="settings" element=&#123;&lt;Settings /&gt;&#125; /&gt;
-&lt;/Route&gt;
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import { useState, useEffect } from "react";
 
-// URL &#8594; рендериться:
-// /dashboard              &#8594; Layout &#8594; DashboardHome
-// /dashboard/users        &#8594; Layout &#8594; UsersLayout &#8594; UserList
-// /dashboard/users/42     &#8594; Layout &#8594; UsersLayout &#8594; UserDetail
-// /dashboard/users/42/edit&#8594; Layout &#8594; UsersLayout &#8594; EditUser</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>Переваги вкладених маршрутів:</b></p>
-            <ul>
-                <li><b>Спільні layouts</b> — Header/Nav/Footer рендеряться один раз;</li>
-                <li><b>Ієрархія URL</b> відображає ієрархію UI;</li>
-                <li><b>Outlet</b> дозволяє вставляти дочірні компоненти;</li>
-                <li><b>Немає props drilling</b> — Layout не знає про конкретну сторінку;</li>
-                <li><b>Збереження стану</b> Layout при зміні вкладеної сторінки (напр. tab).</li>
-            </ul>
-            <p>Аналог у Vue Router — <code>&lt;router-view&gt;</code> + nested routes.</p>
-        </div>
-    </div>
-</section>
+export function useLocalStorage&lt;T&gt;(
+  key: string,
+  initial: T
+) {
+  const [value, setValue] = useState&lt;T&gt;(() =&gt; {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : initial;
+  });
 
-<section class="slide">
-    <h2>Protected Routes — auth flow</h2>
-    <img src="pictures/react/4/protected-routes.svg" alt="" style="display: block; margin: 0 auto; width: 85%;">
-</section>
+  useEffect(() =&gt; {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
 
-<section class="slide">
-    <h2>Protected Routes — реалізація</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// components/ProtectedRoute.tsx
-import &#123; Navigate, useLocation &#125; from "react-router-dom";
-import &#123; useAuth &#125; from "../hooks/useAuth";
+  return [value, setValue] as const;
+}</pre>
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Використання
+function Settings() {
+  const [theme, setTheme] =
+    useLocalStorage("theme", "light");
+  const [lang, setLang] =
+    useLocalStorage("lang", "uk");
 
-export function ProtectedRoute(
-  &#123; children &#125;: &#123; children: ReactNode &#125;
-) &#123;
-  const &#123; isAuthenticated &#125; = useAuth();
-  const location = useLocation();
-
-  if (!isAuthenticated) &#123;
-    // зберігаємо URL для повернення після login
-    return &lt;Navigate to="/login"
-      state=&#123; from: location &#125; replace /&gt;;
-  &#125;
-
-  return &lt;&gt;&#123;children&#125;&lt;/&gt;;
-&#125;</pre>
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Використання в Routes
-&lt;Routes&gt;
-  &lt;Route path="/login" element=&#123;&lt;Login /&gt;&#125; /&gt;
-
-  &lt;Route path="/dashboard" element=&#123;
-    &lt;ProtectedRoute&gt;
-      &lt;DashboardLayout /&gt;
-    &lt;/ProtectedRoute&gt;
-  &#125;&gt;
-    &lt;Route index element=&#123;&lt;DashboardHome /&gt;&#125; /&gt;
-    &lt;Route path="users" element=&#123;&lt;UserList /&gt;&#125; /&gt;
-    &lt;Route path="settings" element=&#123;&lt;Settings /&gt;&#125; /&gt;
-  &lt;/Route&gt;
-&lt;/Routes&gt;
-
-// Після login — повернення на запитану сторінку
-const location = useLocation();
-const from = location.state?.from?.pathname || "/dashboard";
-&lt;Navigate to=&#123;from&#125; replace /&gt;</pre>
-    </div>
-    <p style="font-size: 17px; margin-top: 10px;">
-        <b>Navigate replace</b> — замінює запис в історії, щоб Back не повернув на /login.
-        <b>location.state</b> — передаємо URL для повернення після login.
-    </p>
-</section>
-
-<section class="slide">
-    <h2>Role-based Routes — розширення</h2>
-    <pre style="margin: 0; font-size: 10px; white-space: pre;">// ProtectedRoute з перевіркою ролі
-export function ProtectedRoute(&#123;
-  children, roles = []
-&#125;: &#123;
-  children: ReactNode;
-  roles?: string[];  // ["admin", "editor"]
-&#125;) &#123;
-  const &#123; user, isAuthenticated &#125; = useAuth();
-  const location = useLocation();
-
-  if (!isAuthenticated)
-    return &lt;Navigate to="/login" state=&#123; from: location &#125; replace /&gt;;
-
-  if (roles.length &gt; 0 &amp;&amp; !roles.includes(user.role))
-    return &lt;Navigate to="/forbidden" replace /&gt;;
-
-  return &lt;&gt;&#123;children&#125;&lt;/&gt;;
-&#125;
-
-// Використання
-&lt;Route path="/admin" element=&#123;
-  &lt;ProtectedRoute roles=["admin"]&gt;
-    &lt;AdminPanel /&gt;
-  &lt;/ProtectedRoute&gt;
-&#125; /&gt;</pre>
-</section>
-
-<section class="slide">
-    <h2>Lazy Loading Routes — code splitting</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Без lazy — один бандл
-import Home from "./Home";
-import Users from "./Users";
-import Settings from "./Settings";
-
-// all loaded upfront (~500KB)</pre>
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// З lazy — split per route
-const Home = lazy(() =&gt; import("./Home"));
-const Users = lazy(() =&gt; import("./Users"));
-const Settings = lazy(() =&gt; import("./Settings"));
-
-// each loaded on demand (~50KB)</pre>
-    </div>
-    <p style="font-size: 16px; margin-top: 15px;"><b>Suspense</b> — fallback під час завантаження:</p>
-    <pre style="margin: 0; font-size: 10px; white-space: pre;">&lt;Suspense fallback={&lt;Spinner /&gt;}&gt;
-  &lt;Routes&gt;...&lt;/Routes&gt;
-&lt;/Suspense&gt;
-// показує spinner поки chunk завантажується</pre>
-</section>
-
-<section class="slide">
-    <h2>Lazy Loading — приклад коду</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import &#123; lazy, Suspense &#125; from "react";
-import &#123; BrowserRouter, Routes, Route &#125;
-  from "react-router-dom";
-
-// Lazy import — кожна сторінка окремий chunk
-const Home = lazy(() =&gt; import("./pages/Home"));
-const UserList = lazy(() =&gt; import("./pages/UserList"));
-const Settings = lazy(() =&gt; import("./pages/Settings"));
-
-function App() &#123;
-  return (
-    &lt;BrowserRouter&gt;
-      &lt;Suspense fallback=&#123;&lt;PageLoader /&gt;&#125;&gt;
-        &lt;Routes&gt;
-          &lt;Route path="/" element=&#123;&lt;Home /&gt;&#125; /&gt;
-          &lt;Route path="/users" element=&#123;&lt;UserList /&gt;&#125; /&gt;
-          &lt;Route path="/settings" element=&#123;&lt;Settings /&gt;&#125; /&gt;
-        &lt;/Routes&gt;
-      &lt;/Suspense&gt;
-    &lt;/BrowserRouter&gt;
-  );
-&#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>React.lazy</b> — динамічний import,
-                створює окремий JS-chunk.</p>
-            <p><b>Suspense</b> — показує fallback
-                під час завантаження chunk-а.</p>
-            <p><b>Переваги:</b></p>
-            <ul>
-                <li>Зменшення початкового bundle;</li>
-                <li>Швидший перший рендер;</li>
-                <li>Кожна сторінка вантажиться on-demand;</li>
-                <li>Кешування chunk-ів браузером.</li>
-            </ul>
-            <p><b>Важливо:</b> <code>Suspense</code> обгортає
-                всі <code>lazy</code>-компоненти.</p>
-            <p>Vite/Webpack автоматично створюють chunks
-                для <code>import()</code>.</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>404 сторінка — NotFound</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Catch-all маршрут — має бути останнім
-&lt;Routes&gt;
-  &lt;Route path="/" element=&#123;&lt;Home /&gt;&#125; /&gt;
-  &lt;Route path="/users" element=&#123;&lt;UserList /&gt;&#125; /&gt;
-  &lt;Route path="*" element=&#123;&lt;NotFound /&gt;&#125; /&gt;
-&lt;/Routes&gt;
-
-function NotFound() &#123;
   return (
     &lt;div&gt;
-      &lt;h1&gt;404 — Page Not Found&lt;/h1&gt;
-      &lt;Link to="/"&gt;Go home&lt;/Link&gt;
+      &lt;select value={theme}
+        onChange={(e) =&gt;
+          setTheme(e.target.value)}&gt;
+        &lt;option&gt;light&lt;/option&gt;
+        &lt;option&gt;dark&lt;/option&gt;
+      &lt;/select&gt;
     &lt;/div&gt;
   );
-&#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><code>path="*"</code> — catch-all, спрацьовує
-                якщо жоден маршрут не збігся.</p>
-            <p><b>Має бути останнім</b> у списку маршрутів.</p>
-            <p>Може показувати:</p>
-            <ul>
-                <li>404 error message;</li>
-                <li>Посилання на головну;</li>
-                <li>Search field;</li>
-                <li>Популярні сторінки.</li>
-            </ul>
-            <p><b>Error Boundary per route</b> (data API):</p>
-            <p><code>errorElement</code> на Route —
-                для помилок loader/action.</p>
-        </div>
+}</pre>
     </div>
 </section>
 
 <section class="slide">
-    <h2 class="shout">Архітектура застосунку</h2>
-</section>
-
-<section class="slide">
-    <h2>Структура React-застосунку</h2>
-    <img src="pictures/react/4/app-structure.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
-</section>
-
-<section class="slide">
-    <h2>Шари відповідальності</h2>
-    <table style="font-size: 17px; width: 100%; border-collapse: collapse; margin-left: 0; ">
+    <h2>Популярні Custom Hooks (огляд)</h2>
+    <table style="font-size: 16px; width: 100%; border-collapse: collapse; margin-left: 0; ">
         <thead>
             <tr style="background: var(--brand-color-prinmary); color: #fff;">
-                <th style="padding: 8px; text-align: left;">Шар</th>
-                <th style="padding: 8px; text-align: left;">Відповідальність</th>
-                <th style="padding: 8px; text-align: left;">Приклад</th>
+                <th style="padding: 8px; text-align: left;">Hook</th>
+                <th style="padding: 8px; text-align: left;">Призначення</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td style="padding: 6px;"><b>App</b></td>
-                <td style="padding: 6px;">Глобальна конфігурація, провайдери</td>
-                <td style="padding: 6px;">RouterProvider, ThemeContext, ErrorBoundary</td>
+                <td style="padding: 6px;"><code>useToggle</code></td>
+                <td style="padding: 6px;">Бінарний стан (open/closed, on/off)</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>Layout</b></td>
-                <td style="padding: 6px;">Спільна оболонка сторінок</td>
-                <td style="padding: 6px;">Header, Nav, Footer + Outlet</td>
+                <td style="padding: 6px;"><code>useFetch</code></td>
+                <td style="padding: 6px;">Завантаження даних з API (loading, error, data)</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>Pages</b></td>
-                <td style="padding: 6px;">Сторінки, маршрути</td>
-                <td style="padding: 6px;">HomePage, UserListPage, SettingsPage</td>
+                <td style="padding: 6px;"><code>useLocalStorage</code></td>
+                <td style="padding: 6px;">Стан, синхронізований з localStorage</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>Features</b></td>
-                <td style="padding: 6px;">Доменна логіка (feature-first)</td>
-                <td style="padding: 6px;">auth/, products/, orders/</td>
+                <td style="padding: 6px;"><code>useDebounce</code></td>
+                <td style="padding: 6px;">Дебаунс значення (пошук, input)</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>Components</b></td>
-                <td style="padding: 6px;">Перевикористовуваний UI</td>
-                <td style="padding: 6px;">Button, Modal, Input, Card</td>
+                <td style="padding: 6px;"><code>useWindowSize</code></td>
+                <td style="padding: 6px;">Розмір вікна (resize listener)</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>Hooks</b></td>
-                <td style="padding: 6px;">Спільна stateful-логіка</td>
-                <td style="padding: 6px;">useUsers, useDebounce, useAuth</td>
+                <td style="padding: 6px;"><code>usePrevious</code></td>
+                <td style="padding: 6px;">Попереднє значення prop/state</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>API</b></td>
-                <td style="padding: 6px;">HTTP-клієнт, endpoint-функції</td>
-                <td style="padding: 6px;">apiClient, usersApi, productsApi</td>
+                <td style="padding: 6px;"><code>useMediaQuery</code></td>
+                <td style="padding: 6px;">Реакція на CSS media query</td>
             </tr>
             <tr>
-                <td style="padding: 6px;"><b>Types</b></td>
-                <td style="padding: 6px;">TypeScript-типи, DTO</td>
-                <td style="padding: 6px;">User, Product, CreateUserDTO</td>
+                <td style="padding: 6px;"><code>useClickOutside</code></td>
+                <td style="padding: 6px;">Клік поза елементом (modals, dropdowns)</td>
             </tr>
         </tbody>
     </table>
+    <p style="font-size: 16px; margin-top: 10px;">
+        Готові бібліотеки: <a href="https://react-hooks.org/" target="_blank">react-hooks.org</a>,
+        <a href="https://usehooks.com/" target="_blank">usehooks.com</a>,
+        <a href="https://github.com/streamich/react-use" target="_blank">react-use</a>.
+    </p>
 </section>
 
 <section class="slide">
-    <h2>Feature-first структура</h2>
-    <pre style="margin: 0; font-size: 10px; white-space: pre;">src/
-├── app/                    // global setup
-│   ├── router.tsx          // routes config
-│   ├── providers.tsx       // Context providers
-│   └── store.ts            // global state
-├── features/               // domain modules
-│   ├── auth/
-│   │   ├── LoginPage.tsx
-│   │   ├── useAuth.ts
-│   │   └── authApi.ts
-│   └── products/
-│       ├── ProductList.tsx
-│       └── useProducts.ts
-├── components/  hooks/  types/  api/</pre>
-</section>
-
-<section class="slide">
-    <h2>Feature-first vs Type-first</h2>
-    <div class="columns two">
-        <div style="font-size: 17px;">
-            <p><b>Type-first (за типом файлу):</b></p>
-            <pre style="margin: 0; font-size: 10px; white-space: pre;">src/
-├── components/
-│   ├── LoginForm.tsx
-│   ├── ProductList.tsx
-│   └── ProductDetail.tsx
-├── hooks/
-│   ├── useAuth.ts
-│   └── useProducts.ts
-├── api/
-│   ├── authApi.ts
-│   └── productsApi.ts</pre>
-            <p style="margin-top: 10px;">Файли одного домена розкидані.</p>
-            <p>Підходить для <b>невеликих</b> проєктів.</p>
-        </div>
-        <div style="font-size: 17px;">
-            <p><b>Feature-first (за доменом):</b></p>
-            <pre style="margin: 0; font-size: 10px; white-space: pre;">src/
-├── features/
+    <h2>Архітектура: структура проєкту</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">src/
+├── components/       # UI
+│   ├── Button.tsx
+│   ├── Modal.tsx
+│   └── index.ts
+├── features/         # за доменами
 │   ├── auth/
 │   │   ├── LoginForm.tsx
 │   │   ├── useAuth.ts
 │   │   └── authApi.ts
 │   └── products/
 │       ├── ProductList.tsx
-│       ├── ProductDetail.tsx
-│       ├── useProducts.ts
-│       └── productsApi.ts</pre>
-            <p style="margin-top: 10px;">Все для домена — в одній папці.</p>
-            <p>Підходить для <b>середніх/великих</b> проєктів.</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Container vs Presentational</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Container (logic)
-function UserListContainer() {
-  const { users, loading, error }
-    = useUsers();
-  if (loading) return &lt;Spinner /&gt;;
-  if (error) return &lt;ErrorView /&gt;;
-  return &lt;UserListView users={users}
-    onDelete={handleDelete} /&gt;;
-}</pre>
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Presentational (UI only)
-function UserListView(props: {
-  users: User[];
-  onDelete: (id: string) =&gt; void;
-}) {
-  return (
-    &lt;ul&gt;{users.map(u =&gt; ...)}&lt;/ul&gt;
-  );
-}</pre>
-    </div>
-    <ul style="font-size: 15px; margin-top: 15px;">
-        <li><b>Container:</b> data fetching, state, business logic;</li>
-        <li><b>Presentational:</b> pure UI, receives props, no side effects, reusable.</li>
-    </ul>
-    <p style="font-size: 14px;">Note: In modern React with Hooks, this pattern is less strict.
-        Custom Hooks extract logic instead of Container components.
-        Still useful for separating data-aware pages from reusable UI components.</p>
-</section>
-
-<section class="slide">
-    <h2>Сучасний підхід: Hooks замість Containers</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Логіка в Custom Hook
-export function useUsers() &#123;
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() =&gt; &#123;
-    usersApi.list().then(d =&gt; &#123;
-      setUsers(d);
-      setLoading(false);
-    &#125;);
-  &#125;, []);
-
-  const remove = async (id: string) =&gt; &#123;
-    await usersApi.delete(id);
-    setUsers(prev =&gt; prev.filter(u =&gt; u.id !== id));
-  &#125;;
-
-  return &#123; users, loading, remove &#125;;
-&#125;</pre>
-        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">// Компонент — лише UI + виклик hook
-function UserListPage() &#123;
-  const &#123; users, loading, remove &#125; =
-    useUsers();
-
-  if (loading) return &lt;Spinner /&gt;;
-
-  return (
-    &lt;UserListView
-      users=&#123;users&#125;
-      onDelete=&#123;remove&#125;
-    /&gt;
-  );
-&#125;
-
-// UserListView — presentational
-function UserListView(&#123; users, onDelete &#125;) &#123;
-  return &lt;ul&gt;
-    &#123;users.map(u =&gt; &lt;li key=&#123;u.id&#125;&gt;
-      &#123;u.name&#125;
-      &lt;button onClick=&#123;() =&gt; onDelete(u.id)&#125;&gt;
-        Delete
-      &lt;/button&gt;
-    &lt;/li&gt;)&#125;
-  &lt;/ul&gt;;
-&#125;</pre>
-    </div>
-    <p style="font-size: 16px;">
-        Custom Hook витягує логіку, компонент залишається чистим UI.
-        <b>Перевага над Container-компонентом:</b> hook можна перевикористати в кількох компонентах.
-    </p>
-</section>
-
-<section class="slide">
-    <h2 class="shout">Component Composition</h2>
-</section>
-
-<section class="slide">
-    <h2>Component Composition — патерни</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 1. children prop
-&lt;Card&gt;
-  &lt;h2&gt;Title&lt;/h2&gt;
-  &lt;p&gt;Content&lt;/p&gt;
-&lt;/Card&gt;
-// Card = layout wrapper
-
-// 4. HOC (legacy)
-function withAuth(Component) {
-  return props =&gt; {
-    if (!auth) return &lt;Login /&gt;;
-    return &lt;Component {...props} /&gt;;
-  }}</pre>
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 2. render props
-&lt;DataProvider render={data =&gt;
-  &lt;List items={data} /&gt;
-} /&gt;
-// function as child
-
-// 5. Custom Hooks (modern)
-function Page() {
-  const { data, loading } =
-    useAuth();
-  if (!data) return &lt;Login /&gt;;
-}</pre>
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 3. compound components
-&lt;Tabs&gt;
-  &lt;Tabs.List&gt;...&lt;/Tabs.List&gt;
-  &lt;Tabs.Panel&gt;...&lt;/Tabs.Panel&gt;
-&lt;/Tabs&gt;
-// shared state implicitly
-
-// 6. slot props
-&lt;Layout
-  header={&lt;Header /&gt;}
-  sidebar={&lt;Nav /&gt;}
-&gt;
-  {children}&lt;/Layout&gt;</pre>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>1. children — базовий патерн</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Card — універсальна обгортка
-function Card(&#123; children, title &#125;: &#123;
-  children: ReactNode;
-  title: string;
-&#125;) &#123;
-  return (
-    &lt;div className="card"&gt;
-      &lt;h2&gt;&#123;title&#125;&lt;/h2&gt;
-      &lt;div className="card-body"&gt;
-        &#123;children&#125;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  );
-&#125;
-
-// Використання
-&lt;Card title="Profile"&gt;
-  &lt;p&gt;Name: Anna&lt;/p&gt;
-  &lt;p&gt;Age: 25&lt;/p&gt;
-&lt;/Card&gt;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>children</b> — вбудований проп, передає
-                дочірні елементи.</p>
-            <p><b>Призначення:</b></p>
-            <ul>
-                <li>Layout-обгортки (Card, Panel, Modal);</li>
-                <li>Композиція без props drilling;</li>
-                <li>Реюзабельні UI-оболонки.</li>
-            </ul>
-            <p><b>Перевага:</b> Card не знає, що всередині —
-                повна роздільність.</p>
-            <p>Аналог у Vue — <code>&lt;slot&gt;</code>.</p>
-            <p><b> TypeScript:</b> <code>children: ReactNode</code>
-                (не <code>JSX.Element</code>).</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>2. Compound Components — складені</h2>
-    <div style="display: flex; gap: 10px;">
-        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">// Tabs =Tabs.List + Tabs.Panel
-function Tabs(&#123; children &#125;) &#123;
-  const [active, setActive] = useState(0);
-  return (
-    &lt;TabsContext.Provider value=&#123;&#123; active, setActive &#125;&#125;&gt;
-      &#123;children&#125;
-    &lt;/TabsContext.Provider&gt;
-  );
-&#125;
-
-Tabs.List = function(&#123; children &#125;) &#123;
-  const &#123; active, setActive &#125; = useContext(TabsContext);
-  // render tab buttons with active state
-&#125;;
-
-Tabs.Panel = function(&#123; index, children &#125;) &#123;
-  const &#123; active &#125; = useContext(TabsContext);
-  if (index !== active) return null;
-  return &lt;div&gt;&#123;children&#125;&lt;/div&gt;;
-&#125;;
-
-// Використання — декларативний API
-&lt;Tabs&gt;
-  &lt;Tabs.List&gt;
-    &lt;Tab label="Profile" /&gt;
-    &lt;Tab label="Settings" /&gt;
-  &lt;/Tabs.List&gt;
-  &lt;Tabs.Panel index=&#123;0&#125;&gt;...&lt;/Tabs.Panel&gt;
-  &lt;Tabs.Panel index=&#123;1&#125;&gt;...&lt;/Tabs.Panel&gt;
-&lt;/Tabs&gt;</pre>
-        <div style="flex: 1; font-size: 12px;">
-            <p><b>Compound Components</b> — група компонентів,
-                що працюють разом через спільний Context.</p>
-            <p><b>Приклади:</b></p>
-            <ul>
-                <li><code>&lt;Select&gt;</code> + <code>&lt;Option&gt;</code>;</li>
-                <li><code>&lt;Tabs&gt;</code> + <code>&lt;TabList&gt;</code> + <code>&lt;TabPanel&gt;</code>;</li>
-                <li><code>&lt;Form&gt;</code> + <code>&lt;Field&gt;</code> + <code>&lt;Submit&gt;</code>;</li>
-                <li><code>&lt;Table&gt;</code> + <code>&lt;Tr&gt;</code> + <code>&lt;Td&gt;</code>.</li>
-            </ul>
-            <p><b>Переваги:</b></p>
-            <ul>
-                <li>Декларативний, зрозумілий API;</li>
-                <li>Спільний state неявно через Context;</li>
-                <li>Гнучкість — порядок елементів довільний;</li>
-                <li>Кожна частина окремо типізована.</li>
-            </ul>
-            <p>Аналог у Vue — <code>&lt;slot name="..."&gt;</code> + provide/inject.</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>3. Render Props — функція як child</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Компонент приймає функцію-рендерер
-function DataList&lt;T&gt;(&#123;
-  items, renderItem
-&#125;: &#123;
-  items: T[];
-  renderItem: (item: T) =&gt; ReactNode;
-&#125;) &#123;
-  return (
-    &lt;ul&gt;
-      &#123;items.map((item, i) =&gt; (
-        &lt;li key=&#123;i&#125;&gt;&#123;renderItem(item)&#125;&lt;/li&gt;
-      ))&#125;
-    &lt;/ul&gt;
-  );
-&#125;
-
-// Використання — callback як prop
-&lt;DataList
-  items=&#123;users&#125;
-  renderItem=&#123;(user) =&gt; (
-    &lt;div&gt;
-      &lt;h3&gt;&#123;user.name&#125;&lt;/h3&gt;
-      &lt;p&gt;&#123;user.email&#125;&lt;/p&gt;
-    &lt;/div&gt;
-  )&#125;
-/&gt;</pre>
+│       └── useProducts.ts
+├── hooks/            # спільні hooks
+│   ├── useFetch.ts
+│   └── useToggle.ts
+├── context/          # Context providers
+│   └── ThemeContext.tsx
+├── utils/
+├── types/
+├── App.tsx
+└── main.tsx</pre>
         <div style="flex: 1; font-size: 16px;">
-            <p><b>Render prop</b> — проп-функція, що повертає JSX.</p>
-            <p>Компонент делегує рендер викликучу.</p>
-            <p><b>Призначення:</b></p>
+            <p><b>За типовими принципами:</b></p>
             <ul>
-                <li>Універсальні списки/таблиці;</li>
-                <li>Абстракція над data fetching;</li>
-                <li>Кастомізація рендеру.</li>
+                <li><b>components/</b> — універсальні UI-компоненти (Button, Input, Modal);</li>
+                <li><b>features/</b> — групування за доменом (auth, products, cart);</li>
+                <li><b>hooks/</b> — спільні Custom Hooks;</li>
+                <li><b>context/</b> — провайдери глобального стану;</li>
+                <li><b>utils/</b> — допоміжні функції;</li>
+                <li><b>types/</b> — спільні TypeScript-типи.</li>
             </ul>
-            <p><b>Варіація — function as child:</b></p>
-            <pre style="margin: 0; font-size: 10px; white-space: pre;">&lt;DataProvider&gt;
-  &#123;(data) =&gt; &lt;List items=&#123;data&#125; /&gt;&#125;
-&lt;/DataProvider&gt;</pre>
-            <p><b>Зауваження:</b> у сучасному React частіше
-                замінюють на <b>Custom Hooks</b>.</p>
+            <p>Кожна feature містить свої компоненти, hooks, API-виклики
+                — <b>feature-first структура</b>.</p>
         </div>
     </div>
-</section>
-
-<section class="slide">
-    <h2>4. Slot Props — кілька «слотів»</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Layout приймає кілька "слотів" через props
-function PageLayout(&#123;
-  header, sidebar, children
-&#125;: &#123;
-  header: ReactNode;
-  sidebar: ReactNode;
-  children: ReactNode;
-&#125;) &#123;
-  return (
-    &lt;div&gt;
-      &#123;header&#125;
-      &lt;div className="flex"&gt;
-        &#123;sidebar&#125;
-        &lt;main&gt;&#123;children&#125;&lt;/main&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  );
-&#125;
-
-// Використання — передаємо готові елементи
-&lt;PageLayout
-  header=&#123;&lt;AppHeader /&gt;&#125;
-  sidebar=&#123;&lt;NavMenu /&gt;&#125;
-&gt;
-  &lt;UserListPage /&gt;  // children
-&lt;/PageLayout&gt;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>Slot props</b> — кілька «слотів» через
-                окремі props типу <code>ReactNode</code>.</p>
-            <p><b>Призначення:</b></p>
-            <ul>
-                <li>Складні layouts з кількома зонами;</li>
-                <li>Композиція без props drilling;</li>
-                <li>Page-specific контент у спільній оболонці.</li>
-            </ul>
-            <p><b>Перевага над children:</b> можна передати
-                кілька окремих ділянок.</p>
-            <p>Аналог у Vue —
-                <code>&lt;slot name="header"&gt;</code>,
-                <code>&lt;slot name="sidebar"&gt;</code>.</p>
-            <p><b>В React Router</b> <code>&lt;Outlet&gt;</code> —
-                аналог slot для активного маршруту.</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>5. HOC (Higher-Order Component) — legacy</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// HOC — функція, що приймає компонент і повертає новий
-function withAuth&lt;P&gt;(
-  Component: ComponentType&lt;P&gt;
-) &#123;
-  return function Protected(props: P) &#123;
-    const &#123; isAuthenticated &#125; = useAuth();
-    if (!isAuthenticated)
-      return &lt;Navigate to="/login" /&gt;;
-    return &lt;Component &#123;...props&#125; /&gt;;
-  &#125;;
-&#125;
-
-// Використання
-export default withAuth(DashboardPage);</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>HOC</b> — функція
-                <code>(Component) =&gt; NewComponent</code>.</p>
-            <p><b>Історично:</b> був основним патерном до Hooks
-                (React &lt; 16.8).</p>
-            <p><b>Зараз:</b> майже не використовується.
-                Заміна:</p>
-            <ul>
-                <li><b>Custom Hooks</b> — для логіки;</li>
-                <li><b>Wrapper components</b> — для UI;</li>
-                <li><b>ProtectedRoute</b> — для auth.</li>
-            </ul>
-            <p><b>Мінуси HOC:</b></p>
-            <ul>
-                <li>втрата TypeScript-типізації props;</li>
-                <li>«wrapper hell» — вкладені HOC;</li>
-                <li>складно відлагоджувати (DevTools).</li>
-            </ul>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Порівняння патернів — коли використовувати</h2>
-    <table style="font-size: 16px; width: 100%; border-collapse: collapse; margin-left: 0; ">
-        <thead>
-            <tr style="background: var(--brand-color-prinmary); color: #fff;">
-                <th style="padding: 8px; text-align: left;">Патерн</th>
-                <th style="padding: 8px; text-align: left;">Коли використовувати</th>
-                <th style="padding: 8px; text-align: left;">Аналог Vue</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="padding: 6px;"><b>children</b></td>
-                <td style="padding: 6px;">Обгортки, Layout, Card</td>
-                <td style="padding: 6px;"><code>&lt;slot&gt;</code></td>
-            </tr>
-            <tr>
-                <td style="padding: 6px;"><b>Slot props</b></td>
-                <td style="padding: 6px;">Кілька зон (header, sidebar, main)</td>
-                <td style="padding: 6px;"><code>&lt;slot name="..."&gt;</code></td>
-            </tr>
-            <tr>
-                <td style="padding: 6px;"><b>Compound</b></td>
-                <td style="padding: 6px;">Tabs, Select, Accordion, Form</td>
-                <td style="padding: 6px;">provide/inject + slots</td>
-            </tr>
-            <tr>
-                <td style="padding: 6px;"><b>Render props</b></td>
-                <td style="padding: 6px;">Універсальні списки, data renderers</td>
-                <td style="padding: 6px;">scoped slot <code>v-slot</code></td>
-            </tr>
-            <tr>
-                <td style="padding: 6px;"><b>Custom Hooks</b></td>
-                <td style="padding: 6px;">Перевикористання stateful-логіки (сучасний)</td>
-                <td style="padding: 6px;">Composables</td>
-            </tr>
-            <tr>
-                <td style="padding: 6px;"><b>HOC</b></td>
-                <td style="padding: 6px;">Legacy — не рекомендується</td>
-                <td style="padding: 6px;">—</td>
-            </tr>
-            <tr>
-                <td style="padding: 6px;"><b>Wrapper component</b></td>
-                <td style="padding: 6px;">Auth, Error Boundary, ProtectedRoute</td>
-                <td style="padding: 6px;">wrapper component</td>
-            </tr>
-        </tbody>
-    </table>
-</section>
-
-<section class="slide">
-    <h2>Composition — вирішення props drilling</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// &#10060; Props drilling
-&lt;App user=&#123;user&#125;&gt;
-  &lt;Layout user=&#123;user&#125;&gt;          // не потрібен
-    &lt;Sidebar user=&#123;user&#125;&gt;       // не потрібен
-      &lt;UserProfile user=&#123;user&#125; /&gt;
-    &lt;/Sidebar&gt;
-  &lt;/Layout&gt;
-&lt;/App&gt;
-
-// &#9989; Composition — передаємо готовий елемент
-&lt;App&gt;
-  &lt;Layout
-    sidebar=&#123;
-      &lt;UserProfile user=&#123;user&#125; /&gt;
-    &#125;
-  /&gt;
-&lt;/App&gt;
-// Layout не знає про user взагалі!</pre>
-        <div style="flex: 1; font-size: 16px;">
-            <p><b>Композиція замість props drilling:</b></p>
-            <p>Замість прокидання <code>user</code> через
-                Layout і Sidebar — <b>передаємо готовий елемент</b>
-                <code>&lt;UserProfile&gt;</code> через slot prop.</p>
-            <p><b>Переваги:</b></p>
-            <ul>
-                <li>Layout залишається агностичним;</li>
-                <li>Немає зайвих props;</li>
-                <li>Немає зайвих re-render;</li>
-                <li>Зрозуміло, де дані використовуються.</li>
-            </ul>
-            <p>Альтернатива — <b>Context API</b> (Лекція 9),
-                якщо user потрібен у багатьох місцях.</p>
-        </div>
-    </div>
-</section>
-
-<section class="slide">
-    <h2>Архітектурні принципи — підсумок</h2>
-    <ul style="font-size: 18px;">
-        <li><b>Single Responsibility</b> — кожен компонент має одну відповідальність;</li>
-        <li><b>Separation of Concerns</b> — UI, логіка, data — окремі шари;</li>
-        <li><b>DRY</b> — перевикористання через Custom Hooks + composition;</li>
-        <li><b>Composition over Inheritance</b> — React не має inheritance, лише composition;</li>
-        <li><b>Smart vs Dumb</b> — сторінки знають про data, UI-компоненти — лише про props;</li>
-        <li><b>Feature-first</b> — групування за доменом, не за типом файлу;</li>
-        <li><b>URL as state</b> — фільтри, pagination, tab — в URL, не в useState;</li>
-        <li><b>Lazy loading</b> — code splitting для великих застосунків.</li>
-    </ul>
-</section>
-
-<section class="slide">
-    <h2>Типові помилки архітектури</h2>
-    <ul style="font-size: 18px;">
-        <li><b>Все в одному компоненті</b> — 500-рядковий компонент з логікою, стилями, fetch. Рішення: розділити на Page + Hook + UI;</li>
-        <li><b>API-виклики в UI-компонентах</b> — Button викликає axios. Рішення: Button лише emit подію, батько викликає API;</li>
-        <li><b>Props drilling через 5 рівнів</b> — рішення: Context, composition, або lifting state;</li>
-        <li><b>Універсальний компонент «на всі випадки»</b> — 50 props з умовами. Рішення: розділити на几个 спеціалізованих;</li>
-        <li><b>State в useState замість URL</b> — pagination у state втрачається при reload. Рішення: useSearchParams;</li>
-        <li><b>Без lazy loading</b> — 1MB бандл. Рішення: React.lazy + Suspense для сторінок;</li>
-        <li><b>Без Error Boundary</b> — одна помилка ламає весь застосунок. Рішення: ErrorBoundary per route/section.</li>
-    </ul>
 </section>
 
 <section class="slide">
     <h2>Підсумок</h2>
-    <ul style="font-size: 18px;">
-        <li><b>SPA-маршрутизація</b> — навігація без перезавантаження через History API. React Router — стандарт.</li>
-        <li><b>React Router</b>: <code>BrowserRouter</code>, <code>Routes</code>, <code>Route</code>, <code>Link</code>, <code>Outlet</code>, <code>Navigate</code>. Hooks: <code>useParams</code>, <code>useNavigate</code>, <code>useSearchParams</code>, <code>useLocation</code>.</li>
-        <li><b>Route params</b> (<code>:id</code>) + <b>query params</b> (<code>?page=2</code>) — URL як джерело правди.</li>
-        <li><b>Nested routes</b> + <code>&lt;Outlet&gt;</code> — спільні layouts, ієрархія UI.</li>
-        <li><b>Protected routes</b> — <code>&lt;ProtectedRoute&gt;</code> wrapper + <code>Navigate</code> для редиректу на login.</li>
-        <li><b>Lazy loading</b> — <code>React.lazy</code> + <code>Suspense</code> для code splitting per route.</li>
-        <li><b>Архітектура</b>: App &#8594; Layouts &#8594; Pages &#8594; Features &#8594; Components. Feature-first структура.</li>
-        <li><b>Composition патерни</b>: children, slot props, compound components, render props. HOC — legacy.</li>
-        <li><b>Custom Hooks</b> замість Container-компонентів — сучасний підхід до розділення логіки та UI.</li>
+    <ul style="font-size: 19px;">
+        <li><b>Стан живе якомога нижче.</b> Піднімай лише коли потрібно ділитися.</li>
+        <li><b>useState</b> — простий стан, <b>useReducer</b> — складний.
+            <b>useContext</b> — глобальний, <b>TanStack Query</b> — серверний.</li>
+        <li><b>Props drilling</b> — антипатерн. Рішення: Context, композиція, стейт-менеджер.</li>
+        <li><b>Derived state</b> — обчислюй під час рендеру, не зберігай в state.</li>
+        <li><b>useEffect</b> — лише для side effects (fetch, subscriptions, timers).
+            Не використовуй для обчислень чи реакції на user events.</li>
+        <li><b>Завжди роби cleanup</b> в useEffect для підписок і таймерів.</li>
+        <li><b>Custom Hooks</b> — винесення повторно використовуваної stateful-логіки
+            (аналог Vue Composables).</li>
+        <li><b>eslint-plugin-react-hooks</b> — обов'язковий інструмент.</li>
     </ul>
 </section>
 
 <section class="slide">
     <h2>Корисні ресурси</h2>
-    <ul style="font-size: 18px;">
-        <li><a href="https://reactrouter.com/" target="_blank">React Router — офіційна документація</a></li>
-        <li><a href="https://reactrouter.com/start/data" target="_blank">React Router: Data API (v6.4+)</a></li>
-        <li><a href="https://reactrouter.com/api/hooks" target="_blank">React Router Hooks API</a></li>
-        <li><a href="https://react.dev/reference/react/lazy" target="_blank">React.lazy + Suspense</a></li>
-        <li><a href="https://react.dev/reference/react/Suspense" target="_blank">React Suspense</a></li>
-        <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API" target="_blank">MDN: History API</a></li>
-        <li><a href="https://www.patterns.dev/" target="_blank">patterns.dev — патерни React</a></li>
-        <li><a href="https://nextjs.org/docs/app" target="_blank">Next.js App Router (file-based routing)</a></li>
+    <ul style="font-size: 19px;">
+        <li><a href="https://react.dev/learn/state-a-components-memory" target="_blank">React: State — пам'ять компонента</a></li>
+        <li><a href="https://react.dev/learn/sharing-state-between-components" target="_blank">React: Спільний стан (Lifting State Up)</a></li>
+        <li><a href="https://react.dev/learn/extracting-state-logic-into-a-reducer" target="_blank">React: useReducer</a></li>
+        <li><a href="https://react.dev/learn/passing-data-deeply-with-context" target="_blank">React: Context API</a></li>
+        <li><a href="https://react.dev/learn/synchronizing-with-effects" target="_blank">React: useEffect — синхронізація з ефектами</a></li>
+        <li><a href="https://react.dev/learn/you-might-not-need-an-effect" target="_blank">React: Можливо, вам не потрібен useEffect</a></li>
+        <li><a href="https://react.dev/learn/reusing-logic-with-custom-hooks" target="_blank">React: Custom Hooks</a></li>
+        <li><a href="https://tanstack.com/query/latest" target="_blank">TanStack Query</a></li>
+        <li><a href="https://docs.pmnd.rs/zustand" target="_blank">Zustand</a></li>
     </ul>
 </section>
 
