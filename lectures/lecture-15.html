@@ -624,6 +624,24 @@ ReactDOM.createRoot(document.getElementById("root")!)
 </section>
 
 <section class="slide">
+    <h2>React Compiler — автоматична оптимізація</h2>
+    <div style="font-size: 17px;">
+        <p><b>React Compiler 1.0</b> — стабільний build-time compiler,
+            який автоматично оптимізує компоненти та Hooks через memoization.</p>
+        <ul>
+            <li>для нового коду в багатьох випадках можна обійтися без ручного
+                <code>memo</code>, <code>useMemo</code> та <code>useCallback</code>;</li>
+            <li>compiler аналізує код під час build і намагається уникати зайвого
+                повторного виконання та обчислень;</li>
+            <li>ручна memoization все ще можлива, коли потрібен явний контроль
+                або compiler не використовується;</li>
+            <li>спочатку вимірюємо проблему, потім оптимізуємо.</li>
+        </ul>
+        <p><b>Важливо:</b> Compiler не робить дорогий алгоритм автоматично дешевим.</p>
+    </div>
+</section>
+
+<section class="slide">
     <h2>React.memo, useMemo, useCallback</h2>
     <div style="display: flex; gap: 20px;">
         <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// React.memo
@@ -660,7 +678,7 @@ const handleClick =
         <li>Fix: <code>useCallback(fn, deps)</code> &#8594; same ref &#8594; <code>memo(Item)</code> skips &#8594; no re-render</li>
         <li>&#9888;&#65039; Don't wrap everything — memo/useMemo/useCallback have their own cost</li>
         <li>Use only when profiling shows a real bottleneck (large lists, expensive renders)</li>
-        <li>React 19: React Compiler may auto-optimize many of these cases in the future</li>
+        <li>React Compiler 1.0 може автоматично оптимізувати багато таких випадків</li>
     </ul>
 </section>
 
@@ -763,8 +781,9 @@ function UserList(&#123; users &#125;) &#123;
                     (щоб props не змінювались);</li>
                 <li>Функція &#8212; dep в useEffect.</li>
             </ul>
-            <p><b>React 19:</b> React Compiler автоматично
-                оптимізує багато з цих випадків.</p>
+            <p><b>React Compiler:</b> для нового коду ручна memoization потрібна рідше.
+                <code>useMemo</code> і <code>useCallback</code> залишаються корисними,
+                коли потрібен точний контроль або compiler не використовується.</p>
         </div>
     </div>
 </section>
