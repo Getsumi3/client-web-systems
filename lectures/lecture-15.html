@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <title>Лекція 15. React: State Management та Production React</title>
+    <title>Лекція 15. React: State Management, Performance та Testing</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="node_modules/@shower/ribbon/styles/index.css">
@@ -28,7 +28,7 @@
         <li>Коли useState і Context вже недостатньо та навіщо потрібен глобальний state management?</li>
         <li>Як використовувати Zustand для управління client state?</li>
         <li>Чим client state відрізняється від server state та як TanStack Query вирішує проблеми роботи з API-даними?</li>
-        <li>Як масштабувати та оптимізувати React-застосунок за допомогою Custom Hooks, component patterns і performance techniques?</li>
+        <li>Як вимірювати та оптимізувати performance та тестувати React-застосунок?</li>
     </ol>
 </section>
 
@@ -46,12 +46,11 @@
     <div style="font-size: 14px;">
         <p><b>Context API</b> — чудовий інструмент, але має обмеження:</p>
         <ul>
-            <li><b>Будь-яка зміна value &#8594; re-render ВСІХ consumers</b>,
-                навіть якщо вони використовують лише одне поле;</li>
-            <li><b>Немає селективної підписки</b> — не можна підписатися лише на
-                <code>user.name</code>, ігноруючи <code>user.role</code>;</li>
-            <li><b>Немає middleware</b> — немає devtools, persistence, time-travel;</li>
-            <li><b>Немає async actions</b> — складно робити складні flows;</li>
+            <li><b>Зміна value оновлює consumers цього Context</b>;
+                якщо значення часто змінюються, це може давати зайві рендери;</li>
+            <li><b>Немає вбудованої селективної підписки</b> як у спеціалізованих state managers;</li>
+            <li><b>Немає вбудованих middleware та DevTools</b> для state-процесів;</li>
+            <li><b>Async-логіку та server state</b> потрібно організовувати окремо;</li>
             <li><b>Provider wrapper</b> — треба обгортати дерево.</li>
         </ul>
         <p><b>Коли потрібен state manager:</b></p>
@@ -109,8 +108,7 @@ export const useStore = create&lt;Store&gt;((set, get) =&gt; (&#123;
   setTheme: (theme) =&gt; set(&#123; theme &#125;),
 &#125;));</pre>
         <div style="flex: 1; font-size: 17px;">
-            <p><b>Zustand</b> — мінімалістичний state manager
-                (~1KB).</p>
+            <p><b>Zustand</b> — мінімалістичний state manager з маленьким API.</p>
             <p><b>Особливості:</b></p>
             <ul>
                 <li><b>Store</b> — звичайний hook
@@ -145,9 +143,14 @@ function CartIcon() &#123;
 &#125;
 
 // &#9989; Multiple fields
-const &#123; user, theme &#125; = useStore(s =&gt; (&#123;
-  user: s.user, theme: s.theme
-&#125;));
+import &#123; useShallow &#125; from "zustand/react/shallow";
+
+const &#123; user, theme &#125; = useStore(
+  useShallow(s =&gt; (&#123;
+    user: s.user,
+    theme: s.theme
+  &#125;))
+);
 
 // &#9989; Actions (stable references)
 const addToCart = useStore(s =&gt; s.addToCart);
@@ -161,16 +164,15 @@ const items = useStore.getState().cart;</pre>
             <ul>
                 <li>Компонент <b>не</b> перерендериться,
                     якщо змінюється поле, яке він не читає;</li>
-                <li>Можна повернути об'єкт з кількох полів
-                    (з <code>shallow</code> comparator);</li>
+                <li>Для кількох полів можна використати
+                    <code>useShallow</code> або окремі selectors;</li>
                 <li>Actions стабільні
                     (не треба <code>useCallback</code>);</li>
                 <li><code>getState()</code> — читання без
                     підписки (в event handlers).</li>
             </ul>
-            <p><b>Shallow compare для об'єктів:</b></p>
-            <p><code>import &#123; shallow &#125; from "zustand/shallow"</code><br>
-                <code>useStore(selector, shallow)</code></p>
+            <p><b>Zustand v5:</b> для selector, який повертає об'єкт із кількох полів,
+                зручно використовувати <code>useShallow</code>.</p>
         </div>
     </div>
 </section>
@@ -232,7 +234,8 @@ const useStore = create(devtools(
         <div style="flex: 1; font-size: 17px;">
             <p><b>Async в Zustand</b> — просто
                 <code>async</code> функція в store.</p>
-            <p><b>Без thunk/saga</b> — як у Redux.</p>
+            <p><b>Async actions</b> можна писати як звичайні <code>async</code>-функції
+                всередині store; окремий thunk/saga шар не є обов'язковим.</p>
             <p><b>get()</b> — читання стану без підписки
                 (всередині actions).</p>
             <p><b>Виклик з компонента:</b></p>
@@ -270,11 +273,15 @@ export const createCartSlice = (set, get) =&gt; (&#123;
   &#125;)),
 &#125;);
 
-// store/index.ts &#8212; combine slices
-export const useStore = create(&#123;
-  ...createUserSlice,
-  ...createCartSlice,
-&#125;);</pre>
+// store/index.ts — combine slices
+type Store =
+  ReturnType&lt;typeof createUserSlice&gt; &
+  ReturnType&lt;typeof createCartSlice&gt;;
+
+export const useStore = create&lt;Store&gt;()((...args) =&gt; (&#123;
+  ...createUserSlice(...args),
+  ...createCartSlice(...args),
+&#125;));</pre>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Slices патерн</b> — розділення store
                 на логічні частини.</p>
@@ -305,19 +312,19 @@ export const useStore = create(&#123;
 <section class="slide">
     <h2>Чому server state — інший?</h2>
     <div style="font-size: 19px;">
-        <p>Server state має унікальні властивості, яких немає у client state:</p>
+        <p>Server state часто має властивості, яких не має локальний UI state:</p>
         <ul>
             <li><b>Може бути застарілим</b> — інший користувач змінив дані на сервері,
                 ваш кеш — outdated;</li>
             <li><b>Спільний</b> — кілька компонентів використовують ті самі дані;</li>
-            <li><b>Потребує invalidation</b> — після мутації треба оновити кеш;</li>
-            <li><b>Потребує cache</b> — щоб не refetch при кожному mount;</li>
-            <li><b>Потребує retry</b> — мережа може бути нестабільною;</li>
-            <li><b>Потребує optimistic updates</b> — для швидкого UX;</li>
-            <li><b>Потребує pagination / infinite scroll</b> — для великих списків.</li>
+            <li><b>Кешується</b> — щоб не робити зайві запити;</li>
+            <li><b>Після мутацій може потребувати invalidation/refetch;</b></li>
+            <li><b>Може потребувати retry, pagination, infinite scroll або optimistic UI</b>
+                залежно від задачі.</li>
         </ul>
-        <p><b>useState + useEffect</b> не рішення для server state.
-            <b>TanStack Query</b> автоматизує все це.</p>
+        <p><b>useState + useEffect</b> теж можуть реалізувати server state,
+            але кеш, синхронізацію та повторні запити доведеться організовувати вручну.
+            <b>TanStack Query</b> дає готову модель для цих задач.</p>
     </div>
 </section>
 
@@ -352,7 +359,8 @@ useEffect(() =&gt; {
                 <li>race conditions to handle</li>
                 <li>no prefetch, no optimistic</li>
             </ul>
-            <p style="font-size: 15px;">~50 lines of boilerplate per query</p>
+            <p style="font-size: 15px;">Для складніших server-state сценаріїв ручна реалізація
+                швидко потребує додаткового коду.</p>
         </div>
         <div style="flex: 1;">
             <pre style="margin: 0; font-size: 10px; white-space: pre;">// TanStack Query
@@ -370,8 +378,8 @@ const { data, isLoading, error }
                 <li>retry, rollback on error</li>
                 <li>DevTools, no race conditions</li>
             </ul>
-            <p style="font-size: 15px;">~3 lines of code per query<br>
-                <code>useMutation</code> + <code>invalidateQueries</code></p>
+            <p style="font-size: 15px;">Менше ручного коду для типових
+                cache/refetch/mutation сценаріїв.</p>
         </div>
     </div>
 </section>
@@ -493,14 +501,15 @@ function DeleteUser(&#123; id &#125;) &#123;
 <section class="slide">
     <h2>TanStack Query — pagination</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">function ProductList() &#123;
+        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">import &#123; keepPreviousData &#125; from "@tanstack/react-query";
+
+function ProductList() &#123;
   const [page, setPage] = useState(1);
 
   const &#123; data, isPending, isPlaceholderData &#125; =
     useQuery(&#123;
       queryKey: ["products", &#123; page &#125;],
       queryFn: () =&gt; productsApi.list(page),
-      keepPreviousData: true,
       placeholderData: keepPreviousData,
     &#125;);
 
@@ -526,9 +535,8 @@ function DeleteUser(&#123; id &#125;) &#123;
 &#125;</pre>
         <div style="flex: 1; font-size: 17px;">
             <p><b>Pagination</b> — <code>page</code> в queryKey.</p>
-            <p><b>keepPreviousData</b> — при зміні сторінки
-                показуємо старі дані, поки нові вантажаться
-                (немає «мерцання» списку).</p>
+            <p><b>placeholderData: keepPreviousData</b> — при зміні сторінки
+                тимчасово залишає попередні дані, поки нові завантажуються.</p>
             <p><b>isPlaceholderData</b> — true, коли
                 показуються старі дані (для disabled кнопок).</p>
             <p><b>Infinite scroll</b> —
@@ -594,8 +602,8 @@ ReactDOM.createRoot(document.getElementById("root")!)
 <section class="slide">
     <h2>Zustand + TanStack Query — разом</h2>
     <div style="font-size: 19px;">
-        <p><b>Найкраща практика</b> — використовувати обидва інструменти разом,
-            кожен для свого типу стану:</p>
+        <p><b>Розділяємо відповідальність</b> між інструментами:
+            вибір залежить від задачі застосунку:</p>
         <ul>
             <li><b>Zustand</b> — client state (theme, UI, cart draft, sidebar open,
                 filters not in URL);</li>
@@ -618,6 +626,24 @@ ReactDOM.createRoot(document.getElementById("root")!)
 <section class="slide">
     <h2>React Performance — що оптимізувати</h2>
     <img src="pictures/react/15/performance-overview.svg" alt="" style="display: block; margin: 0 auto; width: 80%;">
+</section>
+
+<section class="slide">
+    <h2>React Compiler — автоматична оптимізація</h2>
+    <div style="font-size: 17px;">
+        <p><b>React Compiler 1.0</b> — стабільний build-time compiler,
+            який автоматично оптимізує компоненти та Hooks через memoization.</p>
+        <ul>
+            <li>для нового коду в багатьох випадках можна обійтися без ручного
+                <code>memo</code>, <code>useMemo</code> та <code>useCallback</code>;</li>
+            <li>compiler аналізує код під час build і намагається уникати зайвого
+                повторного виконання та обчислень;</li>
+            <li>ручна memoization все ще можлива, коли потрібен явний контроль
+                або compiler не використовується;</li>
+            <li>спочатку вимірюємо проблему, потім оптимізуємо.</li>
+        </ul>
+        <p><b>Важливо:</b> Compiler не робить дорогий алгоритм автоматично дешевим.</p>
+    </div>
 </section>
 
 <section class="slide">
@@ -657,7 +683,7 @@ const handleClick =
         <li>Fix: <code>useCallback(fn, deps)</code> &#8594; same ref &#8594; <code>memo(Item)</code> skips &#8594; no re-render</li>
         <li>&#9888;&#65039; Don't wrap everything — memo/useMemo/useCallback have their own cost</li>
         <li>Use only when profiling shows a real bottleneck (large lists, expensive renders)</li>
-        <li>React 19: React Compiler may auto-optimize many of these cases in the future</li>
+        <li>React Compiler 1.0 може автоматично оптимізувати багато таких випадків</li>
     </ul>
 </section>
 
@@ -760,8 +786,9 @@ function UserList(&#123; users &#125;) &#123;
                     (щоб props не змінювались);</li>
                 <li>Функція &#8212; dep в useEffect.</li>
             </ul>
-            <p><b>React 19:</b> React Compiler автоматично
-                оптимізує багато з цих випадків.</p>
+            <p><b>React Compiler:</b> для нового коду ручна memoization потрібна рідше.
+                <code>useMemo</code> і <code>useCallback</code> залишаються корисними,
+                коли потрібен точний контроль або compiler не використовується.</p>
         </div>
     </div>
 </section>
@@ -852,7 +879,8 @@ manualChunks: {
     <ul style="font-size: 15px;">
         <li><code>vite-bundle-visualizer</code> / <code>webpack-bundle-analyzer</code> — see what's inside your bundle</li>
         <li>Lighthouse — measure Performance score, LCP, TBT, CLS</li>
-        <li>Target: first load JS &lt; 200KB gzipped | LCP &lt; 2.5s | INP &lt; 200ms</li>
+        <li>Core Web Vitals: орієнтири LCP &lt; 2.5s, INP &le; 200ms, CLS &le; 0.1
+            для 75-го перцентиля.</li>
     </ul>
 </section>
 
@@ -992,8 +1020,9 @@ const deferredQuery = useDeferredValue(query);
         <p><b>Принцип Testing Library:</b> test як користувач
             взаємодіє з UI, а не як компонент реалізований.</p>
         <p><b>Що тестувати:</b> behavior, не implementation.</p>
-        <p><b>React 19:</b> <code>act()</code> більше не потрібен
-            для більшості випадків.</p>
+        <p><b>act()</b> залишається React test helper, але Testing Library
+            обгортає ним багато своїх операцій. Для типових UI-тестів зазвичай
+            достатньо <code>render</code> + <code>userEvent</code> + async queries.</p>
     </div>
 </section>
 
@@ -1008,7 +1037,10 @@ const deferredQuery = useDeferredValue(query);
         <li><b>Performance</b>: React.memo (skip re-render), useMemo (cache calc), useCallback (stable fn), virtualization (big lists), lazy loading, code splitting.</li>
         <li><b>Concurrent React</b>: useTransition, useDeferredValue — пріоритезация оновлень.</li>
         <li><b>Profile first</b> &#8212; React DevTools Profiler. Не оптимізуй гіпотетичне.</li>
-        <li><b>React 19</b> &#8212; React Compiler автоматизує багато оптимізацій.</li>
+        <li><b>React Compiler 1.0</b> &#8212; стабільний compiler для automatic memoization;
+            ручні <code>useMemo/useCallback/memo</code> потрібні рідше.</li>
+        <li><b>Testing</b> &#8212; Testing Library перевіряє поведінку через DOM та user interactions;
+            <code>userEvent</code> зазвичай кращий для реалістичних взаємодій.</li>
     </ul>
 </section>
 
@@ -1017,14 +1049,15 @@ const deferredQuery = useDeferredValue(query);
     <ul style="font-size: 18px;">
         <li><a href="https://zustand-demo.pmnd.rs/" target="_blank">Zustand — офіційна документація</a></li>
         <li><a href="https://zustand.docs.pmnd.rs/middleware" target="_blank">Zustand Middleware (persist, devtools)</a></li>
-        <li><a href="https://tanstack.com/query/latest/docs/react/overview" target="_blank">TanStack Query — React Overview</a></li>
-        <li><a href="https://tanstack.com/query/latest/docs/react/guides/queries" target="_blank">TanStack Query: Queries Guide</a></li>
-        <li><a href="https://tanstack.com/query/latest/docs/react/guides/mutations" target="_blank">TanStack Query: Mutations Guide</a></li>
+        <li><a href="https://tanstack.com/query/latest/docs/framework/react" target="_blank">TanStack Query — React Overview</a></li>
+        <li><a href="https://tanstack.com/query/latest/docs/framework/react/guides/queries" target="_blank">TanStack Query: Queries Guide</a></li>
+        <li><a href="https://tanstack.com/query/latest/docs/framework/react/guides/mutations" target="_blank">TanStack Query: Mutations Guide</a></li>
         <li><a href="https://react.dev/reference/react/memo" target="_blank">React.memo API</a></li>
         <li><a href="https://react.dev/reference/react/useMemo" target="_blank">React.useMemo API</a></li>
         <li><a href="https://react.dev/reference/react/useTransition" target="_blank">React.useTransition</a></li>
         <li><a href="https://github.com/bvaughn/react-window" target="_blank">react-window — virtualization</a></li>
         <li><a href="https://react.dev/learn/render-and-commit" target="_blank">React: Render and Commit</a></li>
+        <li><a href="https://react.dev/learn/react-compiler" target="_blank">React Compiler</a></li>
         <li><a href="https://testing-library.com/docs/react-testing-library/intro/" target="_blank">React Testing Library</a></li>
     </ul>
 </section>
