@@ -44,10 +44,11 @@
 <section class="slide">
     <h2>REST API — основи</h2>
     <div style="font-size: 19px;">
-        <p><b>REST</b> (Representational State Transfer) — архітектурний стиль
-            для побудови веб-API. Основні принципи:</p>
+        <p><b>REST</b> (Representational State Transfer) — стиль організації
+            веб-API навколо ресурсів та стандартних HTTP-механізмів. Основні ідеї:</p>
         <ul>
-            <li><b>Stateless</b> — кожен запит містить усю інформацію для обробки;</li>
+            <li><b>Stateless</b> — сервер не покладається на стан попередніх запитів;
+                кожен запит має містити потрібний контекст;</li>
             <li><b>Resource-oriented</b> — URL ідентифікує ресурс
                 (<code>/api/users</code>, <code>/api/products/42</code>);</li>
             <li><b>HTTP-методи</b> визначають операцію:
@@ -64,8 +65,9 @@
 <section class="slide">
     <h2>Де живе API-логіка в React</h2>
     <div style="font-size: 19px;">
-        <p>API-виклики <b>не повинні</b> бути в компонентах напряму.
-            Правильна архітектура — розділення на шари:</p>
+        <p>У невеликому компоненті прямий <code>fetch()</code> можливий.
+            Але коли API використовується в кількох місцях, краще винести HTTP-логіку окремо,
+            щоб UI не залежав від деталей запиту:</p>
         <ol>
             <li><b>API Layer</b> (<code>api/client.ts</code>, <code>api/users.ts</code>) —
                 HTTP-клієнт, endpoint-функції, типи запитів/відповідей;</li>
@@ -73,8 +75,8 @@
                 управління станом запиту (loading/error/data), виклик API Layer;</li>
             <li><b>Components</b> — лише споживають дані з hooks, відображають UI.</li>
         </ol>
-        <p>Компонент <b>не знає</b> про fetch/axios — він знає лише про
-            <code>useUsers()</code>, який повертає <code>&#123;users, loading, error&#125;</code>.</p>
+        <p>Компонент може знати про <code>useUsers()</code>, а hook — про API layer.
+            Так UI не залежить від URL, headers та деталей HTTP-запиту.</p>
     </div>
 </section>
 
@@ -124,6 +126,8 @@ function UserList() {
             </ul>
             <p><b>Мінус:</b> багатослівний — для кожного запиту
                 треба писати перевірки, headers, error handling.</p>
+            <p><b>Навчальний контекст:</b> тут показуємо базовий client-side flow.
+                У production часто використовують framework data APIs або query library.</p>
             <p>&#8594; тому використовують <b>Axios</b> або
                 API Layer-абстракції.</p>
         </div>
@@ -135,7 +139,7 @@ function UserList() {
 </section>
 
 <section class="slide">
-    <h2>Стан запиту: loading &#8594; success / error</h2>
+    <h2>Стан запиту: idle &#8594; loading &#8594; success / error</h2>
     <img src="pictures/react/12/async-states.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
 </section>
 
@@ -187,7 +191,7 @@ function reducer&lt;T&gt;(
   }
 }</pre>
         <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Custom Hook з useReducer
-export function useAsync&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;, deps: any[] = []) {
+export function useAsync&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;, deps: DependencyList = []) {
   const [state, dispatch] =
     useReducer(reducer&lt;T&gt;, {
       status: "idle", data: null, error: null
@@ -262,7 +266,7 @@ export function useAsync&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;, deps: any[] = [
 </section>
 
 <section class="slide">
-    <h2>Error Boundaries — глобальний catch</h2>
+    <h2>Error Boundaries — межа ізоляції помилок UI</h2>
     <div style="display: flex; gap: 20px;">
         <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import { Component, type ReactNode } from "react";
 
@@ -290,13 +294,12 @@ class ErrorBoundary extends Component {
   &lt;UserList /&gt;
 &lt;/ErrorBoundary&gt;</pre>
         <div style="flex: 1; font-size: 18px;">
-            <p><b>Error Boundary</b> — React-компонент, що ловить
-                помилки рендерингу в дочірньому дереві.</p>
-            <p><b>Ловить:</b> помилки в render, lifecycle, конструкторах.</p>
-            <p><b>НЕ ловить:</b> помилки в event handlers,
-                async коді, setTimeout — для цього try/catch.</p>
-            <p>Створюються через class-компоненти
-                (або <code>react-error-boundary</code> бібліотека).</p>
+            <p><b>Error Boundary</b> — React-компонент для ізоляції помилок у дочірньому UI-дереві.</p>
+            <p><b>Ловить:</b> помилки під час render у дочірньому React-дереві.</p>
+            <p><b>НЕ ловить:</b> помилки в event handlers, асинхронних callback,
+                <code>setTimeout</code> та коді поза React — там потрібні власні <code>try/catch</code>.</p>
+            <p>У React Error Boundary реалізують через class-компонент;
+                для зручнішого API можна використати <code>react-error-boundary</code>.</p>
             <p>Обгортають <b>секції</b> застосунку: якщо впаде
                 один блок — інші продовжать працювати.</p>
         </div>
@@ -356,7 +359,7 @@ function UserListPage() {
       {users.map(u =&gt; (
         &lt;li key={u.id}&gt;
           {u.name}
-          &lt;Link to={`/users/${u.id}``}&gt;View&lt;/Link&gt;
+          &lt;Link to={`/users/${u.id}`}&gt;View&lt;/Link&gt;
         &lt;/li&gt;
       ))}
     &lt;/ul&gt;
@@ -549,7 +552,9 @@ fetch("ab") // fast, returns first
 useEffect(() =&gt; fetch(), [])
 // 2 API calls in dev mode
 
-// &#9989; cleanup fn / React 18 automatic</pre>
+// &#9989; зробити Effect стійким до повторного setup
+// React 18+ у StrictMode повторює setup + cleanup у dev
+// для перевірки коректності cleanup</pre>
     </div>
 </section>
 
@@ -600,7 +605,7 @@ useEffect(() =&gt; {
                 <li>Send request in background</li>
                 <li>If error &#8594; rollback (restore item)</li>
             </ol>
-            <p style="font-size: 15px;">UI миттєво реагує.</p>
+            <p style="font-size: 15px;">UI миттєво реагує; при помилці потрібен rollback або повторна синхронізація.</p>
         </div>
     </div>
     <pre style="margin: 0; font-size: 10px; white-space: pre;">const deleteOptimistic = async (id: string) =&gt; {
@@ -628,10 +633,10 @@ useEffect(() =&gt; {
         <div style="font-size: 18px;">
             <p><b>Не підходить:</b></p>
             <ul>
-                <li>Create з серверним ID — ID ще невідомий;</li>
-                <li>Платежі, транзакції — потрібне підтвердження;</li>
+                <li>Create зі складною серверною відповіддю — потрібен rollback / temporary id;</li>
+                <li>Платежі, транзакції та критичні операції — потрібне підтвердження;</li>
                 <li>Form submit зі складною валідацією;</li>
-                <li>Операції з високим ризиком помилки.</li>
+                <li>Операції, де rollback складний або небезпечний.</li>
             </ul>
             <p>Тут — <b>песимістичний</b> підхід: чекаємо
                 підтвердження сервера.</p>
@@ -682,7 +687,7 @@ await apiClient.delete(`/users/${id}`);</pre>
                 <li><b>timeout</b> — запит не «висить» вічно;</li>
                 <li><b>headers</b> — за замовчуванням для всіх запитів;</li>
                 <li><b>Авто JSON</b> — не треба <code>.json()</code>;</li>
-                <li>Авто throws на 4xx/5xx;</li>
+                <li>за замовчуванням reject для HTTP-відповідей поза 2xx;</li>
                 <li>Можна створити кілька instance
                     (API v1, v2, third-party).</li>
             </ul>
@@ -788,6 +793,44 @@ export const usersApi = &#123;
     </div>
 </section>
 
+
+<section class="slide">
+    <h2>Repository — коли API-модель не збігається з UI-моделлю</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 9px; white-space: pre;">// API DTO
+type ApiTodo = {
+  id: number;
+  todo: string;
+  completed: boolean;
+  userId: number;
+};
+
+// UI/domain model
+type Task = {
+  id: string;
+  title: string;
+  completed: boolean;
+};
+
+// Repository hides API details
+const taskRepository = {
+  list: async (): Promise&lt;Task[]&gt; =&gt; {
+    const todos = await todosApi.list();
+    return todos.map(t =&gt; ({
+      id: String(t.id),
+      title: t.todo,
+      completed: t.completed,
+    }));
+  },
+};</pre>
+        <div style="flex: 1; font-size: 16px;">
+            <p><b>Repository</b> — додатковий шар між API та доменною моделлю.</p>
+            <p>Він корисний, коли формат API відрізняється від моделі, яку використовує UI.</p>
+            <p>Для простого CRUD окремий Repository не є обов'язковим; у Лабораторній №10
+                він використовується саме для такого розділення відповідальностей.</p>
+        </div>
+    </div>
+</section>
 <section class="slide">
     <h2>Структура API-папки проєкту</h2>
     <pre style="margin: 0; font-size: 10px; white-space: pre;">src/
@@ -902,8 +945,8 @@ function UserListPage() &#123;
             <code>api/users.ts</code> (endpoints) &#8594;
             <code>hooks/useUsers.ts</code> (state) &#8594;
             <code>components/</code> (UI).</li>
-        <li><b>Axios</b> — auto JSON, baseURL, interceptors, timeout, error on 4xx/5xx.
-            Зручніший за fetch для production.</li>
+        <li><b>Axios</b> — зручний HTTP-клієнт із instance, interceptors, timeout та автообробкою JSON.
+            Це альтернатива <code>fetch</code>, а не обов'язково «кращий» варіант.</li>
         <li><b>Interceptors</b> — глобальна обробка: auth token, 401 redirect, error toast.</li>
         <li><b>AbortController</b> — скасування запитів для уникнення race conditions.</li>
         <li><b>Оптимістичні оновлення</b> — миттєвий UI для швидких операцій (delete, toggle).</li>
