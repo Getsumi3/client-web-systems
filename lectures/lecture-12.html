@@ -127,7 +127,8 @@ function UserList() {
             <p><b>Мінус:</b> багатослівний — для кожного запиту
                 треба писати перевірки, headers, error handling.</p>
             <p><b>Навчальний контекст:</b> тут показуємо базовий client-side flow.
-                У production часто використовують framework data APIs або query library.</p>
+                У production часто використовують framework data APIs або query library,
+                щоб не будувати cache/refetch/invalidation вручну.</p>
             <p>&#8594; тому використовують <b>Axios</b> або
                 API Layer-абстракції.</p>
         </div>
@@ -158,7 +159,8 @@ function UserList() {
         <p><b>Правильно:</b> окремо <code>status</code> + <code>data</code> + <code>error</code>,
             або об'єднати в один стан через <code>useReducer</code>.</p>
         <p>Pattern: <code>"idle" | "loading" | "success" | "error"</code> —
-            <b>status as enum</b>.</p>
+            <b>один status описує фазу запиту</b>, а <code>data</code> та <code>error</code>
+            містять його результат.</p>
     </div>
 </section>
 
@@ -252,7 +254,7 @@ export function useAsync&lt;T&gt;(fn: () =&gt; Promise&lt;T&gt;, deps: Dependenc
             <p><b>Шаблони UI для станів:</b></p>
             <ul>
                 <li><b>Spinner</b> — простий індикатор завантаження;</li>
-                <li><b>Skeleton</b> — «каркас» контенту (з灰色 блоки);</li>
+                <li><b>Skeleton</b> — «каркас» майбутнього контенту;</li>
                 <li><b>Error view</b> — повідомження + кнопка retry;</li>
                 <li><b>Empty state</b> — «поки що немає даних»;</li>
                 <li><b>Error boundary</b> — на рівні дерева (React 16+);</li>
@@ -616,6 +618,10 @@ useEffect(() =&gt; {
                 <li>If error &#8594; rollback (restore item)</li>
             </ol>
             <p style="font-size: 15px;">UI миттєво реагує; при помилці потрібен rollback або повторна синхронізація.</p>
+    <p style="font-size: 14px; margin-top: 8px;">
+        У React 19 є <code>useOptimistic</code> для optimistic UI у межах Action;
+        тут спочатку розбираємо базовий flow вручну.
+    </p>
         </div>
     </div>
     <pre style="margin: 0; font-size: 10px; white-space: pre;">const deleteOptimistic = async (id: string) =&gt; {
@@ -734,7 +740,7 @@ apiClient.interceptors.response.use(
   (error) =&gt; &#123;
     if (error.response?.status === 401) &#123;
       // token expired → redirect to login
-      localStorage.removeItem("token");
+      clearSession();
       window.location.href = "/login";
     &#125;
     if (error.response?.status &gt;= 500) &#123;
