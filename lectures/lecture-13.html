@@ -338,34 +338,18 @@ function ProductList() &#123;
 
 <section class="slide">
     <h2>Nested Routes — глибше вкладення</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Кілька рівнів вкладеності
+    <div style="font-size: 17px;">
+        <pre style="margin: 12px 0; font-size: 10px; white-space: pre;">// Declarative
 &lt;Route path="/dashboard" element=&#123;&lt;DashboardLayout /&gt;&#125;&gt;
-  &lt;Route index element=&#123;&lt;DashboardHome /&gt;&#125; /&gt;
   &lt;Route path="users" element=&#123;&lt;UsersLayout /&gt;&#125;&gt;
-    &lt;Route index element=&#123;&lt;UserList /&gt;&#125; /&gt;
     &lt;Route path=":id" element=&#123;&lt;UserDetail /&gt;&#125; /&gt;
-    &lt;Route path=":id/edit" element=&#123;&lt;EditUser /&gt;&#125; /&gt;
   &lt;/Route&gt;
-  &lt;Route path="settings" element=&#123;&lt;Settings /&gt;&#125; /&gt;
 &lt;/Route&gt;
 
-// URL &#8594; рендериться:
-// /dashboard              &#8594; Layout &#8594; DashboardHome
-// /dashboard/users        &#8594; Layout &#8594; UsersLayout &#8594; UserList
-// /dashboard/users/42     &#8594; Layout &#8594; UsersLayout &#8594; UserDetail
-// /dashboard/users/42/edit&#8594; Layout &#8594; UsersLayout &#8594; EditUser</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>Переваги вкладених маршрутів:</b></p>
-            <ul>
-                <li><b>Спільні layouts</b> — Header/Nav/Footer рендеряться один раз;</li>
-                <li><b>Ієрархія URL</b> відображає ієрархію UI;</li>
-                <li><b>Outlet</b> дозволяє вставляти дочірні компоненти;</li>
-                <li><b>Немає props drilling</b> — Layout не знає про конкретну сторінку;</li>
-                <li><b>Збереження стану</b> Layout при зміні вкладеної сторінки (напр. tab).</li>
-            </ul>
-            <p>Аналог у Vue Router — <code>&lt;router-view&gt;</code> + nested routes.</p>
-        </div>
+// Data mode → children: [ ... ]</pre>
+        <p>В обох підходах дочірній route рендериться через <code>&lt;Outlet /&gt;</code>.</p>
+        <p><b>Повний приклад Declarative + Data + protection:</b>
+            <a href="examples/react/13/routing-data-and-protection.tsx" target="_blank">examples/react/13/routing-data-and-protection.tsx</a></p>
     </div>
 </section>
 
@@ -882,56 +866,15 @@ function Card(&#123; children, title &#125;: &#123;
 
 <section class="slide">
     <h2>2. Compound Components — складені</h2>
-    <div style="display: flex; gap: 10px;">
-        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">// Tabs =Tabs.List + Tabs.Panel
-function Tabs(&#123; children &#125;) &#123;
-  const [active, setActive] = useState(0);
-  return (
-    &lt;TabsContext.Provider value=&#123;&#123; active, setActive &#125;&#125;&gt;
-      &#123;children&#125;
-    &lt;/TabsContext.Provider&gt;
-  );
-&#125;
-
-Tabs.List = function(&#123; children &#125;) &#123;
-  const &#123; active, setActive &#125; = useContext(TabsContext);
-  // render tab buttons with active state
-&#125;;
-
-Tabs.Panel = function(&#123; index, children &#125;) &#123;
-  const &#123; active &#125; = useContext(TabsContext);
-  if (index !== active) return null;
-  return &lt;div&gt;&#123;children&#125;&lt;/div&gt;;
-&#125;;
-
-// Використання — декларативний API
-&lt;Tabs&gt;
-  &lt;Tabs.List&gt;
-    &lt;Tab label="Profile" /&gt;
-    &lt;Tab label="Settings" /&gt;
-  &lt;/Tabs.List&gt;
+    <div style="font-size: 18px;">
+        <pre style="margin: 12px 0; font-size: 11px; white-space: pre;">&lt;Tabs&gt;
+  &lt;Tabs.List&gt;...&lt;/Tabs.List&gt;
   &lt;Tabs.Panel index=&#123;0&#125;&gt;...&lt;/Tabs.Panel&gt;
-  &lt;Tabs.Panel index=&#123;1&#125;&gt;...&lt;/Tabs.Panel&gt;
 &lt;/Tabs&gt;</pre>
-        <div style="flex: 1; font-size: 12px;">
-            <p><b>Compound Components</b> — група компонентів,
-                що працюють разом через спільний Context.</p>
-            <p><b>Приклади:</b></p>
-            <ul>
-                <li><code>&lt;Select&gt;</code> + <code>&lt;Option&gt;</code>;</li>
-                <li><code>&lt;Tabs&gt;</code> + <code>&lt;TabList&gt;</code> + <code>&lt;TabPanel&gt;</code>;</li>
-                <li><code>&lt;Form&gt;</code> + <code>&lt;Field&gt;</code> + <code>&lt;Submit&gt;</code>;</li>
-                <li><code>&lt;Table&gt;</code> + <code>&lt;Tr&gt;</code> + <code>&lt;Td&gt;</code>.</li>
-            </ul>
-            <p><b>Переваги:</b></p>
-            <ul>
-                <li>Декларативний, зрозумілий API;</li>
-                <li>Спільний state неявно через Context;</li>
-                <li>Гнучкість — порядок елементів довільний;</li>
-                <li>Кожна частина окремо типізована.</li>
-            </ul>
-            <p>Аналог у Vue — <code>&lt;slot name="..."&gt;</code> + provide/inject.</p>
-        </div>
+        <p><b>Compound Components</b> — кілька компонентів, які працюють разом
+            через спільний state/Context і дають декларативний API.</p>
+        <p><b>Повний приклад:</b>
+            <a href="examples/react/13/architecture-composition.tsx" target="_blank">examples/react/13/architecture-composition.tsx</a></p>
     </div>
 </section>
 
