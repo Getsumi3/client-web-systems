@@ -292,20 +292,20 @@ function ProductList(props) {
 </section>
 
 <section class="slide">
-    <h2>Context API — приклад у React 19</h2>
+    <h2>Context API — приклад</h2>
     <pre style="margin: 0; font-size: 10px; white-space: pre;">// 1. Створити Context
 import { createContext, useContext, useState, type ReactNode } from "react";
 
 type User = { name: string; role: string };
 const UserContext = createContext&lt;User | null&gt;(null);
 
-// 2. Provider — у React 19 context-об'єкт можна використовувати без .Provider
+// 2. Provider — обгортає дерево і дає значення
 function App() {
   const [user, setUser] = useState&lt;User&gt;({ name: "Anna", role: "admin" });
   return (
-    &lt;UserContext value={user}&gt;
+    &lt;UserContext.Provider value={user}&gt;
       &lt;Layout /&gt;
-    &lt;/UserContext&gt;
+    &lt;/UserContext.Provider&gt;
   );
 }
 
@@ -316,9 +316,8 @@ function UserProfile() {
   return &lt;p&gt;Hello, {user.name} ({user.role})&lt;/p&gt;;
 }</pre>
     <p style="font-size: 16px; margin-top: 10px;">
-        Аналог у Vue — <code>provide</code> / <code>inject</code>. У React 19 context-об'єкт
-        можна використовувати безпосередньо як provider: <code>&lt;UserContext value=&#123;user&#125;&gt;</code>.
-        <code>.Provider</code> залишається сумісним варіантом для старішого коду.
+        Аналог у Vue — <code>provide</code> / <code>inject</code>. Context ідеальний для
+        <b>глобальних даних</b>, які рідко змінюються (theme, locale, auth).
     </p>
 </section>
 
@@ -410,15 +409,12 @@ function Layout(props: { sidebar: ReactNode; header: ReactNode }) {
             <li>Запис у localStorage / sessionStorage;</li>
             <li>Логування, аналітика.</li>
         </ul>
-        <p><code>useEffect</code> — не «lifecycle-метод», а спосіб
-            <b>синхронізувати компонент із зовнішньою системою</b> після commit:
-            мережа, browser API, timers, subscriptions, сторонні бібліотеки тощо.
-            Це <b>escape hatch</b>, а не основний механізм керування data flow.</p>
+        <p>React дає <code>useEffect</code> для ізоляції side effects від фази рендеру.</p>
     </div>
 </section>
 
 <section class="slide">
-    <h2>useEffect — синхронізація із зовнішніми системами</h2>
+    <h2>useEffect — життєвий цикл</h2>
     <img src="pictures/react/11/use-effect.svg" alt="" style="display: block; margin: 0 auto; width: 60%;">
 </section>
 
@@ -492,17 +488,18 @@ useEffect(() =&gt; {
 useEffect(() =&gt; {
   setFiltered(items.filter(...));
 }, [items]);
-// краще: const filtered = items.filter(...)
-// useMemo — лише як оптимізація для дорогих обчислень</pre>
+// краще: const filtered = useMemo(...)</pre>
     </div>
 </section>
 
 <section class="slide">
     <h2>Коли НЕ потрібен useEffect</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Обчислення з props/state — без Effect
-const filtered = items.filter(i =&gt; i.active);
-// useMemo — лише як оптимізація, якщо обчислення справді дороге
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Обчислення з props/state
+useEffect(() =&gt; {
+  setFiltered(items.filter(i =&gt; i.active));
+}, [items]);
+// const filtered = useMemo(() =&gt; ..., [items]);
 
 // Синхронізація props &#8594; state
 useEffect(() =&gt; {
@@ -525,48 +522,13 @@ useEffect(() =&gt; {
 </section>
 
 <section class="slide">
-    <h2>React 19.2 — useEffectEvent</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import { useEffect, useEffectEvent } from "react";
-
-function ChatRoom({ roomId, theme }) {
-  const onConnected = useEffectEvent(() =&gt; {
-    showNotification("Connected!", theme);
-  });
-
-  useEffect(() =&gt; {
-    const connection = createConnection(roomId);
-    connection.on("connected", onConnected);
-    connection.connect();
-
-    return () =&gt; connection.disconnect();
-  }, [roomId]);
-}</pre>
-        <div style="flex: 1; font-size: 16px;">
-            <p><b>Effect Event</b> допомагає відокремити реактивну логіку Effect від
-                частини callback, якій потрібні актуальні props/state без повторної синхронізації.</p>
-            <ul>
-                <li>бачить актуальні значення під час виклику;</li>
-                <li>не додається в dependency array Effect;</li>
-                <li>викликається тільки з Effect або іншого Effect Event.</li>
-            </ul>
-            <p><b>Не використовуй</b> <code>useEffectEvent</code> як спосіб приховати реальні dependencies.</p>
-        </div>
-    </div>
-    <p style="font-size: 15px; margin-top: 10px;">
-        Це <b>React 19.2+</b> API для складніших сценаріїв Effect; у звичайних випадках достатньо
-        коректно вказати всі залежності та cleanup.
-    </p>
-</section>
-
-<section class="slide">
     <h2>useEffect vs useLayoutEffect</h2>
     <div class="columns two">
         <div style="font-size: 18px;">
             <p><b>useEffect</b></p>
             <ul>
-                <li>Запускається після commit; зазвичай — <b>після</b> paint;</li>
-                <li>Не блокує браузер так, як <code>useLayoutEffect</code>;</li>
+                <li>Виконується <b>після</b> paint (асинхронно);</li>
+                <li>Не блокує браузер;</li>
                 <li>Більшість side effects;</li>
                 <li>fetch, subscriptions, timers.</li>
             </ul>
@@ -574,7 +536,7 @@ function ChatRoom({ roomId, theme }) {
         <div style="font-size: 18px;">
             <p><b>useLayoutEffect</b></p>
             <ul>
-                <li>Виконується після DOM-мутацій, але <b>до</b> paint (синхронно);</li>
+                <li>Виконується <b>після</b> DOM-мутацій, але <b>до</b> paint (синхронно);</li>
                 <li>Блокує браузер;</li>
                 <li>Для вимірювання DOM (getBoundingClientRect);</li>
                 <li>Для попередження мигання (flicker).</li>
@@ -594,8 +556,6 @@ function ChatRoom({ roomId, theme }) {
         <li><b>Викликай Hooks лише на top-level</b> — не всередині циклів, умов, вкладених функцій.</li>
         <li><b>Викликай Hooks лише з React-функцій</b> — компонентів або інших Custom Hooks.</li>
         <li><b>Порядок має значення</b> — React покладається на порядок виклику для ототожнення стану.</li>
-        <li><b>React Compiler</b> може автоматично оптимізувати багато випадків мемоізації;
-            не додавай <code>useCallback</code> та <code>useMemo</code> «про всяк випадок».</li>
         <li><b>eslint-plugin-react-hooks</b> — встановлюй для автоматичної перевірки правил та deps.</li>
     </ul>
 </section>
@@ -651,14 +611,17 @@ function useDebounce(value, delay) {
     <h2>Custom Hook — useToggle</h2>
     <div style="display: flex; gap: 20px;">
         <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// hooks/useToggle.ts
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 export function useToggle(initial: boolean = false) {
   const [value, setValue] = useState(initial);
 
-  const toggle = () =&gt; setValue(prev =&gt; !prev);
-  const setTrue = () =&gt; setValue(true);
-  const setFalse = () =&gt; setValue(false);
+  const toggle = useCallback(() =&gt; {
+    setValue(prev =&gt; !prev);
+  }, []);
+
+  const setTrue = useCallback(() =&gt; setValue(true), []);
+  const setFalse = useCallback(() =&gt; setValue(false), []);
 
   return { value, toggle, setTrue, setFalse };
 }</pre>
@@ -835,3 +798,87 @@ function Settings() {
 <section class="slide">
     <h2>Архітектура: структура проєкту</h2>
     <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">src/
+├── components/       # UI
+│   ├── Button.tsx
+│   ├── Modal.tsx
+│   └── index.ts
+├── features/         # за доменами
+│   ├── auth/
+│   │   ├── LoginForm.tsx
+│   │   ├── useAuth.ts
+│   │   └── authApi.ts
+│   └── products/
+│       ├── ProductList.tsx
+│       └── useProducts.ts
+├── hooks/            # спільні hooks
+│   ├── useFetch.ts
+│   └── useToggle.ts
+├── context/          # Context providers
+│   └── ThemeContext.tsx
+├── utils/
+├── types/
+├── App.tsx
+└── main.tsx</pre>
+        <div style="flex: 1; font-size: 16px;">
+            <p><b>За типовими принципами:</b></p>
+            <ul>
+                <li><b>components/</b> — універсальні UI-компоненти (Button, Input, Modal);</li>
+                <li><b>features/</b> — групування за доменом (auth, products, cart);</li>
+                <li><b>hooks/</b> — спільні Custom Hooks;</li>
+                <li><b>context/</b> — провайдери глобального стану;</li>
+                <li><b>utils/</b> — допоміжні функції;</li>
+                <li><b>types/</b> — спільні TypeScript-типи.</li>
+            </ul>
+            <p>Кожна feature містить свої компоненти, hooks, API-виклики
+                — <b>feature-first структура</b>.</p>
+        </div>
+    </div>
+</section>
+
+<section class="slide">
+    <h2>Підсумок</h2>
+    <ul style="font-size: 19px;">
+        <li><b>Стан живе якомога нижче.</b> Піднімай лише коли потрібно ділитися.</li>
+        <li><b>useState</b> — простий стан, <b>useReducer</b> — складний.
+            <b>useContext</b> — глобальний, <b>TanStack Query</b> — серверний.</li>
+        <li><b>Props drilling</b> — антипатерн. Рішення: Context, композиція, стейт-менеджер.</li>
+        <li><b>Derived state</b> — обчислюй під час рендеру, не зберігай в state.</li>
+        <li><b>useEffect</b> — лише для side effects (fetch, subscriptions, timers).
+            Не використовуй для обчислень чи реакції на user events.</li>
+        <li><b>Завжди роби cleanup</b> в useEffect для підписок і таймерів.</li>
+        <li><b>Custom Hooks</b> — винесення повторно використовуваної stateful-логіки
+            (аналог Vue Composables).</li>
+        <li><b>eslint-plugin-react-hooks</b> — обов'язковий інструмент.</li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2>Корисні ресурси</h2>
+    <ul style="font-size: 19px;">
+        <li><a href="https://react.dev/learn/state-a-components-memory" target="_blank">React: State — пам'ять компонента</a></li>
+        <li><a href="https://react.dev/learn/sharing-state-between-components" target="_blank">React: Спільний стан (Lifting State Up)</a></li>
+        <li><a href="https://react.dev/learn/extracting-state-logic-into-a-reducer" target="_blank">React: useReducer</a></li>
+        <li><a href="https://react.dev/learn/passing-data-deeply-with-context" target="_blank">React: Context API</a></li>
+        <li><a href="https://react.dev/learn/synchronizing-with-effects" target="_blank">React: useEffect — синхронізація з ефектами</a></li>
+        <li><a href="https://react.dev/learn/you-might-not-need-an-effect" target="_blank">React: Можливо, вам не потрібен useEffect</a></li>
+        <li><a href="https://react.dev/learn/reusing-logic-with-custom-hooks" target="_blank">React: Custom Hooks</a></li>
+        <li><a href="https://tanstack.com/query/latest" target="_blank">TanStack Query</a></li>
+        <li><a href="https://docs.pmnd.rs/zustand" target="_blank">Zustand</a></li>
+    </ul>
+</section>
+
+<section class="slide">
+    <h2 class="shout">Дякую за увагу!</h2>
+</section>
+
+<footer class="badge">
+    <a href="https://github.com/Computer-Science-Department-ChNU/client-web-systems" target="_blank">Fork me on
+        GitHub</a>
+</footer>
+
+<div class="progress"></div>
+
+<script src="node_modules/@shower/core/dist/index.js"></script>
+</body>
+</html>
