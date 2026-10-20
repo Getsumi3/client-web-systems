@@ -278,7 +278,8 @@ function ProductList(props) {
     <ul style="font-size: 19px;">
         <li><b>Порушення інкапсуляції</b> — проміжні компоненти знають про дані, які їм не потрібні.</li>
         <li><b>Складність рефакторингу</b> — зміна форми даних торкається всіх компонентів на шляху.</li>
-        <li><b>Зайві рендери</b> — зміна prop призводить до re-render всіх компонентів на шляху.</li>
+        <li><b>Зайвий код і зв'язки</b> — проміжні компоненти мусять приймати й передавати props,
+            а зміни в цьому ланцюжку можуть вимагати повторного render.</li>
         <li><b>Важко читати</b> — незрозуміло, звідки дані приходить і куди йдуть.</li>
     </ul>
     <p style="font-size: 19px; margin-top: 10px;">
@@ -327,12 +328,13 @@ function UserProfile() {
     <h2>Context — обережно з продуктивністю</h2>
     <div style="font-size: 19px;">
         <p><b>Важливо:</b> якщо значення Context змінюється, React оновлює компоненти,
-            які читають цей Context. Тому не клади в один Context багато незалежних даних,
-            які змінюються з різною частотою.</p>
+            які читають цей Context. Тому зручно розділяти незалежні контексти,
+            якщо їхні дані змінюються по-різному.</p>
         <p><b>Рішення:</b></p>
         <ul>
             <li>Розділяти контексти (UserContext, ThemeContext окремо);</li>
-            <li>Мемоізувати value: <code>value=&#123;useMemo(...)&#125;</code>;</li>
+            <li>Не створювати нове значення без потреби: для складних об'єктів можна
+                застосувати <code>useMemo</code> як оптимізацію стабільності value;</li>
             <li>Для часто змінного стану — <b>Zustand</b> (підписка на конкретне поле);</li>
             <li>Не зберігати в Context дані, що змінюються кожен рендер.</li>
         </ul>
@@ -385,9 +387,9 @@ function Layout(props: { sidebar: ReactNode; header: ReactNode; children?: React
         <p style="background: var(--brand-color-prinmary); color: #fff; padding: 4px 8px; font-size: 12px; border-radius: 6px; margin-top: 15px;">
             Детально ці інструменти розглянемо в <b>Лекції 15: State Management та Production React</b>.
         </p>
-        <p><b>Правило:</b> починай з <code>useState</code> + Lifting State Up.
-            Додавай Context коли props drilling стає проблемою.
-            Стейт-менеджери — лише коли Context вже не справляється.</p>
+        <p><b>Правило:</b> починай з <code>useState</code> + props/Lifting State Up.
+            Додавай Context, коли одне й те саме значення потрібно багатьом компонентам
+            у піддереві. Зовнішній стейт-менеджер — коли він реально спрощує роботу зі спільним станом.</p>
     </div>
 </section>
 
@@ -421,8 +423,12 @@ function Layout(props: { sidebar: ReactNode; header: ReactNode; children?: React
 </section>
 
 <section class="slide">
-    <h2>useEffect — що відбувається після render</h2>
+    <h2>useEffect — коли запускається Effect</h2>
     <img src="pictures/react/11/use-effect.svg" alt="" style="display: block; margin: 0 auto; width: 60%;">
+    <p style="font-size: 16px; text-align: center; margin-top: 10px;">
+        Після render React оновлює інтерфейс, потім запускає Effect. Якщо залежності змінилися,
+        спочатку виконується cleanup попереднього Effect, а потім setup нового.
+    </p>
 </section>
 
 <section class="slide">
@@ -459,7 +465,7 @@ function Layout(props: { sidebar: ReactNode; header: ReactNode; children?: React
 <section class="slide">
     <h2>useEffect — приклади</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 1. Fetch data on mount
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 1. Запит після першого render
 useEffect(() =&gt; {
   let ignore = false;
   fetch("/api/user")
@@ -470,7 +476,7 @@ useEffect(() =&gt; {
   return () =&gt; { ignore = true; };
 }, []);
 
-// 2. Subscribe to event
+// 2. Підписка на зовнішню подію
 useEffect(() =&gt; {
   const handler = () =&gt; setWidth(window.innerWidth);
   window.addEventListener("resize", handler);
@@ -489,7 +495,7 @@ useEffect(() =&gt; {
   return () =&gt; clearInterval(id);
 }, []);
 
-// 5. Fetch when query changes
+// 5. Запит, коли змінюється query
 useEffect(() =&gt; {
   fetchResults(query).then(setResults);
 }, [query]); // dep!</pre>
@@ -533,11 +539,10 @@ useEffect(() =&gt; {
 const filtered = items.filter(i =&gt; i.active);
 // useMemo — лише як оптимізація, якщо обчислення справді дороге
 
-// Синхронізація props &#8594; state
-useEffect(() =&gt; {
-  setValue(props.initialValue);
-}, [props.initialValue]);
-// Render with key={initialValue} or use state during render</pre>
+// Не копіюй prop у state через Effect
+// Якщо треба скинути локальний state при зміні id,
+// часто достатньо змінити key компонента:
+&lt;Form key={userId} userId={userId} /&gt;</pre>
         <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Реакція на user event
 useEffect(() =&gt; {
   if (submitted) submitForm(data);
