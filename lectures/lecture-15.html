@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <title>Лекція 15. React: State Management та Production React</title>
+    <title>Лекція 15. React: State Management, Performance та Testing</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="node_modules/@shower/ribbon/styles/index.css">
@@ -28,7 +28,7 @@
         <li>Коли useState і Context вже недостатньо та навіщо потрібен глобальний state management?</li>
         <li>Як використовувати Zustand для управління client state?</li>
         <li>Чим client state відрізняється від server state та як TanStack Query вирішує проблеми роботи з API-даними?</li>
-        <li>Як масштабувати та оптимізувати React-застосунок за допомогою Custom Hooks, component patterns і performance techniques?</li>
+        <li>Як вимірювати та оптимізувати performance та тестувати React-застосунок?</li>
     </ol>
 </section>
 
@@ -46,12 +46,11 @@
     <div style="font-size: 14px;">
         <p><b>Context API</b> — чудовий інструмент, але має обмеження:</p>
         <ul>
-            <li><b>Будь-яка зміна value &#8594; re-render ВСІХ consumers</b>,
-                навіть якщо вони використовують лише одне поле;</li>
-            <li><b>Немає селективної підписки</b> — не можна підписатися лише на
-                <code>user.name</code>, ігноруючи <code>user.role</code>;</li>
-            <li><b>Немає middleware</b> — немає devtools, persistence, time-travel;</li>
-            <li><b>Немає async actions</b> — складно робити складні flows;</li>
+            <li><b>Зміна value оновлює consumers цього Context</b>;
+                якщо значення часто змінюються, це може давати зайві рендери;</li>
+            <li><b>Немає вбудованої селективної підписки</b> як у спеціалізованих state managers;</li>
+            <li><b>Немає вбудованих middleware та DevTools</b> для state-процесів;</li>
+            <li><b>Async-логіку та server state</b> потрібно організовувати окремо;</li>
             <li><b>Provider wrapper</b> — треба обгортати дерево.</li>
         </ul>
         <p><b>Коли потрібен state manager:</b></p>
@@ -109,8 +108,7 @@ export const useStore = create&lt;Store&gt;((set, get) =&gt; (&#123;
   setTheme: (theme) =&gt; set(&#123; theme &#125;),
 &#125;));</pre>
         <div style="flex: 1; font-size: 17px;">
-            <p><b>Zustand</b> — мінімалістичний state manager
-                (~1KB).</p>
+            <p><b>Zustand</b> — мінімалістичний state manager з маленьким API.</p>
             <p><b>Особливості:</b></p>
             <ul>
                 <li><b>Store</b> — звичайний hook
@@ -161,16 +159,15 @@ const items = useStore.getState().cart;</pre>
             <ul>
                 <li>Компонент <b>не</b> перерендериться,
                     якщо змінюється поле, яке він не читає;</li>
-                <li>Можна повернути об'єкт з кількох полів
-                    (з <code>shallow</code> comparator);</li>
+                <li>Для кількох полів можна використати
+                    <code>useShallow</code> або окремі selectors;</li>
                 <li>Actions стабільні
                     (не треба <code>useCallback</code>);</li>
                 <li><code>getState()</code> — читання без
                     підписки (в event handlers).</li>
             </ul>
-            <p><b>Shallow compare для об'єктів:</b></p>
-            <p><code>import &#123; shallow &#125; from "zustand/shallow"</code><br>
-                <code>useStore(selector, shallow)</code></p>
+            <p><b>Zustand v5:</b> для selector, який повертає об'єкт із кількох полів,
+                зручно використовувати <code>useShallow</code>.</p>
         </div>
     </div>
 </section>
@@ -232,7 +229,8 @@ const useStore = create(devtools(
         <div style="flex: 1; font-size: 17px;">
             <p><b>Async в Zustand</b> — просто
                 <code>async</code> функція в store.</p>
-            <p><b>Без thunk/saga</b> — як у Redux.</p>
+            <p><b>Async actions</b> можна писати як звичайні <code>async</code>-функції
+                всередині store; окремий thunk/saga шар не є обов'язковим.</p>
             <p><b>get()</b> — читання стану без підписки
                 (всередині actions).</p>
             <p><b>Виклик з компонента:</b></p>
