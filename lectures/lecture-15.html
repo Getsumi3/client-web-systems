@@ -1014,8 +1014,9 @@ const deferredQuery = useDeferredValue(query);
         <p><b>Принцип Testing Library:</b> test як користувач
             взаємодіє з UI, а не як компонент реалізований.</p>
         <p><b>Що тестувати:</b> behavior, не implementation.</p>
-        <p><b>React 19:</b> <code>act()</code> більше не потрібен
-            для більшості випадків.</p>
+        <p><b>act()</b> залишається React test helper, але Testing Library
+            обгортає ним багато своїх операцій. Для типових UI-тестів зазвичай
+            достатньо <code>render</code> + <code>userEvent</code> + async queries.</p>
     </div>
 </section>
 
