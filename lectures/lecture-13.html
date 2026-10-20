@@ -376,7 +376,7 @@ function ProductList() &#123;
 
 <section class="slide">
     <h2>Protected Routes — Declarative vs Data mode</h2>
-    <div style="display: flex; gap: 16px;">
+    <div style="display: flex;">
         <div style="flex: 1;">
             <p style="font-size: 15px;"><b>Declarative mode</b> — перевірка через wrapper-компонент.</p>
             <pre style="margin: 0; font-size: 8px; white-space: pre;">function ProtectedRoute(&#123; children &#125;) &#123;
@@ -412,9 +412,7 @@ async function requireUser(&#123; request &#125;) &#123;
 
   return user;
 &#125;</pre>
-        </div>
-    </div>
-    <pre style="margin: 10px 0 0; font-size: 9px; white-space: pre;">const router = createBrowserRouter([
+            <pre style="margin: 0; font-size: 8px; white-space: pre;">const router = createBrowserRouter([
   &#123;
     path: "/dashboard",
     loader: requireUser,
@@ -426,7 +424,10 @@ async function requireUser(&#123; request &#125;) &#123;
     ]
   &#125;
 ]);</pre>
-    <p style="font-size: 16px; margin-top: 8px;">
+
+        </div>
+    </div>
+    <p style="font-size: 14px; margin-top: -8px;">
         У Data mode перевірка відбувається на рівні route, тому окремий
         <code>ProtectedRoute</code>-wrapper не потрібен. Після login можна перейти за
         <code>redirectTo</code>. Для складнішого auth React Router також має route middleware.
@@ -723,7 +724,7 @@ function UserListView(props: &#123;
   );
 &#125;</pre>
     </div>
-    <p style="font-size: 15px; margin-top: 12px;">
+    <p style="font-size: 15px; margin-top: -8px;">
         <b>Ідея:</b> Container знає про state, API та бізнес-логіку, а Presentational-компонент
         отримує готові дані та callbacks і відповідає за UI.
     </p>
@@ -1011,7 +1012,7 @@ function PageLayout(&#123;
 &gt;
   &lt;UserListPage /&gt;  // children
 &lt;/PageLayout&gt;</pre>
-        <div style="flex: 1; font-size: 17px;">
+        <div style="flex: 1; font-size: 14px;">
             <p><b>Slot props</b> — кілька «слотів» через
                 окремі props типу <code>ReactNode</code>.</p>
             <p><b>Призначення:</b></p>
@@ -1048,20 +1049,20 @@ function withAuth&lt;P&gt;(
 
 // Використання
 export default withAuth(DashboardPage);</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>HOC</b> — функція
+        <div style="flex: 1; font-size: 14px; gap: 0;">
+            <p style="margin-bottom: 8px;"><b>HOC</b> — функція
                 <code>(Component) =&gt; NewComponent</code>.</p>
-            <p><b>Історично:</b> був основним патерном до Hooks
+            <p style="margin-bottom: 8px;"><b>Історично:</b> був основним патерном до Hooks
                 (React &lt; 16.8).</p>
-            <p><b>Зараз:</b> для нового прикладного коду частіше використовують Hooks
+            <p style="margin-bottom: 8px;"><b>Зараз:</b> для нового прикладного коду частіше використовують Hooks
                 та wrapper-компоненти. HOC все ще зустрічаються в бібліотеках та legacy-коді.</p>
-            <p><b>Типові альтернативи:</b></p>
+            <p style="margin-bottom: 8px;"><b>Типові альтернативи:</b></p>
             <ul>
                 <li><b>Custom Hooks</b> — для логіки;</li>
                 <li><b>Wrapper components</b> — для UI;</li>
                 <li><b>ProtectedRoute</b> — для auth.</li>
             </ul>
-            <p><b>Мінуси HOC:</b></p>
+            <p style="margin-bottom: 8px;"><b>Мінуси HOC:</b></p>
             <ul>
                 <li>втрата TypeScript-типізації props;</li>
                 <li>«wrapper hell» — вкладені HOC;</li>
