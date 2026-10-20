@@ -143,9 +143,14 @@ function CartIcon() &#123;
 &#125;
 
 // &#9989; Multiple fields
-const &#123; user, theme &#125; = useStore(s =&gt; (&#123;
-  user: s.user, theme: s.theme
-&#125;));
+import &#123; useShallow &#125; from "zustand/react/shallow";
+
+const &#123; user, theme &#125; = useStore(
+  useShallow(s =&gt; (&#123;
+    user: s.user,
+    theme: s.theme
+  &#125;))
+);
 
 // &#9989; Actions (stable references)
 const addToCart = useStore(s =&gt; s.addToCart);
