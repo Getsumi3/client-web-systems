@@ -82,7 +82,18 @@
 
 <section class="slide">
     <h2>API Layer — архітектура</h2>
-    <img src="pictures/react/12/api-layer.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
+    <div style="font-size: 18px;">
+        <pre style="margin: 12px 0; font-size: 11px; white-space: pre;">Component
+    ↓
+Repository
+    ↓
+API / HTTP client
+    ↓
+REST API</pre>
+        <p><b>Repository</b> приховує endpoint-и та mapping DTO → domain model від UI.</p>
+        <p><b>Повний приклад:</b>
+            <a href="examples/react/12/api-repository-crud.ts" target="_blank">examples/react/12/api-repository-crud.ts</a></p>
+    </div>
 </section>
 
 <section class="slide">
@@ -865,36 +876,17 @@ const taskRepository = {
 
 <section class="slide">
     <h2>Повний CRUD-флоу — зв'язки шарів</h2>
-    <pre style="margin: 0; font-size: 8px; white-space: pre;">// 1. types/api.ts — типи
-export type User = &#123; id: string; name: string; email: string &#125;;
-
-// 2. api/client.ts — axios instance + interceptors
-export const apiClient = axios.create(&#123; baseURL: "..." &#125;);
-
-// 3. api/users.ts — endpoint-функції
-export const usersApi = &#123;
-  list: () =&gt; apiClient.get&lt;User[]&gt;("/users").then(r =&gt; r.data),
-  create: (data: CreateUserDTO) =&gt; apiClient.post&lt;User&gt;("/users", data).then(r =&gt; r.data),
-&#125;;
-
-// 4. hooks/useUsers.ts — state + API calls
-export function useUsers() &#123;
-  const [state, dispatch] = useReducer(reducer, initial);
-  const refetch = async () =&gt; &#123;
-    dispatch(&#123;type:"start"&#125;);
-    await usersApi.list()
-      .then(d =&gt; dispatch(&#123;type:"success", data:d&#125;));
-  &#125;;
-  useEffect(() =&gt; &#123; refetch() &#125;, []);
-  return &#123; ...state, refetch &#125;;
-&#125;
-
-// 5. components/UserListPage.tsx — лише UI
-function UserListPage() &#123;
-  const &#123; data, status, error &#125; = useUsers();
-  if (status === "loading") return &lt;Spinner /&gt;;
-  return &lt;ul&gt;&#123;data.map(u =&gt; &lt;li key=&#123;u.id&#125;&gt;&#123;u.name&#125;&lt;/li&gt;)&#125;&lt;/ul&gt;;
-&#125;</pre>
+    <div style="font-size: 18px;">
+        <pre style="margin: 12px 0; font-size: 11px; white-space: pre;">UI
+  → Repository
+  → HTTP API
+  → DTO
+  → Domain model
+  → UI</pre>
+        <p><b>Архітектурна ідея:</b> кожен шар відповідає за свою частину flow.</p>
+        <p><b>Повний приклад:</b>
+            <a href="examples/react/12/api-repository-crud.ts" target="_blank">examples/react/12/api-repository-crud.ts</a></p>
+    </div>
 </section>
 
 <section class="slide">
