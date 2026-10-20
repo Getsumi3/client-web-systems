@@ -383,54 +383,21 @@ const handleSubmit = (e) =&gt; &#123;
 
 <section class="slide">
     <h2>React Hook Form + Zod — практичний підхід</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 1. Schema (Zod)
-import &#123; z &#125; from "zod";
-
-const schema = z.object(&#123;
-  name: z.string().min(2, "Min 2 chars"),
-  email: z.string().email("Invalid email"),
-  password: z.string()
-    .min(8, "Min 8 chars")
-    .regex(/\d/, "Must have digit"),
+    <div style="font-size: 17px;">
+        <pre style="margin: 12px 0; font-size: 10px; white-space: pre;">const schema = z.object(&#123;
+  email: z.string().email(),
+  password: z.string().min(8),
 &#125;);
 
-type FormData = z.infer&lt;typeof schema&gt;;
-// TS type auto-derived from schema!</pre>
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 2. Component (RHF)
-import &#123; useForm &#125; from "react-hook-form";
-import &#123; zodResolver &#125; from
-  "@hookform/resolvers/zod";
-
-function RegisterForm() &#123;
-  const &#123;
-    register, handleSubmit,
-    formState: &#123; errors, isSubmitting &#125;
-  &#125; = useForm&lt;FormData&gt;(&#123;
+const &#123; register, handleSubmit,
+  formState: &#123; errors &#125; &#125; = useForm(&#123;
     resolver: zodResolver(schema)
-  &#125;);
-
-  const onSubmit = async (data: FormData) =&gt; &#123;
-    await api.register(data);
-  &#125;;
-
-  return (
-    &lt;form onSubmit=&#123;handleSubmit(onSubmit)&#125;&gt;
-      &lt;input &#123;...register("name")&#125; /&gt;
-      &#123;errors.name &amp;&amp; &lt;p&gt;&#123;errors.name.message&#125;&lt;/p&gt;&#125;
-      &lt;input &#123;...register("email")&#125; /&gt;
-      &#123;errors.email &amp;&amp; &lt;p&gt;&#123;errors.email.message&#125;&lt;/p&gt;&#125;
-      &lt;button disabled=&#123;isSubmitting&#125;&gt;Register&lt;/button&gt;
-    &lt;/form&gt;
-  );
-&#125;</pre>
+  &#125;);</pre>
+        <p><b>Zod</b> описує правила і тип даних; <b>React Hook Form</b>
+            керує form state та submit.</p>
+        <p><b>Повний приклад:</b>
+            <a href="examples/react/14/forms-and-actions.tsx" target="_blank">examples/react/14/forms-and-actions.tsx</a></p>
     </div>
-    <p style="font-size: 14px; margin-top: -10px;">
-        <b>Zod</b> визначає схему (validation + TS-тип одночасно).
-        <b>zodResolver</b> підключає її до RHF.
-        <b>register()</b> підключає input до RHF; RHF за замовчуванням використовує
-        переважно uncontrolled-підхід, щоб зменшити зайві re-render-и.
-    </p>
 </section>
 
 <section class="slide">
@@ -520,70 +487,16 @@ function SubmitButton() &#123;
 
 <section class="slide">
     <h2>AuthContext — реалізація</h2>
-    <p style="font-size: 14px;">
-        <b>Навчальний приклад:</b> тут використано <code>localStorage</code>, щоб показати повний flow
-        access token &#8594; user &#8594; logout. Для production browser authentication вибір storage
-        залежить від архітектури; HttpOnly cookie не доступна JavaScript і потребує окремого CSRF-захисту.
-    </p>
-    <pre style="margin: 0; font-size: 5px; white-space: pre;">// context/AuthContext.tsx
-import &#123; createContext, useContext, useState, useEffect, type ReactNode &#125; from "react";
-import &#123; authApi &#125; from "../api/auth";
+    <div style="font-size: 17px;">
+        <pre style="margin: 12px 0; font-size: 10px; white-space: pre;">const AuthContext = createContext&lt;AuthState | null&gt;(null);
 
-type User = &#123; id: string; name: string; role: string &#125;;
-type AuthState = &#123;
-  user: User | null;
-  isAuthenticated: boolean;
-  loading: boolean;
-  login: (email: string, password: string) =&gt; Promise&lt;void&gt;;
-  logout: () =&gt; void;
-&#125;;
-
-const AuthContext = createContext&lt;AuthState | null&gt;(null);
-
-export function AuthProvider(&#123; children &#125;: &#123; children: ReactNode &#125;) &#123;
-  const [user, setUser] = useState&lt;User | null&gt;(null);
-  const [loading, setLoading] = useState(true);
-
-  // Check token on mount
-  useEffect(() =&gt; &#123;
-    const token = localStorage.getItem("token");
-
-    if (!token) &#123;
-      setLoading(false);
-      return;
-    &#125;
-
-    authApi.me(token)
-      .then(setUser)
-      .catch(() =&gt; localStorage.removeItem("token"))
-      .finally(() =&gt; setLoading(false));
-  &#125;, []);
-
-  const login = async (email: string, password: string) =&gt; &#123;
-    const &#123; token, user &#125; = await authApi.login(email, password);
-    localStorage.setItem("token", token);
-    setUser(user);
-  &#125;;
-
-  const logout = () =&gt; &#123;
-    localStorage.removeItem("token");
-    setUser(null);
-  &#125;;
-
-  return (
-    &lt;AuthContext.Provider value=&#123;&#123;
-      user, isAuthenticated: !!user, loading, login, logout
-    &#125;&#125;&gt;
-      &#123;children&#125;
-    &lt;/AuthContext.Provider&gt;
-  );
-&#125;
-
-export const useAuth = () =&gt; &#123;
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be inside AuthProvider");
-  return ctx;
-&#125;;</pre>
+// login → setUser(user)
+// logout → setUser(null)</pre>
+        <p><b>AuthContext</b> — спільний auth state для UI.
+            <code>useAuth()</code> дає компонентам доступ до цього state та auth actions.</p>
+        <p><b>Повний навчальний приклад:</b>
+            <a href="examples/react/14/auth-and-tokens.ts" target="_blank">examples/react/14/auth-and-tokens.ts</a></p>
+    </div>
 </section>
 
 <section class="slide">
@@ -800,65 +713,19 @@ export function ProtectedRoute(&#123;
 
 <section class="slide">
     <h2>Token Refresh — реалізація interceptor</h2>
-    <pre style="margin: 0; font-size: 7px; white-space: pre;">// Навчальний приклад для bearer access token
-let isRefreshing = false;
+    <div style="font-size: 17px;">
+        <pre style="margin: 12px 0; font-size: 11px; white-space: pre;">401
+ ↓
+refresh access token
+ ↓
+retry original request
 
-type QueueItem = &#123;
-  resolve: (token: string) =&gt; void;
-  reject: (error: unknown) =&gt; void;
-&#125;;
-
-let failedQueue: QueueItem[] = [];
-
-apiClient.interceptors.response.use(
-  response =&gt; response,
-  async error =&gt; &#123;
-    const originalRequest = error.config;
-
-    if (error.response?.status !== 401 ||
-        originalRequest._retry) &#123;
-      return Promise.reject(error);
-    &#125;
-
-    if (isRefreshing) &#123;
-      return new Promise((resolve, reject) =&gt; &#123;
-        failedQueue.push(&#123; resolve, reject &#125;);
-      &#125;).then(token =&gt; &#123;
-        originalRequest.headers.Authorization =
-          `Bearer ${token}`;
-        return apiClient(originalRequest);
-      &#125;);
-    &#125;
-
-    originalRequest._retry = true;
-    isRefreshing = true;
-
-    try &#123;
-      const &#123; token &#125; = await authApi.refresh();
-      localStorage.setItem("token", token);
-
-      failedQueue.forEach(item =&gt; item.resolve(token));
-      failedQueue = [];
-
-      originalRequest.headers.Authorization =
-        `Bearer ${token}`;
-      return apiClient(originalRequest);
-    &#125; catch (refreshError) &#123;
-      failedQueue.forEach(item =&gt; item.reject(refreshError));
-      failedQueue = [];
-
-      localStorage.removeItem("token");
-      window.location.href = "/login";
-      return Promise.reject(refreshError);
-    &#125; finally &#123;
-      isRefreshing = false;
-    &#125;
-  &#125;
-);</pre>
-    <p style="font-size: 15px; margin-top: 8px;">
-        Це <b>спрощений навчальний приклад</b>. У production потрібно також типізувати custom Axios config,
-        обробляти race conditions, logout та повторну авторизацію відповідно до backend-схеми.
-    </p>
+// parallel 401 → queue</pre>
+        <p><b>Ідея:</b> один refresh обслуговує паралельні 401-запити,
+            інші чекають результату.</p>
+        <p><b>Повний навчальний приклад:</b>
+            <a href="examples/react/14/auth-and-tokens.ts" target="_blank">examples/react/14/auth-and-tokens.ts</a></p>
+    </div>
 </section>
 
 <section class="slide">
