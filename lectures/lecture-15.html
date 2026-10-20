@@ -80,100 +80,34 @@
 
 <section class="slide">
     <h2>Zustand — базовий store</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// store/useStore.ts
-import &#123; create &#125; from "zustand";
-
-type Store = &#123;
-  user: User | null;
-  cart: CartItem[];
-  theme: string;
-  // actions
-  login: (user: User) =&gt; void;
-  logout: () =&gt; void;
-  addToCart: (item: CartItem) =&gt; void;
-  setTheme: (theme: string) =&gt; void;
-&#125;;
-
-export const useStore = create&lt;Store&gt;((set, get) =&gt; (&#123;
+    <div style="font-size: 17px;">
+        <pre style="margin: 12px 0; font-size: 10px; white-space: pre;">const useStore = create&lt;Store&gt;((set) =&gt; (&#123;
   user: null,
   cart: [],
   theme: "light",
-
-  login: (user) =&gt; set(&#123; user &#125;),
-  logout: () =&gt; set(&#123; user: null &#125;),
-  addToCart: (item) =&gt; set((state) =&gt; (&#123;
-    cart: [...state.cart, item]
-  &#125;)),
   setTheme: (theme) =&gt; set(&#123; theme &#125;),
 &#125;));</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>Zustand</b> — мінімалістичний state manager з маленьким API.</p>
-            <p><b>Особливості:</b></p>
-            <ul>
-                <li><b>Store</b> — звичайний hook
-                    <code>useStore</code>;</li>
-                <li><b>set()</b> — оновлення стану
-                    (як useState, але глобально);</li>
-                <li><b>get()</b> — читання поточного стану;</li>
-                <li><b>Без Provider</b> — store живе
-                    поза деревом компонентів;</li>
-                <li><b>State + actions</b> в одному об'єкті.</li>
-            </ul>
-            <p><b>Встановлення:</b>
-                <code>npm install zustand</code></p>
-        </div>
+        <p>Zustand створює store без обов'язкового Provider.
+            Компоненти підписуються на потрібні частини state.</p>
+        <p><b>Повний приклад:</b>
+            <a href="examples/react/15/state-and-query.tsx" target="_blank">examples/react/15/state-and-query.tsx</a></p>
     </div>
 </section>
 
 <section class="slide">
     <h2>Zustand — селективна підписка</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// &#9989; Selective subscription
-function Navbar() &#123;
-  // only re-renders when user changes
-  const user = useStore(s =&gt; s.user);
-  return &lt;nav&gt;Hello, &#123;user?.name&#125;&lt;/nav&gt;;
-&#125;
+    <div style="font-size: 18px;">
+        <pre style="margin: 12px 0; font-size: 11px; white-space: pre;">const user = useStore((state) =&gt; state.user);
+const count = useStore((state) =&gt; state.cart.length);
 
-function CartIcon() &#123;
-  // only re-renders when cart.length changes
-  const count = useStore(s =&gt; s.cart.length);
-  return &lt;span&gt;Cart (&#123;count&#125;)&lt;/span&gt;;
-&#125;
-
-// &#9989; Multiple fields
-import &#123; useShallow &#125; from "zustand/react/shallow";
-
-const &#123; user, theme &#125; = useStore(
-  useShallow(s =&gt; (&#123;
-    user: s.user,
-    theme: s.theme
-  &#125;))
-);
-
-// &#9989; Actions (stable references)
-const addToCart = useStore(s =&gt; s.addToCart);
-
-// &#9989; Get without subscribe
-const items = useStore.getState().cart;</pre>
-        <div style="flex: 1; font-size: 14px;">
-            <p><b>Селектор</b> — функція
-                <code>(state) =&gt; value</code>.</p>
-            <p><b>Перевага над Context:</b></p>
-            <ul>
-                <li>Компонент <b>не</b> перерендериться,
-                    якщо змінюється поле, яке він не читає;</li>
-                <li>Для кількох полів можна використати
-                    <code>useShallow</code> або окремі selectors;</li>
-                <li>Actions стабільні
-                    (не треба <code>useCallback</code>);</li>
-                <li><code>getState()</code> — читання без
-                    підписки (в event handlers).</li>
-            </ul>
-            <p><b>Zustand v5:</b> для selector, який повертає об'єкт із кількох полів,
-                зручно використовувати <code>useShallow</code>.</p>
-        </div>
+// кілька полів
+useStore(useShallow((state) =&gt; (&#123;
+  user: state.user,
+  theme: state.theme,
+&#125;)));</pre>
+        <p>Selector визначає, яке значення отримує компонент і за якою зміною він стежить.</p>
+        <p><b>Повний приклад:</b>
+            <a href="examples/react/15/state-and-query.tsx" target="_blank">examples/react/15/state-and-query.tsx</a></p>
     </div>
 </section>
 
@@ -442,59 +376,18 @@ function UserList() &#123;
 
 <section class="slide">
     <h2>TanStack Query — useMutation код</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import &#123;
-  useMutation, useQueryClient
-&#125; from "@tanstack/react-query";
-
-function DeleteUser(&#123; id &#125;) &#123;
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation(&#123;
-    mutationFn: () =&gt; usersApi.delete(id),
-
-    // Optimistic update
-    onMutate: async () =&gt; &#123;
-      await queryClient.cancelQueries(&#123; queryKey: ["users"] &#125;);
-      const prev = queryClient.getQueryData(["users"]);
-      queryClient.setQueryData(["users"], old =&gt;
-        old?.filter(u =&gt; u.id !== id));
-      return &#123; prev &#125;;
-    &#125;,
-
-    onError: (_err, _vars, ctx) =&gt; &#123;
-      queryClient.setQueryData(["users"], ctx.prev);
-    &#125;,
-
-    onSettled: () =&gt; &#123;
-      queryClient.invalidateQueries(&#123; queryKey: ["users"] &#125;);
-    &#125;,
-  &#125;);
-
-  return &lt;button onClick=&#123;() =&gt; mutation.mutate()&#125;
-    disabled=&#123;mutation.isPending&#125;&gt;
-    &#123;mutation.isPending ? "Deleting..." : "Delete"&#125;
-  &lt;/button&gt;;
-&#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>useMutation</b> — для CUD-операцій
-                (Create, Update, Delete).</p>
-            <p><b>Ключові callback-и:</b></p>
-            <ul>
-                <li><b>onMutate</b> — до виклику API
-                    (optimistic update);</li>
-                <li><b>onSuccess</b> — після успіху
-                    (invalidate);</li>
-                <li><b>onError</b> — при помилці
-                    (rollback);</li>
-                <li><b>onSettled</b> — після будь-якого
-                    результату.</li>
-            </ul>
-            <p><b>invalidateQueries</b> — позначає кеш
-                як stale &#8594; автоматичний refetch.</p>
-            <p><b>Optimistic update</b> — оновлюємо кеш
-                до відповіді сервера, відкочуємо при error.</p>
-        </div>
+    <div style="font-size: 17px;">
+        <pre style="margin: 12px 0; font-size: 11px; white-space: pre;">const mutation = useMutation(&#123;
+  mutationFn: () =&gt; usersApi.delete(id),
+  onSettled: () =&gt;
+    queryClient.invalidateQueries(&#123;
+      queryKey: ["users"]
+    &#125;),
+&#125;);</pre>
+        <p><code>useMutation</code> виконує CUD-операцію. Після зміни даних
+            кеш можна оновити через <code>invalidateQueries</code>.</p>
+        <p><b>Повний приклад:</b>
+            <a href="examples/react/15/state-and-query.tsx" target="_blank">examples/react/15/state-and-query.tsx</a></p>
     </div>
 </section>
 
@@ -886,49 +779,20 @@ manualChunks: {
 
 <section class="slide">
     <h2>Transition та useDeferredValue</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// useTransition &#8212; mark update as non-urgent
-import &#123; useTransition &#125; from "react";
+    <div style="font-size: 17px;">
+        <pre style="margin: 12px 0; font-size: 11px; white-space: pre;">const [isPending, startTransition] =
+  useTransition();
 
-function Search() &#123;
-  const [query, setQuery] = useState("");
-  const [isPending, startTransition] =
-    useTransition();
+startTransition(() =&gt; &#123;
+  // non-urgent UI update
+&#125;);
 
-  const onChange = (e) =&gt; &#123;
-    setQuery(e.target.value); // urgent (input)
-    startTransition(() =&gt; &#123;
-      setResults(filter(e.target.value)); // non-urgent
-    &#125;);
-  &#125;;
-
-  return &lt;&gt;
-    &lt;input value=&#123;query&#125; onChange=&#123;onChange&#125; /&gt;
-    &#123;isPending &amp;&amp; &lt;Spinner /&gt;&#125;
-    &lt;List items=&#123;results&#125; /&gt;
-  &lt;/&gt;;
-&#125;
-
-// useDeferredValue &#8212; defer a value
-const deferredQuery = useDeferredValue(query);
-// results use deferredQuery, input uses query</pre>
-        <div style="flex: 1; font-size: 14px;">
-            <p><b>Concurrent React</b> (React 18+) —
-                пріоритезация оновлень.</p>
-            <p><b>useTransition</b> — позначає оновлення
-                як <b>non-urgent</b> (може перерватись).</p>
-            <p><b>use case:</b> input швидко оновлюється,
-                важкий список &#8212; в фоні.</p>
-            <p><b>useDeferredValue</b> — «відкладене»
-                значення для дорогих обчислень.</p>
-            <p><b>Переваги:</b></p>
-            <ul>
-                <li>Input залишається responsive;</li>
-                <li>Список оновлюється без блокування;</li>
-                <li>isPending &#8212; показати spinner;</li>
-                <li>Без Web Worker чи debounce hack.</li>
-            </ul>
-        </div>
+const deferredQuery =
+  useDeferredValue(query);</pre>
+        <p><code>useTransition</code> позначає оновлення як non-urgent;
+            <code>useDeferredValue</code> дозволяє відкласти використання значення для дорогого UI.</p>
+        <p><b>Повний приклад performance techniques:</b>
+            <a href="examples/react/15/performance-and-testing.tsx" target="_blank">examples/react/15/performance-and-testing.tsx</a></p>
     </div>
 </section>
 
