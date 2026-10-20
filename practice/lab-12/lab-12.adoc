@@ -10,12 +10,13 @@
 
 == Вимоги до звіту
 
-. Використовувати React та TypeScript.
+. Використовувати React 19.x та Node.js 22.22 або новішу версію.
+. Використовувати TypeScript.
 . Застосунок повинен бути SPA.
-. Використати React Router.
+. Використати React Router 8.
 . Працювати з REST API або іншим зовнішнім джерелом server state.
-. Використати TanStack Query для server state.
-. Використати Zustand для client/UI state.
+. Використати TanStack Query v5 для server state.
+. Використати Zustand v5 для client/UI state.
 . Використати React Hook Form та Zod щонайменше для однієї форми.
 . Організувати код у спрощеній feature-first структурі.
 . Створити щонайменше один повторно використовуваний UI-компонент у `shared/ui`.
@@ -27,6 +28,37 @@
 . Дотримуватися ESLint та TypeScript.
 . Код повинен бути розміщений в особистому GitHub репозиторії студента.
 . Дотримуватися Conventional Commits.
+
+== Версії та встановлення основних бібліотек
+
+Для mini-project використовувати актуальний стек курсу:
+
+* React 19.x;
+* Node.js 22.22 або новішу версію;
+* React Router 8;
+* TanStack Query v5;
+* Zustand v5;
+* React Hook Form + Zod.
+
+Для React Router 8 встановити пакет `react-router`:
+
+[source,bash]
+----
+npm install react-router
+----
+
+Для Declarative Mode імпортувати маршрути з `react-router`, а не з `react-router-dom`.
+
+Основні бібліотеки можна встановити однією командою:
+
+[source,bash]
+----
+npm install react-router @tanstack/react-query zustand react-hook-form zod @hookform/resolvers
+----
+
+=== Розподіл state
+
+TanStack Query використовується для даних, джерелом яких є сервер, а Zustand — для стану, який належить самому клієнтському застосунку, наприклад кошика, обраного або UI-налаштувань. Не потрібно дублювати один і той самий server state в обох інструментах.
 
 == Архітектурний підхід
 
