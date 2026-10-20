@@ -1031,7 +1031,10 @@ const deferredQuery = useDeferredValue(query);
         <li><b>Performance</b>: React.memo (skip re-render), useMemo (cache calc), useCallback (stable fn), virtualization (big lists), lazy loading, code splitting.</li>
         <li><b>Concurrent React</b>: useTransition, useDeferredValue — пріоритезация оновлень.</li>
         <li><b>Profile first</b> &#8212; React DevTools Profiler. Не оптимізуй гіпотетичне.</li>
-        <li><b>React 19</b> &#8212; React Compiler автоматизує багато оптимізацій.</li>
+        <li><b>React Compiler 1.0</b> &#8212; стабільний compiler для automatic memoization;
+            ручні <code>useMemo/useCallback/memo</code> потрібні рідше.</li>
+        <li><b>Testing</b> &#8212; Testing Library перевіряє поведінку через DOM та user interactions;
+            <code>userEvent</code> зазвичай кращий для реалістичних взаємодій.</li>
     </ul>
 </section>
 
