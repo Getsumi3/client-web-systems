@@ -1,6 +1,6 @@
 = Лабораторна робота №11
 
-*Тема:* React Router, форми, валідація та автентифікація.
+*Тема:* React Router 8, форми, валідація та автентифікація.
 
 *Мета:* навчитися будувати багатосторінкову SPA-структуру на основі React Router, працювати з route params і query params, створювати форми та валідацію, а також організовувати простий захищений доступ через Auth Context і token.
 
@@ -9,8 +9,9 @@
 
 == Вимоги до звіту
 
-. Використовувати React та TypeScript.
-. Використати React Router.
+. Використовувати React 19.x (не нижче 19.2.7) та Node.js 22.22 або новішу версію.
+. Використовувати TypeScript.
+. Використати актуальний React Router 8.
 . Реалізувати динамічний маршрут із route params.
 . Використати query params для фільтрації або сортування.
 . Реалізувати спільний layout.
@@ -30,7 +31,7 @@
 
 Опрацювати:
 
-. https://reactrouter.com/home[React Router].
+. https://reactrouter.com/home[React Router 8].
 . https://reactrouter.com/start/data/routing[Routing].
 . https://reactrouter.com/start/declarative/navigating[Navigating].
 . https://reactrouter.com/start/declarative/url-values[URL values].
@@ -40,6 +41,35 @@
 . Поняття authentication, authorization, token та protected route.
 
 == Практична частина
+
+=== Версії та встановлення React Router
+
+Для цієї лабораторної використовується **React Router 8**.
+У React Router 8 пакет `react-router-dom` більше не використовується: основні API імпортуються з `react-router`, а DOM-специфічний `RouterProvider` — з `react-router/dom`.
+
+Встановити:
+
+[source,bash]
+----
+npm install react-router
+----
+
+Для базової частини лабораторної використовувати Declarative Mode з `BrowserRouter`, `Routes` та `Route`.
+Data Router з `createBrowserRouter`, `loader` та `redirect` можна використати як додатковий варіант.
+
+Приклад базового імпорту:
+
+[source,typescript]
+----
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+} from 'react-router';
+----
+
+Не використовувати приклади з `react-router-dom`, розраховані на старі версії React Router.
 
 === Стилізація та BEM
 
@@ -148,7 +178,7 @@ feat(lab-11): add routing and protected auth
 Мінімальна схема:
 
 * username — обов'язковий;
-* password — обов'язковий, мінімум 6 символів.
+* password — обов'язковий, щонайменше 6 символів у межах цієї лабораторної.
 
 Помилки повинні показуватися біля відповідних полів.
 
@@ -193,6 +223,8 @@ Authorization: Bearer <accessToken>
 
 Для базової частини достатньо login, logout, Auth Context та protected route.
 Refresh token flow належить до додаткових завдань.
+
+Вимога щодо мінімальної довжини пароля тут є лише навчальною перевіркою форми, а не універсальним правилом безпеки.
 
 Для альтернативного API студент адаптує API client/repository до його контракту.
 
