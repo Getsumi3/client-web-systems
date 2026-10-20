@@ -1167,7 +1167,7 @@ export default withAuth(DashboardPage);</pre>
         <li><b>React Router</b>: <code>BrowserRouter</code>, <code>Routes</code>, <code>Route</code>, <code>Link</code>, <code>Outlet</code>, <code>Navigate</code>. Hooks: <code>useParams</code>, <code>useNavigate</code>, <code>useSearchParams</code>, <code>useLocation</code>.</li>
         <li><b>Route params</b> (<code>:id</code>) + <b>query params</b> (<code>?page=2</code>) — URL як джерело правди.</li>
         <li><b>Nested routes</b> + <code>&lt;Outlet&gt;</code> — спільні layouts, ієрархія UI.</li>
-        <li><b>Protected routes</b> — <code>&lt;ProtectedRoute&gt;</code> wrapper + <code>Navigate</code> для редиректу на login.</li>
+        <li><b>Protected routes</b> — Declarative: <code>&lt;ProtectedRoute&gt;</code>; Data: route <code>loader</code> + <code>redirect</code>.</li>
         <li><b>Lazy loading</b> — <code>React.lazy</code> + <code>Suspense</code> для code splitting per route.</li>
         <li><b>Архітектура</b>: App &#8594; Layouts &#8594; Pages &#8594; Features &#8594; Components. Feature-first структура.</li>
         <li><b>Composition патерни</b>: children, slot props, compound components, render props. HOC — legacy.</li>
