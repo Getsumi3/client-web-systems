@@ -451,13 +451,13 @@ import Home from "./Home";
 import Users from "./Users";
 import Settings from "./Settings";
 
-// all loaded upfront (~500KB)</pre>
+// сторінки входять до initial bundle</pre>
         <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// З lazy — split per route
 const Home = lazy(() =&gt; import("./Home"));
 const Users = lazy(() =&gt; import("./Users"));
 const Settings = lazy(() =&gt; import("./Settings"));
 
-// each loaded on demand (~50KB)</pre>
+// потрібний код завантажується окремо</pre>
     </div>
     <p style="font-size: 16px; margin-top: 15px;"><b>Suspense</b> — fallback під час завантаження:</p>
     <pre style="margin: 0; font-size: 10px; white-space: pre;">&lt;Suspense fallback={&lt;Spinner /&gt;}&gt;
@@ -492,15 +492,15 @@ function App() &#123;
   );
 &#125;</pre>
         <div style="flex: 1; font-size: 17px;">
-            <p><b>React.lazy</b> — динамічний import,
-                створює окремий JS-chunk.</p>
+            <p><b>React.lazy</b> — динамічний <code>import()</code>,
+                який дозволяє завантажити компонент окремо від основного bundle.</p>
             <p><b>Suspense</b> — показує fallback
                 під час завантаження chunk-а.</p>
             <p><b>Переваги:</b></p>
             <ul>
                 <li>Зменшення початкового bundle;</li>
                 <li>Швидший перший рендер;</li>
-                <li>Кожна сторінка вантажиться on-demand;</li>
+                <li>Потрібний код можна завантажувати під час переходу;</li>
                 <li>Кешування chunk-ів браузером.</li>
             </ul>
             <p><b>Важливо:</b> <code>Suspense</code> обгортає
@@ -514,7 +514,7 @@ function App() &#123;
 <section class="slide">
     <h2>404 сторінка — NotFound</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Catch-all маршрут — має бути останнім
+        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Catch-all маршрут
 &lt;Routes&gt;
   &lt;Route path="/" element=&#123;&lt;Home /&gt;&#125; /&gt;
   &lt;Route path="/users" element=&#123;&lt;UserList /&gt;&#125; /&gt;
@@ -532,7 +532,7 @@ function NotFound() &#123;
         <div style="flex: 1; font-size: 17px;">
             <p><code>path="*"</code> — catch-all, спрацьовує
                 якщо жоден маршрут не збігся.</p>
-            <p><b>Має бути останнім</b> у списку маршрутів.</p>
+            <p>React Router використовує ranking маршрутів, тому catch-all не треба сприймати як «останній за порядком».</p>
             <p>Може показувати:</p>
             <ul>
                 <li>404 error message;</li>
@@ -612,24 +612,21 @@ function NotFound() &#123;
 </section>
 
 <section class="slide">
-    <h2>Feature-first структура</h2>
+    <h2>Feature-first структура — практичний варіант</h2>
     <pre style="margin: 0; font-size: 10px; white-space: pre;">src/
-├── app/                    // global setup
-│   ├── router.tsx          // routes config
-│   ├── providers.tsx       // Context providers
-│   └── store.ts            // global state
-├── features/               // domain modules
-│   ├── auth/
-│   │   ├── LoginPage.tsx
-│   │   ├── useAuth.ts
-│   │   └── authApi.ts
-│   └── products/
-│       ├── ProductList.tsx
-│       └── useProducts.ts
-├── components/
-├── hooks/
-├── types/
-└── api/</pre>
+├── app/                    // глобальна конфігурація
+│   ├── router.tsx
+│   └── providers.tsx
+├── pages/                  // route-level UI
+├── features/               // функціональні модулі
+└── shared/                 // справді спільний код
+    ├── ui/
+    ├── lib/
+    └── types/</pre>
+    <p style="font-size: 16px;">
+        <b>Feature-first</b> — групуємо код за функціональністю.
+        Для навчального проєкту достатньо цієї спрощеної схеми; повний FSD тут не потрібен.
+    </p>
 </section>
 
 <section class="slide">
@@ -1019,8 +1016,9 @@ export default withAuth(DashboardPage);</pre>
                 <code>(Component) =&gt; NewComponent</code>.</p>
             <p><b>Історично:</b> був основним патерном до Hooks
                 (React &lt; 16.8).</p>
-            <p><b>Зараз:</b> майже не використовується.
-                Заміна:</p>
+            <p><b>Зараз:</b> для нового прикладного коду частіше використовують Hooks
+                та wrapper-компоненти. HOC все ще зустрічаються в бібліотеках та legacy-коді.</p>
+            <p><b>Типові альтернативи:</b></p>
             <ul>
                 <li><b>Custom Hooks</b> — для логіки;</li>
                 <li><b>Wrapper components</b> — для UI;</li>
@@ -1131,10 +1129,13 @@ export default withAuth(DashboardPage);</pre>
         <li><b>Single Responsibility</b> — кожен компонент має одну відповідальність;</li>
         <li><b>Separation of Concerns</b> — UI, логіка, data — окремі шари;</li>
         <li><b>DRY</b> — перевикористання через Custom Hooks + composition;</li>
-        <li><b>Composition over Inheritance</b> — React не має inheritance, лише composition;</li>
-        <li><b>Smart vs Dumb</b> — сторінки знають про data, UI-компоненти — лише про props;</li>
+        <li><b>Composition over Inheritance</b> — композиція є основним способом
+            будувати повторно використовуваний UI;</li>
+        <li><b>Data-aware vs presentational</b> — pages/features можуть працювати з data,
+            а універсальні UI-компоненти краще тримати простими;</li>
         <li><b>Feature-first</b> — групування за доменом, не за типом файлу;</li>
-        <li><b>URL as state</b> — фільтри, pagination, tab — в URL, не в useState;</li>
+        <li><b>URL як state</b> — клади в URL navigation state, який має бути
+            shareable/bookmarkable; ephemeral UI state залишай у <code>useState</code>;</li>
         <li><b>Lazy loading</b> — code splitting для великих застосунків.</li>
     </ul>
 </section>
