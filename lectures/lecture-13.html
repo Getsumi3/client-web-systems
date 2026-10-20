@@ -674,49 +674,79 @@ const router = createBrowserRouter([
 </section>
 
 <section class="slide">
-    <h2>Container vs Presentational</h2>
+    <h2>Container vs Presentational — класичний підхід</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Container (logic)
-function UserListContainer() {
-  const { users, loading, error }
-    = useUsers();
+        <pre style="flex: 1; margin: 0; font-size: 9px; white-space: pre;">// Container — логіка всередині компонента
+function UserListContainer() &#123;
+  const [users, setUsers] = useState&lt;User[]&gt;([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState&lt;string | null&gt;(null);
+
+  useEffect(() =&gt; &#123;
+    usersApi.list()
+      .then(setUsers)
+      .catch(() =&gt; setError("Load failed"))
+      .finally(() =&gt; setLoading(false));
+  &#125;, []);
+
+  const handleDelete = async (id: string) =&gt; &#123;
+    await usersApi.delete(id);
+    setUsers(prev =&gt; prev.filter(u =&gt; u.id !== id));
+  &#125;;
+
   if (loading) return &lt;Spinner /&gt;;
   if (error) return &lt;ErrorView /&gt;;
-  return &lt;UserListView users={users}
-    onDelete={handleDelete} /&gt;;
-}</pre>
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Presentational (UI only)
-function UserListView(props: {
+
+  return (
+    &lt;UserListView
+      users=&#123;users&#125;
+      onDelete=&#123;handleDelete&#125;
+    /&gt;
+  );
+&#125;</pre>
+        <pre style="flex: 1; margin: 0; font-size: 9px; white-space: pre;">// Presentational — тільки UI
+function UserListView(props: &#123;
   users: User[];
   onDelete: (id: string) =&gt; void;
-}) {
+&#125;) &#123;
   return (
-    &lt;ul&gt;{users.map(u =&gt; ...)}&lt;/ul&gt;
+    &lt;ul&gt;
+      &#123;props.users.map(user =&gt; (
+        &lt;li key=&#123;user.id&#125;&gt;
+          &#123;user.name&#125;
+          &lt;button onClick=&#123;() =&gt; props.onDelete(user.id)&#125;&gt;
+            Delete
+          &lt;/button&gt;
+        &lt;/li&gt;
+      ))&#125;
+    &lt;/ul&gt;
   );
-}</pre>
+&#125;</pre>
     </div>
-    <ul style="font-size: 15px; margin-top: 15px;">
-        <li><b>Container:</b> data fetching, state, business logic;</li>
-        <li><b>Presentational:</b> pure UI, receives props, no side effects, reusable.</li>
-    </ul>
-    <p style="font-size: 14px;">Note: In modern React with Hooks, this pattern is less strict.
-        Custom Hooks extract logic instead of Container components.
-        Still useful for separating data-aware pages from reusable UI components.</p>
+    <p style="font-size: 15px; margin-top: 12px;">
+        <b>Ідея:</b> Container знає про state, API та бізнес-логіку, а Presentational-компонент
+        отримує готові дані та callbacks і відповідає за UI.
+    </p>
+    <p style="font-size: 14px;">
+        Це класичний патерн. У сучасному React цю логіку часто виносять у <b>Custom Hook</b> —
+        саме це покажемо на наступному слайді.
+    </p>
 </section>
 
 <section class="slide">
-    <h2>Сучасний підхід: Hooks замість Containers</h2>
+    <h2>Сучасний підхід: логіка в Custom Hook</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Логіка в Custom Hook
+        <pre style="flex: 1; margin: 0; font-size: 9px; white-space: pre;">// 1. Логіку з Container виносимо в Hook
 export function useUsers() &#123;
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState&lt;User[]&gt;([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState&lt;string | null&gt;(null);
 
   useEffect(() =&gt; &#123;
-    usersApi.list().then(d =&gt; &#123;
-      setUsers(d);
-      setLoading(false);
-    &#125;);
+    usersApi.list()
+      .then(setUsers)
+      .catch(() =&gt; setError("Load failed"))
+      .finally(() =&gt; setLoading(false));
   &#125;, []);
 
   const remove = async (id: string) =&gt; &#123;
@@ -724,14 +754,15 @@ export function useUsers() &#123;
     setUsers(prev =&gt; prev.filter(u =&gt; u.id !== id));
   &#125;;
 
-  return &#123; users, loading, remove &#125;;
+  return &#123; users, loading, error, remove &#125;;
 &#125;</pre>
-        <pre style="flex: 1; margin: 0; font-size: 8px; white-space: pre;">// Компонент — лише UI + виклик hook
+        <pre style="flex: 1; margin: 0; font-size: 9px; white-space: pre;">// 2. Page/компонент використовує Hook
 function UserListPage() &#123;
-  const &#123; users, loading, remove &#125; =
+  const &#123; users, loading, error, remove &#125; =
     useUsers();
 
   if (loading) return &lt;Spinner /&gt;;
+  if (error) return &lt;ErrorView /&gt;;
 
   return (
     &lt;UserListView
@@ -741,21 +772,21 @@ function UserListPage() &#123;
   );
 &#125;
 
-// UserListView — presentational
+// UI залишається окремим
 function UserListView(&#123; users, onDelete &#125;) &#123;
-  return &lt;ul&gt;
-    &#123;users.map(u =&gt; &lt;li key=&#123;u.id&#125;&gt;
-      &#123;u.name&#125;
-      &lt;button onClick=&#123;() =&gt; onDelete(u.id)&#125;&gt;
-        Delete
-      &lt;/button&gt;
-    &lt;/li&gt;)&#125;
-  &lt;/ul&gt;;
+  return /* тільки UI */;
 &#125;</pre>
     </div>
-    <p style="font-size: 16px;">
-        Custom Hook витягує логіку, компонент залишається чистим UI.
-        <b>Перевага над Container-компонентом:</b> hook можна перевикористати в кількох компонентах.
+    <p style="font-size: 16px; margin-top: 12px;">
+        Тепер <b>state + effect + API + логіка</b> не прив'язані до конкретного Container-компонента.
+        Їх можна повторно використати в іншому компоненті, який викликає <code>useUsers()</code>.
+    </p>
+    <pre style="margin: 8px 0 0; font-size: 9px; white-space: pre;">UserListPage ──┐
+               ├── useUsers() ── users / loading / remove
+UserStatistics ┘</pre>
+    <p style="font-size: 14px;">
+        <b>Головна різниця:</b> не «Container перейменували на Page», а
+        <b>логіку винесли з UI-компонента в окремий Hook</b>.
     </p>
 </section>
 
