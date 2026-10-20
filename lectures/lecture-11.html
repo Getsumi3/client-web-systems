@@ -269,7 +269,7 @@ function ProductList(props) {
     <img src="pictures/react/11/props-drilling.svg" alt="" style="display: block; margin: 0 auto; width: 60%;">
     <p style="font-size: 16px;">
         <b>Props drilling</b> — коли дані передаються через кілька рівнів компонентів,
-        які їх не використовують, лише щоб доставити їх глибше.
+        які самі ці дані не використовують, а лише передають їх далі.
     </p>
 </section>
 
@@ -289,7 +289,7 @@ function ProductList(props) {
 </section>
 
 <section class="slide">
-    <h2>Context API — рішення props drilling</h2>
+    <h2>Context API — передавання даних через дерево</h2>
     <img src="pictures/react/11/context-solution.svg" alt="" style="display: block; margin: 0 auto; width: 70%;">
 </section>
 
@@ -327,14 +327,13 @@ function UserProfile() {
 <section class="slide">
     <h2>Context — обережно з продуктивністю</h2>
     <div style="font-size: 19px;">
-        <p><b>Важливо:</b> якщо значення Context змінюється, React оновлює компоненти,
-            які читають цей Context. Тому зручно розділяти незалежні контексти,
-            якщо їхні дані змінюються по-різному.</p>
+        <p><b>Важливо:</b> коли значення Context змінюється, React оновлює компоненти,
+            які читають цей Context. Тому Context не варто перетворювати на «одне сховище для всього».</p>
         <p><b>Рішення:</b></p>
         <ul>
             <li>Розділяти контексти (UserContext, ThemeContext окремо);</li>
-            <li>Не створювати нове значення без потреби: для складних об'єктів можна
-                застосувати <code>useMemo</code> як оптимізацію стабільності value;</li>
+            <li>Для складного object/function value <code>useMemo</code> може зменшити
+                зайві оновлення споживачів, коли самі дані не змінилися;</li>
             <li>Для часто змінного стану — <b>Zustand</b> (підписка на конкретне поле);</li>
             <li>Не зберігати в Context дані, що змінюються кожен рендер.</li>
         </ul>
