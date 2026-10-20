@@ -197,9 +197,10 @@
     <h2>JSX — синтаксис для опису UI</h2>
     <div style="font-size: 19px;">
         <p><b>JSX</b> (JavaScript XML) — це розширення синтаксису JavaScript,
-            яке дозволяє писати HTML-подібний код безпосередньо у JS.</p>
-        <p>JSX <b>не є</b> шаблонною мовою — це синтаксичний цукор над
-            викликами <code>React.createElement()</code>.</p>
+            яке дозволяє описувати UI у знайомому HTML-подібному синтаксисі.</p>
+        <p>JSX <b>не є</b> шаблонною мовою. Сучасний JSX transform компілює JSX
+            у виклики React runtime API без потреби імпортувати <code>React</code>
+            лише заради JSX.</p>
         <p>На відміну від Vue-шаблонів (HTML-подібних), JSX — це
             <b>повноцінний JavaScript</b>: ви можете використовувати
             будь-які JS-вирази всередині фігурних дужок <code>&#123;&#125;</code>.</p>
@@ -225,7 +226,8 @@ const el = React.createElement(
   React.createElement("p", null, name)
 );</pre>
     <p style="font-size: 17px; margin-top: 15px;">
-        JSX — це синтаксичний цукор над викликами <code>createElement</code>.
+        <code>createElement</code> корисний для розуміння того, як React створює elements,
+        але у сучасному коді перевага надається JSX.
     </p>
 </section>
 
@@ -411,6 +413,25 @@ function Counter() {
 </section>
 
 <section class="slide">
+    <h2>React 19 — <code>ref</code> як prop</h2>
+    <div style="display: flex; gap: 20px;">
+        <pre style="flex: 1; margin: 0; font-size: 11px; white-space: pre;">
+function TextInput({ ref }: { ref?: React.Ref<HTMLInputElement> }) {
+  return &lt;input ref={ref} /&gt;;
+}
+
+function Form() {
+  const inputRef = useRef&lt;HTMLInputElement&gt;(null);
+  return &lt;TextInput ref={inputRef} /&gt;;
+}</pre>
+        <div style="flex: 1; font-size: 17px;">
+            <p>У React 19 function component може отримувати <code>ref</code> як звичайний prop.</p>
+            <p>Для нового коду не потрібно використовувати <code>forwardRef</code> лише для передачі ref.</p>
+            <p><code>forwardRef</code> залишається валідним для сумісності, але позначений як deprecated для майбутнього релізу.</p>
+        </div>
+    </div>
+</section>
+<section class="slide">
     <h2>Props vs State — порівняння</h2>
     <table style="font-size: 17px; width: 100%; border-collapse: collapse; margin-left: 0; ">
         <thead>
@@ -578,20 +599,25 @@ function Good() {
 </section>
 
 <section class="slide">
-    <h2>React 19 та Server Components</h2>
-    <div style="font-size: 19px;">
-        <p><b>React Server Components (RSC)</b> — компоненти, які
-            виконуються <b>на сервері</b> і ніколи не гідратується
-            на клієнті. Вони:</p>
+    <h2>React 19.x: сучасний React та Server Components</h2>
+    <div style="font-size: 18px;">
+        <p><b>React 19.x</b> зберігає фундаментальну модель components + JSX + state,
+            але додає нові API для форм, async flows та роботи з даними.</p>
         <ul>
-            <li>можуть читати файли, БД, робити API-запити напряму;</li>
-            <li>не збільшують JS-бандл клієнта (0 KB JS);</li>
-            <li>можуть передавати дані клієнтським компонентам.</li>
+            <li><code>useActionState</code> — стан і результат Action, зокрема для форм;</li>
+            <li><code>useOptimistic</code> — оптимістичний UI під час async-операцій;</li>
+            <li><code>useFormStatus</code> — стан батьківської форми зсередини її піддерева;</li>
+            <li><code>use()</code> — читання Promise або Context у дозволених сценаріях;</li>
+            <li><b>ref як звичайний prop</b> для function components.</li>
         </ul>
-        <p><b>React 19</b> додав: Actions (форм-обробка), <code>use()</code>
-            хук, оптимістичні оновлення, документні метадані.</p>
-        <p>Це зближуює React з фреймворками Next.js, Remix, які
-            використовують RSC для SSR/SSG.</p>
+        <p><b>Server Components (RSC)</b> виконуються на сервері й можуть читати дані
+            на серверній стороні. Вони не є автоматичною частиною звичайного Vite SPA:</p>
+        <ul>
+            <li>для RSC потрібна відповідна server/framework інтеграція;</li>
+            <li>для навчального client-side Vite-проєкту RSC не є обов’язковими;</li>
+            <li>React рекомендує framework, коли застосунку потрібні SSR/RSC.</li>
+        </ul>
+        <p>Документація: <a href="https://react.dev/blog/2024/12/05/react-19" target="_blank">React 19</a>.</p>
     </div>
 </section>
 
@@ -615,7 +641,7 @@ function Good() {
                 <li><b>create-react-app</b> — deprecated, не рекомендується</li>
             </ul>
         </li>
-        <li>Передумови: Node.js 18+, знання HTML/CSS/JS/TS.</li>
+        <li>Передумови: Node.js 20.19+ або 22.12+, знання HTML/CSS/JS/TS.</li>
     </ul>
 </section>
 
@@ -697,7 +723,7 @@ function DataFetcher() {
         <li><b>Компоненти — це функції</b> (не класи в сучасному React), які повертають JSX.</li>
         <li><b>JSX = JS</b> — вирази, а не шаблони. Уся логіка — це JavaScript.</li>
         <li><b>Virtual DOM + Reconciliation</b> — React порівнює дерева і оновлює лише змінене в DOM.</li>
-        <li><b>Hooks</b> — стан та побічні ефекти у функціональних компонентах.</li>
+        <li><b>Hooks</b> — API для стану, контексту, refs, effects та інших можливостей React.</li>
         <li><b>React — бібліотека</b>, а не фреймворк. Гнучкість + екосистема.</li>
     </ul>
 </section>
