@@ -37,7 +37,7 @@
 </section>
 
 <section class="slide">
-    <h2>Де зберігати state? — три рівні</h2>
+    <h2>Де зберігати state? — чотири типи</h2>
     <img src="pictures/react/11/state-location.svg" alt="" style="display: block; margin: 0 auto; width: 75%;">
     <p style="text-align: center; font-size: 16px; margin-top: 10px;">
         Правило: <b>стан має жити як можна нижче</b> в дереві компонентів.
@@ -52,11 +52,12 @@
             (form input, toggle, modal open/close) &#8594; <code>useState</code> у цьому компоненті.</li>
         <li><b>Спільний стан (shared)</b> — якщо дані потрібні кільком компонентам &#8594;
             підняти до <b>найближчого спільного предка</b> (Lifting State Up).</li>
-        <li><b>Глобальний стан</b> — якщо дані потрібні в багатьох місцях дерева
-            (auth, theme, locale) &#8594; <code>useContext</code> або зовнішній стейт-менеджер
-            (Zustand, Redux).</li>
-        <li><b>Серверний стан</b> — дані з API &#8594; TanStack Query, SWR, RTK Query
-            (не зберігай у звичайному state).</li>
+        <li><b>Спільне далеко розташоване дане</b> — якщо воно потрібне багатьом частинам дерева
+            (auth, theme, locale) &#8594; <code>useContext</code> або стейт-менеджер
+            (Zustand, Redux), коли це справді спрощує код.</li>
+        <li><b>Серверний стан</b> — дані, які приходять з API і мають власний життєвий цикл
+            (cache, refetch, loading, synchronization) &#8594; TanStack Query, SWR, RTK Query.
+            Для простого локального запиту звичайний state теж можливий.</li>
     </ul>
 </section>
 
@@ -195,9 +196,9 @@ function Counter() {
         <li><b>State — immutable.</b> Ніколи не змінюй стан напряму:
             <code>state.x = 5</code> &#10007;.
             Завжди створюй новий об'єкт: <code>setState(&#123;...state, x: 5&#125;)</code> &#10003;.</li>
-        <li><b>State updates are async + batched.</b> Не покладайся на те, що state
-            оновиться відразу після <code>setState</code>. Для логіки, що залежить від
-            попереднього значення, використовуй функціональну форму:
+        <li><b>React оновлює state не миттєво.</b> React може об'єднувати кілька оновлень
+            в один render. Не очікуй, що одразу після <code>setState</code> змінна вже має нове значення.
+            Для нового значення на основі попереднього використовуй функціональну форму:
             <code>setCount(prev =&gt; prev + 1)</code>.</li>
         <li><b>Не дублюй state.</b> Якщо дані можна обчислити з props або іншого state —
             не зберігай їх окремо (derived state).</li>
@@ -258,7 +259,7 @@ function ProductList(props) {
             <li>Перемістити туди <code>useState</code>.</li>
             <li>Передати дані вниз через <b>props</b>, а callbacks — для оновлення.</li>
         </ol>
-        <p>Це основний механізм React для спільного стану.
+        <p>Це базовий механізм React для передачі спільного стану між компонентами.
             Аналог у Vue — <code>provide/inject</code> або спільний reactive-об'єкт.</p>
     </div>
 </section>
@@ -325,9 +326,9 @@ function UserProfile() {
 <section class="slide">
     <h2>Context — обережно з продуктивністю</h2>
     <div style="font-size: 19px;">
-        <p><b>Проблема:</b> коли значення Context змінюється — <b>всі</b> компоненти,
-            що викликають <code>useContext</code>, перерендеряться, навіть якщо їм
-            потрібна лише частина значення.</p>
+        <p><b>Важливо:</b> якщо значення Context змінюється, React оновлює компоненти,
+            які читають цей Context. Тому не клади в один Context багато незалежних даних,
+            які змінюються з різною частотою.</p>
         <p><b>Рішення:</b></p>
         <ul>
             <li>Розділяти контексти (UserContext, ThemeContext окремо);</li>
@@ -335,8 +336,9 @@ function UserProfile() {
             <li>Для часто змінного стану — <b>Zustand</b> (підписка на конкретне поле);</li>
             <li>Не зберігати в Context дані, що змінюються кожен рендер.</li>
         </ul>
-        <p>Context — не заміна для всього стану. Використовуй для <b>статичних/рідкісних</b>
-            даних (auth, theme, config).</p>
+        <p>Context не означає «глобальний state для всього». Його зручно використовувати,
+            коли одне значення потрібно багатьом компонентам у піддереві: theme, current user,
+            locale, налаштування тощо. Якщо props достатньо — краще залишити props.</p>
     </div>
 </section>
 
@@ -353,7 +355,7 @@ function App() {
   );
 }
 
-function Layout(props: { sidebar: ReactNode; header: ReactNode }) {
+function Layout(props: { sidebar: ReactNode; header: ReactNode; children?: ReactNode }) {
   return (
     &lt;div&gt;
       {props.header}
@@ -410,16 +412,43 @@ function Layout(props: { sidebar: ReactNode; header: ReactNode }) {
             <li>Запис у localStorage / sessionStorage;</li>
             <li>Логування, аналітика.</li>
         </ul>
-        <p><code>useEffect</code> — не «lifecycle-метод», а спосіб
-            <b>синхронізувати компонент із зовнішньою системою</b> після commit:
-            мережа, browser API, timers, subscriptions, сторонні бібліотеки тощо.
-            Це <b>escape hatch</b>, а не основний механізм керування data flow.</p>
+        <p><code>useEffect</code> потрібен, коли після оновлення інтерфейсу треба
+            <b>зробити щось поза React або синхронізуватися з чимось поза React</b>:
+            підключитися до сервера, встановити підписку, змінити browser API, запустити timer
+            або синхронізувати сторонню бібліотеку.
+            Простими словами: <b>render показує UI, а Effect допомагає узгодити UI із зовнішнім світом</b>.</p>
     </div>
 </section>
 
 <section class="slide">
-    <h2>useEffect — синхронізація із зовнішніми системами</h2>
+    <h2>useEffect — що відбувається після render</h2>
     <img src="pictures/react/11/use-effect.svg" alt="" style="display: block; margin: 0 auto; width: 60%;">
+</section>
+
+<section class="slide">
+    <h2>Подія чи Effect?</h2>
+    <div class="columns two">
+        <div style="font-size: 17px;">
+            <p><b>Подія (event handler)</b></p>
+            <p>Код запускається через конкретну дію користувача:</p>
+            <ul>
+                <li>клік по кнопці;</li>
+                <li>введення в input;</li>
+                <li>submit форми.</li>
+            </ul>
+            <p><code>onClick</code> &#8594; змінити state, відправити форму, перейти на сторінку.</p>
+        </div>
+        <div style="font-size: 17px;">
+            <p><b>Effect</b></p>
+            <p>Код запускається тому, що компонент відобразився або його дані змінилися:</p>
+            <ul>
+                <li>підключитися до WebSocket;</li>
+                <li>синхронізувати &lt;video&gt; з state;</li>
+                <li>підписатися на resize.</li>
+            </ul>
+            <p><code>useEffect</code> &#8594; синхронізація із системою поза React.</p>
+        </div>
+    </div>
 </section>
 
 <section class="slide">
@@ -432,13 +461,13 @@ function Layout(props: { sidebar: ReactNode; header: ReactNode }) {
     <div style="display: flex; gap: 20px;">
         <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// 1. Fetch data on mount
 useEffect(() =&gt; {
-  let cancelled = false;
+  let ignore = false;
   fetch("/api/user")
     .then(r =&gt; r.json())
     .then(data =&gt; {
-      if (!cancelled) setUser(data);
+      if (!ignore) setUser(data);
     });
-  return () =&gt; { cancelled = true; };
+  return () =&gt; { ignore = true; };
 }, []);
 
 // 2. Subscribe to event
@@ -517,10 +546,10 @@ useEffect(() =&gt; {
     </div>
     <p style="font-size: 16px; margin-top: 15px;"><b>useEffect потрібен для:</b></p>
     <ul style="font-size: 15px;">
-        <li>fetch data from server</li>
-        <li>subscriptions (WebSocket, events)</li>
-        <li>manually changing DOM (ref)</li>
-        <li>timers, analytics, logging</li>
+        <li>підключення до сервера або іншого API</li>
+        <li>підписки на події, WebSocket та інші зовнішні джерела</li>
+        <li>робота з browser API / DOM, коли JSX недостатньо</li>
+        <li>timers, analytics, logging та інші зовнішні інтеграції</li>
     </ul>
 </section>
 
@@ -543,14 +572,15 @@ function ChatRoom({ roomId, theme }) {
   }, [roomId]);
 }</pre>
         <div style="flex: 1; font-size: 16px;">
-            <p><b>Effect Event</b> допомагає відокремити реактивну логіку Effect від
-                частини callback, якій потрібні актуальні props/state без повторної синхронізації.</p>
+            <p><b>Effect Event</b> — спеціальна функція для логіки, яку викликає Effect,
+            але яка повинна бачити <b>актуальні</b> props/state без перезапуску самого Effect.</p>
             <ul>
                 <li>бачить актуальні значення під час виклику;</li>
                 <li>не додається в dependency array Effect;</li>
                 <li>викликається тільки з Effect або іншого Effect Event.</li>
             </ul>
-            <p><b>Не використовуй</b> <code>useEffectEvent</code> як спосіб приховати реальні dependencies.</p>
+            <p><b>Не використовуй</b> <code>useEffectEvent</code>, щоб просто сховати залежність від Effect.
+            Спочатку правильно вкажи dependencies.</p>
         </div>
     </div>
     <p style="font-size: 15px; margin-top: 10px;">
@@ -566,7 +596,7 @@ function ChatRoom({ roomId, theme }) {
             <p><b>useEffect</b></p>
             <ul>
                 <li>Запускається після commit; зазвичай — <b>після</b> paint;</li>
-                <li>Не блокує браузер так, як <code>useLayoutEffect</code>;</li>
+                <li>Зазвичай дозволяє браузеру спершу намалювати оновлений UI;</li>
                 <li>Більшість side effects;</li>
                 <li>fetch, subscriptions, timers.</li>
             </ul>
@@ -641,7 +671,7 @@ function useDebounce(value, delay) {
             <li>Повертає значення або масив (як useState, useReducer) або об'єкт;</li>
             <li>Може приймати аргументи (URL, ключ, початкове значення);</li>
             <li>Всередині може викликати <code>useState</code>, <code>useEffect</code>, інші hooks;</li>
-            <li>Не компонент — не повертає JSX.</li>
+            <li>Custom Hook відповідає за логіку та стан, а не за побудову власного UI-компонента.</li>
         </ul>
         <p>Аналог у Vue — <b>Composables</b> (<code>useMousePosition</code>, <code>useFetch</code>).</p>
     </div>
@@ -877,13 +907,13 @@ function Settings() {
     <h2>Підсумок</h2>
     <ul style="font-size: 19px;">
         <li><b>Стан живе якомога нижче.</b> Піднімай лише коли потрібно ділитися.</li>
-        <li><b>useState</b> — простий стан, <b>useReducer</b> — складний.
-            <b>useContext</b> — глобальний, <b>TanStack Query</b> — серверний.</li>
+        <li><b>useState</b> — локальний простий стан, <b>useReducer</b> — складніша логіка оновлення.
+            <b>useContext</b> — передавання даних через дерево, <b>TanStack Query</b> — server state.</li>
         <li><b>Props drilling</b> — антипатерн. Рішення: Context, композиція, стейт-менеджер.</li>
         <li><b>Derived state</b> — обчислюй під час рендеру, не зберігай в state.</li>
-        <li><b>useEffect</b> — для синхронізації з зовнішніми системами, коли причина ефекту —
-            саме відображення компонента. Не використовуй для derived data чи логіки,
-            що безпосередньо спричинена user event.</li>
+        <li><b>useEffect</b> — для синхронізації з тим, що знаходиться поза React,
+            коли ця синхронізація потрібна через render. Для реакції на клік чи submit
+            зазвичай використовуй event handler.</li>
         <li><b>Завжди роби cleanup</b> в useEffect для підписок і таймерів.</li>
         <li><b>Custom Hooks</b> — винесення повторно використовуваної stateful-логіки
             (аналог Vue Composables).</li>
