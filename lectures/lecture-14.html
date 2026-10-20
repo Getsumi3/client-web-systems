@@ -425,7 +425,7 @@ function RegisterForm() &#123;
   );
 &#125;</pre>
     </div>
-    <p style="font-size: 17px; margin-top: 10px;">
+    <p style="font-size: 14px; margin-top: -10px;">
         <b>Zod</b> визначає схему (validation + TS-тип одночасно).
         <b>zodResolver</b> підключає її до RHF.
         <b>register()</b> підключає input до RHF; RHF за замовчуванням використовує
@@ -436,7 +436,7 @@ function RegisterForm() &#123;
 <section class="slide">
     <h2>React 19 — Form Actions</h2>
     <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 9px; white-space: pre;">import &#123; useActionState &#125; from "react";
+        <pre style="flex: 1; margin: 0; font-size: 7px; white-space: pre;">import &#123; useActionState &#125; from "react";
 import &#123; useFormStatus &#125; from "react-dom";
 
 async function submitName(
@@ -497,9 +497,9 @@ function SubmitButton() &#123;
 <section class="slide">
     <h2>Auth — архітектура</h2>
     <div style="font-size: 19px;">
-        <p><b>Authentication</b> — перевірка, <b>хто</b> користувач (login + password).</p>
-        <p><b>Authorization</b> — перевірка, <b>що</b> користувач може робити (role, permissions).</p>
-        <p><b>Компоненти auth-системи:</b></p>
+        <p style="margin-bottom: 4px;"><b>Authentication</b> — перевірка, <b>хто</b> користувач (login + password).</p>
+        <p style="margin-bottom: 4px;"><b>Authorization</b> — перевірка, <b>що</b> користувач може робити (role, permissions).</p>
+        <p style="margin-bottom: 4px;"><b>Компоненти auth-системи:</b></p>
         <ul>
             <li><b>AuthContext</b> — спільний auth state для UI (user, isAuthenticated, loading);</li>
             <li><b>useAuth hook</b> — доступ до auth state + методів (login, logout, register);</li>
@@ -713,7 +713,7 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   &#125;
 );</pre>
-    <p style="font-size: 16px; margin-top: 10px;">
+    <p style="font-size: 12px; line-height: 1; ">
         <b>Цей приклад розрахований на token, доступний JavaScript.</b>
         Якщо auth використовує HttpOnly cookie, JavaScript не читає token і такий request interceptor
         для Authorization header не потрібен. При 401 застосунок може очистити auth state,
