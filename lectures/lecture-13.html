@@ -375,182 +375,181 @@ function ProductList() &#123;
 </section>
 
 <section class="slide">
-    <h2>Protected Routes — реалізація</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// components/ProtectedRoute.tsx
-import &#123; Navigate, useLocation &#125; from "react-router";
-import &#123; useAuth &#125; from "../hooks/useAuth";
-
-export function ProtectedRoute(
-  &#123; children &#125;: &#123; children: ReactNode &#125;
-) &#123;
+    <h2>Protected Routes — Declarative vs Data mode</h2>
+    <div style="display: flex; gap: 16px;">
+        <div style="flex: 1;">
+            <p style="font-size: 15px;"><b>Declarative mode</b> — перевірка через wrapper-компонент.</p>
+            <pre style="margin: 0; font-size: 8px; white-space: pre;">function ProtectedRoute(&#123; children &#125;) &#123;
   const &#123; isAuthenticated &#125; = useAuth();
-  const location = useLocation();
 
-  if (!isAuthenticated) &#123;
-    // зберігаємо URL для повернення після login
-    return &lt;Navigate to="/login"
-      state=&#123; from: location &#125; replace /&gt;;
+  if (!isAuthenticated)
+    return &lt;Navigate to="/login" replace /&gt;;
+
+  return children;
+&#125;
+
+&lt;Route path="/dashboard" element=&#123;
+  &lt;ProtectedRoute&gt;
+    &lt;DashboardLayout /&gt;
+  &lt;/ProtectedRoute&gt;
+&#125; /&gt;</pre>
+        </div>
+        <div style="flex: 1;">
+            <p style="font-size: 15px;"><b>Data mode</b> — перевірка в <code>loader</code> до рендеру route.</p>
+            <pre style="margin: 0; font-size: 8px; white-space: pre;">import &#123; redirect &#125; from "react-router";
+
+async function requireUser(&#123; request &#125;) &#123;
+  const user = await getCurrentUser(request);
+
+  if (!user) &#123;
+    const url = new URL(request.url);
+    const from = url.pathname + url.search;
+    throw redirect(
+      "/login?redirectTo=" +
+      encodeURIComponent(from)
+    );
   &#125;
 
-  return &lt;&gt;&#123;children&#125;&lt;/&gt;;
+  return user;
 &#125;</pre>
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Використання в Routes
-&lt;Routes&gt;
-  &lt;Route path="/login" element=&#123;&lt;Login /&gt;&#125; /&gt;
-
-  &lt;Route path="/dashboard" element=&#123;
-    &lt;ProtectedRoute&gt;
-      &lt;DashboardLayout /&gt;
-    &lt;/ProtectedRoute&gt;
-  &#125;&gt;
-    &lt;Route index element=&#123;&lt;DashboardHome /&gt;&#125; /&gt;
-    &lt;Route path="users" element=&#123;&lt;UserList /&gt;&#125; /&gt;
-    &lt;Route path="settings" element=&#123;&lt;Settings /&gt;&#125; /&gt;
-  &lt;/Route&gt;
-&lt;/Routes&gt;
-
-// Після login — повернення на запитану сторінку
-const location = useLocation();
-const from = location.state?.from?.pathname || "/dashboard";
-&lt;Navigate to=&#123;from&#125; replace /&gt;</pre>
+        </div>
     </div>
-    <p style="font-size: 17px; margin-top: 10px;">
-        <b>Navigate replace</b> — замінює запис в історії, щоб Back не повернув на /login.
-        <b>location.state</b> — передаємо URL для повернення після login.
+    <pre style="margin: 10px 0 0; font-size: 9px; white-space: pre;">const router = createBrowserRouter([
+  &#123;
+    path: "/dashboard",
+    loader: requireUser,
+    Component: DashboardLayout,
+    children: [
+      &#123; index: true, Component: DashboardHome &#125;,
+      &#123; path: "users", Component: UserList &#125;,
+      &#123; path: "settings", Component: Settings &#125;
+    ]
+  &#125;
+]);</pre>
+    <p style="font-size: 16px; margin-top: 8px;">
+        У Data mode перевірка відбувається на рівні route, тому окремий
+        <code>ProtectedRoute</code>-wrapper не потрібен. Після login можна перейти за
+        <code>redirectTo</code>. Для складнішого auth React Router також має route middleware.
     </p>
 </section>
 
 <section class="slide">
-    <h2>Role-based Routes — розширення</h2>
-    <pre style="margin: 0; font-size: 10px; white-space: pre;">// ProtectedRoute з перевіркою ролі
-export function ProtectedRoute(&#123;
-  children, roles = []
-&#125;: &#123;
-  children: ReactNode;
-  roles?: string[];  // ["admin", "editor"]
-&#125;) &#123;
-  const &#123; user, isAuthenticated &#125; = useAuth();
-  const location = useLocation();
+    <h2>Role-based Routes — Data mode</h2>
+    <pre style="margin: 0; font-size: 9px; white-space: pre;">async function requireRole(&#123; request &#125;, roles: string[]) &#123;
+  const user = await requireUser(&#123; request &#125;);
 
-  if (!isAuthenticated)
-    return &lt;Navigate to="/login" state=&#123; from: location &#125; replace /&gt;;
+  if (!roles.includes(user.role)) &#123;
+    throw redirect("/forbidden");
+  &#125;
 
-  if (roles.length &gt; 0 &amp;&amp; !roles.includes(user.role))
-    return &lt;Navigate to="/forbidden" replace /&gt;;
-
-  return &lt;&gt;&#123;children&#125;&lt;/&gt;;
+  return user;
 &#125;
 
-// Використання
-&lt;Route path="/admin" element=&#123;
-  &lt;ProtectedRoute roles=["admin"]&gt;
-    &lt;AdminPanel /&gt;
-  &lt;/ProtectedRoute&gt;
-&#125; /&gt;</pre>
+const requireAdmin = (args: LoaderFunctionArgs) =&gt;
+  requireRole(args, ["admin"]);
+
+const router = createBrowserRouter([
+  &#123;
+    path: "/admin",
+    loader: requireAdmin,
+    Component: AdminPanel
+  &#125;,
+  &#123;
+    path: "/editor",
+    loader: (args) =&gt;
+      requireRole(args, ["admin", "editor"]),
+    Component: EditorPanel
+  &#125;
+]);</pre>
+    <div style="font-size: 16px;">
+        <p><b>Ідея:</b> auth та permissions перевіряються до рендеру сторінки.</p>
+        <p><b>Перевага:</b> одну функцію перевірки можна повторно використовувати для різних route.</p>
+        <p><b>Важливо:</b> route guard не замінює перевірку прав на API/backend — сервер також має перевіряти доступ.</p>
+    </div>
 </section>
 
 <section class="slide">
-    <h2>Lazy Loading Routes — code splitting</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Без lazy — один бандл
-import Home from "./Home";
-import Users from "./Users";
-import Settings from "./Settings";
+    <h2>Lazy Loading Routes — Declarative vs Data mode</h2>
+    <div style="display: flex; gap: 16px;">
+        <div style="flex: 1;">
+            <p style="font-size: 15px;"><b>Declarative mode</b> — <code>React.lazy()</code> для компонентів.</p>
+            <pre style="margin: 0; font-size: 8px; white-space: pre;">const Settings = lazy(
+  () =&gt; import("./pages/Settings")
+);
 
-// сторінки входять до initial bundle</pre>
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// З lazy — split per route
-const Home = lazy(() =&gt; import("./Home"));
-const Users = lazy(() =&gt; import("./Users"));
-const Settings = lazy(() =&gt; import("./Settings"));
-
-// потрібний код завантажується окремо</pre>
-    </div>
-    <p style="font-size: 16px; margin-top: 15px;"><b>Suspense</b> — fallback під час завантаження:</p>
-    <pre style="margin: 0; font-size: 10px; white-space: pre;">&lt;Suspense fallback={&lt;Spinner /&gt;}&gt;
+&lt;Suspense fallback=&#123;&lt;PageLoader /&gt;&#125;&gt;
   &lt;Routes&gt;...&lt;/Routes&gt;
-&lt;/Suspense&gt;
-// показує spinner поки chunk завантажується</pre>
+&lt;/Suspense&gt;</pre>
+        </div>
+        <div style="flex: 1;">
+            <p style="font-size: 15px;"><b>Data mode</b> — <code>route.lazy</code> завантажує route module.</p>
+            <pre style="margin: 0; font-size: 8px; white-space: pre;">const router = createBrowserRouter([
+  &#123;
+    path: "/settings",
+    lazy: async () =&gt; &#123;
+      const module = await import(
+        "./pages/Settings"
+      );
+      return &#123; Component: module.Settings &#125;;
+    &#125;
+  &#125;
+]);</pre>
+        </div>
+    </div>
+    <p style="font-size: 16px; margin-top: 10px;">
+        У Data mode <code>route.lazy</code> може завантажувати не лише компонент,
+        а й <code>loader</code> або <code>action</code>. Це дозволяє тримати UI та логіку маршруту разом.
+    </p>
 </section>
 
 <section class="slide">
-    <h2>Lazy Loading — приклад коду</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">import &#123; lazy, Suspense &#125; from "react";
-import &#123; BrowserRouter, Routes, Route &#125;
-  from "react-router";
+    <h2>Lazy Loading Routes — Data mode: компонент + loader</h2>
+    <pre style="margin: 0; font-size: 9px; white-space: pre;">const router = createBrowserRouter([
+  &#123;
+    path: "/users/:id",
+    lazy: async () =&gt; &#123;
+      const [page, data] = await Promise.all([
+        import("./pages/UserDetails"),
+        import("./pages/userLoader")
+      ]);
 
-// Lazy import — кожна сторінка окремий chunk
-const Home = lazy(() =&gt; import("./pages/Home"));
-const UserList = lazy(() =&gt; import("./pages/UserList"));
-const Settings = lazy(() =&gt; import("./pages/Settings"));
-
-function App() &#123;
-  return (
-    &lt;BrowserRouter&gt;
-      &lt;Suspense fallback=&#123;&lt;PageLoader /&gt;&#125;&gt;
-        &lt;Routes&gt;
-          &lt;Route path="/" element=&#123;&lt;Home /&gt;&#125; /&gt;
-          &lt;Route path="/users" element=&#123;&lt;UserList /&gt;&#125; /&gt;
-          &lt;Route path="/settings" element=&#123;&lt;Settings /&gt;&#125; /&gt;
-        &lt;/Routes&gt;
-      &lt;/Suspense&gt;
-    &lt;/BrowserRouter&gt;
-  );
-&#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><b>React.lazy</b> — динамічний <code>import()</code>,
-                який дозволяє завантажити компонент окремо від основного bundle.</p>
-            <p><b>Suspense</b> — показує fallback
-                під час завантаження chunk-а.</p>
-            <p><b>Переваги:</b></p>
-            <ul>
-                <li>Зменшення початкового bundle;</li>
-                <li>Швидший перший рендер;</li>
-                <li>Потрібний код можна завантажувати під час переходу;</li>
-                <li>Кешування chunk-ів браузером.</li>
-            </ul>
-            <p><b>Важливо:</b> <code>Suspense</code> обгортає
-                всі <code>lazy</code>-компоненти.</p>
-            <p>Vite/Webpack автоматично створюють chunks
-                для <code>import()</code>.</p>
-        </div>
+      return &#123;
+        Component: page.UserDetails,
+        loader: data.userLoader
+      &#125;;
+    &#125;
+  &#125;
+]);</pre>
+    <div style="font-size: 16px;">
+        <p><b>route.lazy</b> — code splitting для route configuration.</p>
+        <p>Router завантажує модуль перед відображенням цього маршруту.</p>
+        <p>Для Declarative mode використовується <code>React.lazy</code> + <code>Suspense</code>;
+            для Data mode — <code>route.lazy</code> + route data APIs.</p>
     </div>
 </section>
 
 <section class="slide">
-    <h2>404 сторінка — NotFound</h2>
-    <div style="display: flex; gap: 20px;">
-        <pre style="flex: 1; margin: 0; font-size: 10px; white-space: pre;">// Catch-all маршрут
-&lt;Routes&gt;
-  &lt;Route path="/" element=&#123;&lt;Home /&gt;&#125; /&gt;
-  &lt;Route path="/users" element=&#123;&lt;UserList /&gt;&#125; /&gt;
-  &lt;Route path="*" element=&#123;&lt;NotFound /&gt;&#125; /&gt;
-&lt;/Routes&gt;
-
-function NotFound() &#123;
-  return (
-    &lt;div&gt;
-      &lt;h1&gt;404 — Page Not Found&lt;/h1&gt;
-      &lt;Link to="/"&gt;Go home&lt;/Link&gt;
-    &lt;/div&gt;
-  );
-&#125;</pre>
-        <div style="flex: 1; font-size: 17px;">
-            <p><code>path="*"</code> — catch-all, спрацьовує
-                якщо жоден маршрут не збігся.</p>
-            <p>React Router використовує ranking маршрутів, тому catch-all не треба сприймати як «останній за порядком».</p>
-            <p>Може показувати:</p>
-            <ul>
-                <li>404 error message;</li>
-                <li>Посилання на головну;</li>
-                <li>Search field;</li>
-                <li>Популярні сторінки.</li>
-            </ul>
-            <p><b>Error Boundary per route</b> (data API):</p>
-            <p><code>errorElement</code> на Route —
-                для помилок loader/action.</p>
+    <h2>404 сторінка — Declarative та Data mode</h2>
+    <div style="display: flex; gap: 16px;">
+        <div style="flex: 1;">
+            <p style="font-size: 15px;"><b>Declarative mode</b>:</p>
+            <pre style="margin: 0; font-size: 8px; white-space: pre;">&lt;Route path="*" element=&#123;&lt;NotFound /&gt;&#125; /&gt;</pre>
         </div>
+        <div style="flex: 1;">
+            <p style="font-size: 15px;"><b>Data mode</b>:</p>
+            <pre style="margin: 0; font-size: 8px; white-space: pre;">const router = createBrowserRouter([
+  &#123; path: "/", Component: Home &#125;,
+  &#123; path: "/users", Component: UserList &#125;,
+  &#123; path: "*", Component: NotFound &#125;
+]);</pre>
+        </div>
+    </div>
+    <div style="font-size: 16px; margin-top: 12px;">
+        <p><code>path="*"</code> — catch-all: спрацьовує, якщо жоден більш специфічний маршрут не збігся.
+            React Router використовує ranking маршрутів.</p>
+        <p><b>Важливо:</b> це 404 <i>для UI</i>. У SPA сервер може все одно віддавати
+            <code>index.html</code> з HTTP <code>200</code>. Для справжнього HTTP <code>404</code>
+            потрібне налаштування сервера/CDN.</p>
     </div>
 </section>
 
