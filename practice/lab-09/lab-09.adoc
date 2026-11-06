@@ -234,7 +234,7 @@ Reducer лише змінює state, а `useEffect` відповідає за з
 
 Щоб було зрозуміло, як очікується поведінка механізму Undoable Delete, нижче наведено короткий візуальний приклад.
 
-image::assets/undoable-delete-demo.gif[Undoable Delete — візуальний приклад,width=720]
+image::assets/undoable-delete-example.gif[Undoable Delete — візуальний приклад,width=720]
 
 У прикладі показано два сценарії:
 
